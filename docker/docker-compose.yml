@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: leafload-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: leafload
+      POSTGRES_PASSWORD: leafloadpwd
+      POSTGRES_DB: leafload
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
