@@ -10,12 +10,11 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./login.scss'],
 })
 export class LoginComponent {
-  email = '';
+  username = '';
   password = '';
   error = '';
 
   onSubmit() {
-    // hier später Aufruf an Backend /auth/login
-    console.log(this.email, this.password);
+    console.log(this.username, this.password);
   }
 }

@@ -10,12 +10,12 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./login.scss'],
 })
 export class LoginComponent {
-  email = '';
+  username = '';
   password = '';
   error = '';
 
   onSubmit() {
-    console.log('Login:', this.email, this.password);
+    console.log('Login:', this.username, this.password);
     this.error = '';
   }
 }

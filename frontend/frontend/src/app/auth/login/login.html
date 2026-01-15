@@ -3,13 +3,13 @@
 
   <form #loginForm="ngForm" (ngSubmit)="onSubmit()" class="login-form">
     <label>
-      Email
+      Username
       <input
-        type="email"
-        name="email"
-        [(ngModel)]="email"
+        type="text"
+        name="username"
+        [(ngModel)]="username"
         required
-        autocomplete="email"
+        autocomplete="username"
       />
     </label>
 
