@@ -1,11 +1,21 @@
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
+  styleUrls: ['./login.scss'],
 })
-export class Login {
+export class LoginComponent {
+  email = '';
+  password = '';
+  error = '';
 
+  onSubmit() {
+    // hier später Aufruf an Backend /auth/login
+    console.log(this.email, this.password);
+  }
 }

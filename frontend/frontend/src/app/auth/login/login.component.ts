@@ -9,4 +9,13 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
 })
-export class LoginComponent {}
+export class LoginComponent {
+  email = '';
+  password = '';
+  error = '';
+
+  onSubmit() {
+    console.log('Login:', this.email, this.password);
+    this.error = '';
+  }
+}

@@ -1,1 +1,33 @@
-<p>login works!</p>
+<div class="login-container">
+  <h1>Leaf &amp; Load</h1>
+
+  <form #loginForm="ngForm" (ngSubmit)="onSubmit()" class="login-form">
+    <label>
+      Email
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        required
+        autocomplete="email"
+      />
+    </label>
+
+    <label>
+      Password
+      <input
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        required
+        autocomplete="current-password"
+      />
+    </label>
+
+    <button type="submit" [disabled]="loginForm.invalid">
+      Login
+    </button>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </form>
+</div>
