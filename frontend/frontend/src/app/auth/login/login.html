@@ -1,33 +1,171 @@
-<div class="login-container">
-  <h1>Leaf &amp; Load</h1>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Leaf & Load - Login</title>
 
-  <form #loginForm="ngForm" (ngSubmit)="onSubmit()" class="login-form">
-    <label>
-      Username
-      <input
-        type="text"
-        name="username"
-        [(ngModel)]="username"
-        required
-        autocomplete="username"
-      />
-    </label>
+  <style>
+    :root{
+      --light-sage: #A3B899;
+      --dark-sage: #667B68;
+    }
+    body {
+      padding: 0;
+      margin: auto;
+    }
+    /* HEADER */
+    header {
+      width: 100%;
+      background: var(--light-sage);
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
 
-    <label>
-      Password
-      <input
-        type="password"
-        name="password"
-        [(ngModel)]="password"
-        required
-        autocomplete="current-password"
-      />
-    </label>
+    #logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 20%;
+      object-fit: contain;
+    }
 
-    <button type="submit" [disabled]="loginForm.invalid">
-      Login
-    </button>
+    header button {
+      background-color: var(--dark-sage);
+      color: white;
+      padding: 10px 20px;
+      margin: 0 10px;
+    }
 
-    <p class="error" *ngIf="error">{{ error }}</p>
-  </form>
-</div>
+    /* MAIN */
+    main {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      height: min(70%);
+    }
+
+    main #background {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    main div img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: brightness(.75);
+    }
+
+    .login {
+      position: relative;
+      z-index: 1;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow:0 18px 30px black;
+      border:1px solid var(--dark-sage);
+      padding: 30px;
+      width: 50%;
+      margin: 0 500px;
+    }
+
+    label {
+      display: block;
+    }
+    input {
+      width: 100%;
+      border: 1px solid var(--dark-sage);
+      border-radius: 2px;
+      outline: none;
+      padding: 2px 12px;
+      margin: 12px 0;
+    }
+    input:focus {
+      border-color: var(--light-sage);
+    }
+    main button {
+      width: 100%;
+      border: var(--dark-sage);
+      border-radius: 2px;
+      background: var(--light-sage);
+      color: white;
+      cursor: pointer;
+      margin: 4px;
+      padding: 3px;
+    }
+
+    main a {
+      color: var(--dark-sage);
+      display: inline-block;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    /* FOOTER */
+    footer {
+      background-color: var(--dark-sage);
+      padding: 30px;
+      color: white;
+    }
+
+    #company_name {
+      font-size: 2em;
+    }
+
+    footer ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    footer ul a {
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="#"><img src="logo_white.png" alt="Logo" id="logo"/></a>
+    <nav>
+      <select>
+        <option selected disabled>Select Region</option>
+        <option>Klagenfurt</option>
+      </select>
+
+      <button>Login</button>
+      <button>Cart</button>
+    </nav>
+  </header>
+  <main>
+    <div id="background">
+    <img src="pexels-pixabay-54455.jpg"/>
+    </div>
+    
+    <div class="login">
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit()" class="login-form">
+        <label for="username">Username</label>
+        <input id="username" type="text" placeholder="username" required/>
+
+        <label for="password">Password</label>
+        <input id="password" type="text" placeholder="password" required/>
+
+        <button type="submit" [disabled]="loginForm.invalid">Login</button>
+
+        <a href="#"><p>Passwort vergessen?</p></a>
+      </form>
+    </div>
+    
+  </main>
+  <footer>
+    <p id="company_name">Leaf & Load</p>
+    <ul>
+      <a href=""><li>Facebook</li></a>
+      <a href=""><li>Instagram</li></a>
+      <a href=""><li>Youtube</li></a>
+    </ul>
+  </footer>
+</body>
