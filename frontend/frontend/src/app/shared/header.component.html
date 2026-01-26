@@ -18,7 +18,22 @@
         <option value="klagenfurt">Klagenfurt</option>              <!-- für jetzt, sollte aus der datenbank kommen!!!! -->
       </select>
 
-      <button type="button" routerLink="/auth/login">Login</button>
+      <ng-container *ngIf="state$ | async as s">
+        <!-- LOGIN BUTTON-->
+        <button
+          *ngIf="!s.isLoggedIn"
+          type="button"
+          routerLink="/auth/login"
+        >Login</button>
+
+        <!-- USER PROFILE-->
+        <button
+          *ngIf="s.isLoggedIn"
+          type="button"
+          routerLink="/account"
+        >{{ s.displayName }}</button>
+      </ng-container>
+
       <button type="button" routerLink="/cart">Cart</button>
     </nav>
 </header>
