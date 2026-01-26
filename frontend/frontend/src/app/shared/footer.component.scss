@@ -1,0 +1,23 @@
+:host {
+    display: block;
+}
+
+footer {
+    background-color: var(--dark-sage);
+    padding: 30px;
+    color: white;
+}
+
+#company_name {
+    font-size: 2em;
+}
+
+.social {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.social a {
+    color: white;
+}

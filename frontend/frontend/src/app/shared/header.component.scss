@@ -4,24 +4,24 @@
 
 header {
     width: 100%;
-      background: var(--light-sage);
-      padding: 18px 28px;
-      display: flex;
-      align-items: center;
-      gap: 30px;
+    background: var(--light-sage);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
 }
 
 #logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      width: 20%;
-      object-fit: contain;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 20%;
+    object-fit: contain;
 }
 
 header button {
-      background-color: var(--dark-sage);
-      color: white;
-      padding: 10px 20px;
-      margin: 0 10px;
+    background-color: var(--dark-sage);
+    color: white;
+    padding: 10px 20px;
+    margin: 0 10px;
 }
