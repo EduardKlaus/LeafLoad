@@ -7,7 +7,7 @@ import { FooterComponent } from './shared/footer.component';
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrls: ['./app.scss'],
 })
 export class App {
   protected readonly title = signal('frontend');
