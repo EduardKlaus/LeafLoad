@@ -1,0 +1,15 @@
+<header>
+    <a routerLink="/" aria-label="to homepage">
+        <img src="assets/logo_white.png" alt="Leaf & Load Logo" id="logo"/>
+    </a>
+
+    <nav aria-label="main navigation">
+      <select id="region" name="region" [(ngModel)]="region">
+        <option [ngValue]="null" disabled>Select Region</option>
+        <option value="klagenfurt">Klagenfurt</option>              <!-- für jetzt, sollte aus der datenbank kommen!!!! -->
+      </select>
+
+      <button type="button" routerLink="/auth/login">Login</button>
+      <button type="button" routerLink="/cart">Cart</button>
+    </nav>
+</header>
