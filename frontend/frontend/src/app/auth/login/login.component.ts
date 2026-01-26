@@ -1,21 +1,28 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule,NgForm } from '@angular/forms';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
 })
 export class LoginComponent {
-  username = '';
-  password = '';
+  model = {
+    username: '',
+    password: '',
+  };
+  
   error = '';
 
-  onSubmit() {
-    console.log('Login:', this.username, this.password);
+  onSubmit(form: NgForm) : void {
+    if (form.invalid) {
+      return;
+    }
+    console.log('Login:', this.model);
     this.error = '';
   }
 }
