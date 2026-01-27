@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String    // gehashter Passwort-String
-  name      String
-  role      UserRole  @default(CUSTOMER)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  email       String
+  password    String    // gehashter Passwort-String
+  name        String
+  role        UserRole  @default(CUSTOMER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   restaurants Restaurant[]
 }
@@ -29,8 +30,44 @@ model Restaurant {
   id          Int       @id @default(autoincrement())
   name        String
   address     String
+  imageUrl    String?     // in /assets/uploads/...
+
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     Int
+
+  menuItems   MenuItems[]
+  reviews     Review[]
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model MenuItems {
+  id            Int         @id @default(autoincrement())
+
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId  Int
+
+  title         String
+  description   String?
+  imageUrl      String?
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([restaurantId])
+}
+
+model Review {
+  id            Int         @id @default(autoincrement())
+
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId  Int
+
+  rating        Int         // 1-5 (validate in backend, check constraint per SQL)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([restaurantId])
 }

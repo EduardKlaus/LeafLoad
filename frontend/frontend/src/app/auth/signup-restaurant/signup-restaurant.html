@@ -1,0 +1,20 @@
+<main>
+    <h1>Restaurant Details</h1>
+
+    <form #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
+        <label for="restaurant_name">Restaurant Name</label>
+        <input id="restaurant_name" name="restaurant_name" type="text" [(ngModel)]="model.name" required/>
+
+        <label for="restaurant_address">Restaurant Address</label>
+        <input id="restaurant_address" name="restaurant_address" type="text" [(ngModel)]="model.address" required/>
+
+        <label for="imageUrl">Image URL</label>
+        <input id="imageUrl" name="imageUrl" type="text" [(ngModel)]="model.imageUrl" required/>
+
+        <p *ngIf="error" class="error">{{ error }}</p>
+
+        <button type="submit" [disabled]="f.invalid || loading">{{ loading ? 'Please wait...' : 'Finish' }}</button>
+
+        <a routerLink="/auth/login">Back to login</a>
+    </form>
+</main>
