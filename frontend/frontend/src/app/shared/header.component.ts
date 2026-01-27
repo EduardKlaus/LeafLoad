@@ -30,9 +30,4 @@ export class HeaderComponent {
     closeMenu() {
         this.menuOpen = false;
     }
-    
-    // placeholder for later
-    demoLoginCustomer() { this.auth.loginCustomer(); }
-    demoLoginOwner() { this.auth.loginOwner(); }
-    demoLogout() { this.auth.logout(); }
 }
