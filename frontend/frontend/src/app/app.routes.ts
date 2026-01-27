@@ -6,6 +6,7 @@ export const routes: Routes = [
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/signup', loadComponent: () => import('./auth/signup/signup.component').then(m => m.SignupComponent)},
   { path: 'auth/signup/restaurant', loadComponent: () => import('./auth/signup-restaurant/signup-restaurant.component').then(m => m.SignupRestaurantComponent)},
+  { path: 'impressum', loadComponent: () => import('./impressum/impressum.component').then(m => m.ImpressumComponent)},
 
   { path: '**', redirectTo: '' },
 ];

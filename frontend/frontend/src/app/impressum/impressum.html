@@ -1,0 +1,51 @@
+<main aria-labelledby="impressum-title">
+  <header class="legal-page__header">
+    <h1 id="impressum-title">Impressum</h1>
+    <p class="legal-page__hint">
+      Hinweis: Dieses Impressum dient ausschließlich Demonstrationszwecken im Rahmen eines Universitätsprojekts.
+    </p>
+  </header>
+
+  <article class="legal-card" aria-label="Anbieterinformationen">
+    <h2>Anbieter</h2>
+
+    <p class="legal-block">
+      <strong>Leaf &amp; Load GmbH</strong><br />
+      Universitätsstraße 65–67<br />
+      9020 Klagenfurt am Wörthersee<br />
+      Österreich
+    </p>
+
+    <h3>Vertretungsberechtigt</h3>
+    <p class="legal-block">
+      Stefanie Pirhofer<br />
+      Eduard Klaus
+    </p>
+
+    <h3>Kontakt</h3>
+    <ul class="legal-list">
+      <li>
+        E-Mail:
+        <a href="mailto:stpirhofer@edu.aau.at">stpirhofer@edu.aau.at</a>,
+        <a href="mailto:Eduard.Klaus@aau.at">Eduard.Klaus@aau.at</a>
+      </li>
+    </ul>
+
+    <h3>Unternehmensangaben</h3>
+    <ul class="legal-list">
+      <li>Rechtsform: GmbH (Projektangabe)</li>
+      <li>Firmenbuchnummer: nicht vorhanden (Universitätsprojekt)</li>
+      <li>UID-Nummer: nicht vorhanden (Universitätsprojekt)</li>
+      <li>Aufsichtsbehörde: nicht zutreffend</li>
+    </ul>
+
+    <h3>Unternehmensgegenstand</h3>
+    <p class="legal-block">
+      Online-Shop (Universitätsprojekt / Demonstrationszweck).
+    </p>
+  </article>
+
+  <footer class="legal-page__footer">
+    <p>Stand: {{ today | date:'longDate' }}</p>
+  </footer>
+</main>
