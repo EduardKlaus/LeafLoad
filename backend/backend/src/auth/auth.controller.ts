@@ -6,8 +6,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
-    const user = await this.authService.validateUser(body.email, body.password);
+  async login(@Body() body: { username: string; password: string }) {
+    const user = await this.authService.validateUser(body.username, body.password);
 
     // später: JWT-Token zurückgeben
     return {
@@ -15,5 +15,15 @@ export class AuthController {
       name: user.name,
       role: user.role,
     };
+  }
+
+  @Post('signup')
+  signup(@Body() body: { username: string; firstName: string; lastName: string; role: 'CUSTOMER' | 'RESTAURANT_OWNER' }) {
+    return this.auth.signup(body);
+  }
+
+  @Post('signup/restaurant')
+  signupRestaurant(@Body() body: { ownerId: number; name: string; address: string; imageUrl?: string }) {
+    return this.auth.createRestaurant(body);
   }
 }
