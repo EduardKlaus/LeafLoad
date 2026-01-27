@@ -2,26 +2,130 @@
     display: block;
 }
 
+// for complete header
 header {
     width: 100%;
     background: var(--light-sage);
     padding: 18px 28px;
     display: flex;
     align-items: center;
-    gap: 30px;
+    justify-content: space-between;
+    gap: 16px;
 }
 
+// logo & logo link part
+#logo-link {
+    display: inline-flex;
+    align-items: center;
+}
 #logo {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 250px;
     width: 20%;
     object-fit: contain;
 }
 
-header button {
+// desktop navigaiton
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+// dropdown menu - desktop
+header nav select {
+    padding: 8px, 10px;
+}
+// buttons nav - desktop
+header nav button {
     background-color: var(--dark-sage);
     color: white;
-    padding: 10px 20px;
-    margin: 0 10px;
+    padding: 10px 14px;
+    //margin: 0 10px;
+    border: 0;
+    cursor: pointer;
+}
+.nav--desktop {
+    display: flex;
+}
+
+// MOBILE VIEW -------------------------------------------------------------
+
+.burger {
+    display: none;
+}
+
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,.35);
+    z-index: 40;
+}
+
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(320px, 85vw);
+    height: 100%;
+    background-color: var(--light-sage);
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform .2s ease;
+    padding: 16px;
+    box-shadow: -12px 0 24px rgba(0,0,0,.25);
+}
+
+.drawer__open {
+    transform: translateX(0);
+}
+
+.drawer__closed {
+    background: transparent;
+    border: 0;
+    font-size: 22px;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+}
+
+.drawer__content {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.drawer__link {
+  display: block;
+  padding: 12px 10px;
+  background: rgba(255,255,255,.25);
+  text-decoration: none;
+  color: #0b0b0b;
+  border-radius: 6px;
+}
+
+@media (max-width: 900px) {
+  .nav--desktop { display: none; }
+  .burger {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 40px;
+    height: 36px;
+    justify-content: center;
+    align-items: center;
+    background: var(--dark-sage);
+    border: 0;
+    cursor: pointer;
+    margin-right: 30px;
+  }
+  .burger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: white;
+  }
 }

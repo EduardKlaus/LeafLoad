@@ -15,10 +15,20 @@ import { AuthService } from '../auth/auth.service';
 export class HeaderComponent {
     region: string | null = null;
 
+    menuOpen = false;
+
     constructor(private auth: AuthService) {}
 
     get state$() {
         return this.auth.state$;
+    }
+
+    toggleMenu() {
+        this.menuOpen = !this.menuOpen;
+    }
+
+    closeMenu() {
+        this.menuOpen = false;
     }
     
     // placeholder for later

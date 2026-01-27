@@ -3,7 +3,7 @@
 
     <form #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
         <select id="role" name="role" [(ngModel)]="model.role" required>
-            <option disabled selected hidden>Choose your Role</option>
+            <option [ngValue]="null" disabled selected hidden>Choose your Role</option>
             <option value="CUSTOMER">Customer</option>
             <option value="RESTAURANT_OWNER">Restaurant Owner</option>
         </select>
