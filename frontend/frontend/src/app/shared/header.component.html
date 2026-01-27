@@ -8,7 +8,7 @@
       <!-- OWNER BUTTON-->
        <ng-container *ngIf="state$ | async as s">
         <button
-          *ngIf="s.isLoggedIn && s.role === 'owner'"
+          *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'"
           type="button"
           routerLink="/owner/dashboard"
         >Restaurant Dashboard</button>
@@ -32,7 +32,7 @@
           *ngIf="s.isLoggedIn"
           type="button"
           routerLink="/account"
-        >{{ s.displayName }}</button>
+        >{{ s.username }}</button>
       </ng-container>
 
       <button type="button" routerLink="/cart">Cart</button>
@@ -54,9 +54,9 @@
           </select>
 
           <ng-container *ngIf="state$ | async as s">
-            <a *ngIf="s.isLoggedIn && s.role === 'owner'" class="drawer__link" routerLink="/owner/dashboard" (click)="closeMenu()">Restaurant Dashboard</a>
+            <a *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" class="drawer__link" routerLink="/owner/dashboard" (click)="closeMenu()">Restaurant Dashboard</a>
             <a *ngIf="!s.isLoggedIn" class="drawer__link" routerLink="/auth/login" (click)="closeMenu()">Login</a>
-            <a *ngIf="s.isLoggedIn" class="drawer__link" routerLink="/account" (click)="closeMenu()">{{ s.displayName }}</a>
+            <a *ngIf="s.isLoggedIn" class="drawer__link" routerLink="/account" (click)="closeMenu()">{{ s.username }}</a>
           </ng-container>
           <a class="drawer__link" routerLink="/cart" (click)="closeMenu()">Cart</a>
         </div>

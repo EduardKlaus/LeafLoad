@@ -1,33 +1,67 @@
-import { Injectable } from "@angular/core";
-import { readonly } from "@angular/forms/signals";
-import { BehaviorSubject } from "rxjs";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
-export type UserRole = 'guest' | 'customer' | 'owner';
+export type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
 export interface AuthState {
-    isLoggedIn: boolean;
-    role: UserRole;
-    displayName?: string;
+  isLoggedIn: boolean;
+  role: Role | null;
+  username: string | null;
+  displayName: string | null;
 }
+
+type LoginResponse = {
+  user: { username: string; role: Role; displayName?: string | null };
+};
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private readonly _state$ = new BehaviorSubject<AuthState>({
-        isLoggedIn: false,
-        role: 'guest',
-    })
+  private readonly _state$ = new BehaviorSubject<AuthState>({
+    isLoggedIn: false,
+    role: null,
+    username: null,
+    displayName: null,
+  });
 
-    readonly state$ = this._state$.asObservable();
 
-    // placeholder -> later replace with real backend & login
-    loginCustomer() : void {
-        this._state$.next({ isLoggedIn: true, role:'customer', displayName: 'Customer' });
+  readonly state$: Observable<AuthState> = this._state$.asObservable();
+  // state§ = this.authState.state$
+
+  constructor(private http: HttpClient) {
+    const raw = localStorage.getItem('auth_state');
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as AuthState;
+        this._state$.next(parsed);
+      } catch {/* ignore */}
     }
-    loginOwner() : void {
-        this._state$.next({ isLoggedIn: true, role:'owner', displayName: 'Owner' });
-    }
-    logout() : void {
-        this._state$.next({ isLoggedIn: false, role:'guest' });
-    }
+  }
+
+  login(username: string, password: string) {
+    return this.http
+      .post<LoginResponse>('/api/auth/login', { username, password })
+      .pipe(
+        tap((result) => {
+          const next: AuthState = {
+            isLoggedIn: true,
+            role: result.user.role,
+            username: result.user.username,
+            displayName: result.user.displayName ?? result.user.username,
+          };
+          this._state$.next(next);
+          localStorage.setItem('auth_state', JSON.stringify(next));
+        })
+      );
+  }
+
+  logout() {
+    this._state$.next({
+      isLoggedIn: false,
+      role: null,
+      username: null,
+      displayName: null,
+    });
+    localStorage.removeItem('auth_state');
+  }
 }
-
