@@ -29,8 +29,44 @@ model Restaurant {
   id          Int       @id @default(autoincrement())
   name        String
   address     String
+  imageUrl      String?     // in /uploads/...
+
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     Int
+
+  menuItems     MenuItems[]
+  reviews       Review[]
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model MenuItems {
+  id            Int         @id @default(autoincrement())
+
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId  Int
+
+  title         String
+  description   String?
+  imageUrl      String?
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([restaurantId])
+}
+
+model Review {
+  id            Int         @id @default(autoincrement())
+
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId  Int
+
+  rating        Int         // 1-5 (validate in backend, check constraint per SQL)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([restaurantId])
 }
