@@ -18,12 +18,28 @@ export class AuthController {
   }
 
   @Post('signup')
-  signup(@Body() body: { username: string; firstName: string; lastName: string; role: 'CUSTOMER' | 'RESTAURANT_OWNER' }) {
-    return this.auth.signup(body);
+  signup(
+      @Body() 
+      body: { 
+        username: string;
+        email: string;
+        firstName: string; 
+        lastName: string;
+        password: string;
+        role: 'CUSTOMER' | 'RESTAURANT_OWNER' 
+    }) {
+    return this.authService.signup(body);
   }
 
   @Post('signup/restaurant')
-  signupRestaurant(@Body() body: { ownerId: number; name: string; address: string; imageUrl?: string }) {
-    return this.auth.createRestaurant(body);
+  signupRestaurant(
+      @Body() 
+      body: { 
+        ownerId: number; 
+        name: string; 
+        address: string; 
+        imageUrl: string    // can't be null? fix for later
+    }) {
+    return this.authService.signupRestaurant(body);
   }
 }

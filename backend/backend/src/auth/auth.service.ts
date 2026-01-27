@@ -8,8 +8,8 @@ type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async validateUser(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+  async validateUser(username: string, password: string) {
+    const user = await this.prisma.user.findUnique({ where: { username } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const ok = await bcrypt.compare(password, user.password);
@@ -18,12 +18,16 @@ export class AuthService {
     return user; // später hier JWT erzeugen
   }
 
-  async signup(input: { username: string; name: string; password: string; role: Role}) {
-    const { username, name, password, role } = input;
+// user signup
+  async signup(input: { username: string; email: string; firstName: string; lastName: string; password: string; role: Role}) {
+    const { username, email, firstName, lastName, password, role } = input;
 
-    if (!username || !name || !password || !role) {
+    if (!username || !firstName || !lastName || !password || !role) {
       throw new BadRequestException('Missing field input.');
     }
+
+    const emailTrim = email.trim().toLowerCase();
+    const fullName = `${lastName.trim()} ${firstName.trim()}`; // "Lastname Firstname"
 
     const existing = await this.prisma.user.findUnique({ where: { username } });
     if (existing) {
@@ -35,7 +39,8 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         username,
-        name,
+        email: emailTrim,
+        name: fullName,
         password: hashed,
         role,
       },
@@ -45,7 +50,8 @@ export class AuthService {
     return { userId: user.id, role: user.role };
   }
 
-  async createRestaurant(input: {ownerId: number; name: string; address: string; imageUrl: string }) {
+// restaurant signup
+  async signupRestaurant(input: {ownerId: number; name: string; address: string; imageUrl: string }) {
     const { ownerId, name, address, imageUrl } = input;
 
     if (!ownerId || !name || !address) {

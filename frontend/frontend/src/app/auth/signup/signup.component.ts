@@ -17,6 +17,7 @@ export class SignupComponent {
     model = {
         role: 'CUSTOMER' as Role,
         username: '',
+        email: '',
         firstName: '',
         lastName: '',
         password: '',
@@ -47,6 +48,7 @@ export class SignupComponent {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         username: this.model.username,
+                        email: this.model.email,
                         firstName: this.model.firstName,
                         lastName: this.model.lastName,
                         password: this.model.password,
