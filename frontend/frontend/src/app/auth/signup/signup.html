@@ -1,0 +1,30 @@
+<main>
+    <h1>Welcome!</h1>
+
+    <form #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
+        <select id="role" name="role" [(ngModel)]="model.role" required>
+            <option disabled selected hidden>Choose your Role</option>
+            <option value="CUSTOMER">Customer</option>
+            <option value="RESTAURANT_OWNER">Restaurant Owner</option>
+        </select>
+
+        <label for="first_name">First Name</label>
+        <input id="first_name" name="first_name" type="text" [(ngModel)]="model.firstName" required/>
+
+        <label for="last_name">Last Name</label>
+        <input id="last_name" name="last_name" type="text" [(ngModel)]="model.lastName" required/>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" [(ngModel)]="model.password" required/>
+
+        <label for="repeatPassword">Repeat your Password</label>
+        <input id="repeatPassword" name="repeatPassword" type="password" [(ngModel)]="model.repeatPassword" required/>
+
+        <!-- in case of error (passwords aren't the same) -->
+         <p *ngIf="error" class="error">{{ error }}</p>
+
+         <button type="submit" [disabled]="f.invalid || loading">{{ loading ? 'Please wait...' : 'Next' }}</button>
+
+         <a routerLink="/auth/login">Back to login</a>
+    </form>
+</main>
