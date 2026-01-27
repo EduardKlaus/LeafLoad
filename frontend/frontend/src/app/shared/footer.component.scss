@@ -4,20 +4,64 @@
 
 footer {
     background-color: var(--dark-sage);
-    padding: 30px;
+    padding: 22px 28px;
     color: white;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
 }
 
 #company_name {
-    font-size: 2em;
+    font-size: 3em;
+    margin-bottom: 10px;
 }
 
+// social media links
 .social {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.social a {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(255,255,255,.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.social a svg {
+    fill: white;
+    width: 18px;
+    height: 18px;
 }
 
-.social a {
+// right side of footer
+.footer_right {
+    display: flex;
+    flex-direction: row;
+    gap: 18px;
+    justify-content: flex-end;
+    align-items: flex-end;
+    text-align: right;
+    margin-top: auto;
+}
+.footer_right a {
     color: white;
+}
+
+// MOBILE VIEW ------------------------------------------
+@media (max-width: 900px) {
+  footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .footer_right {
+    //flex-direction: column;
+    text-align: left;
+    justify-content: flex-start;
+  }
 }
