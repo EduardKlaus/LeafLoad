@@ -11,9 +11,15 @@ type UserProfile = {
   email: string;
   role: Role;
   createdOn: string; // ISO string
+
+  address?: string | null;
+  regionId?: number | null;
+  regionName?: string | null;
 };
 
-type EditableField = 'name' | 'email' | 'password';
+type EditableField = 'name' | 'email' | 'password' | 'address' | 'regionId';
+
+type Region = { id: number; name: string };
 
 @Component({
   selector: 'app-account',
@@ -39,10 +45,15 @@ export class AccountComponent implements OnInit {
     newPassword = '';
     newPasswordRepeat = '';
 
+    regions: Region[] = [];
+    editAddress = '';
+    editRegionId: number | null = null;
+
     constructor(private http: HttpClient) {}
 
     ngOnInit(): void {
         this.loadProfile();
+        this.loadRegions();
     }
 
     loadProfile(): void {
@@ -132,7 +143,7 @@ export class AccountComponent implements OnInit {
         });
     }
 
-    private patchAndUpdate(field: 'name' | 'email', value: string): void {
+    private patchAndUpdate(field: 'name' | 'email' | 'address', value: string): void {
         if (!this.profile) return;
 
         this.savingField = field;
@@ -161,5 +172,37 @@ export class AccountComponent implements OnInit {
         if (!this.profile) return;
         this.editName = this.profile.name;
         this.editEmail = this.profile.email;
+    }
+
+    loadRegions(): void {
+        this.http.get<Region[]>('/regions').subscribe({
+            next: (r) => (this.regions = r),
+            error: () => {} // optional
+        });
+    }
+
+    saveAddress(): void {
+        const value = this.editAddress.trim();
+        this.patchAndUpdate('address', value);
+    }
+
+    saveRegion(): void {
+        if (this.editRegionId == null) {
+            this.error = 'Bitte eine Region auswählen.';
+            return;
+        }
+
+        this.savingField = 'regionId';
+        this.http.patch(this.API_ME, { regionId: this.editRegionId }).subscribe({
+            next: () => {
+            this.savingField = null;
+            this.editField = null;
+            if (this.profile) this.profile.regionId = this.editRegionId;
+            },
+            error: (err) => {
+            this.savingField = null;
+            this.error = err?.error?.message ?? 'Region konnte nicht gespeichert werden.';
+            }
+        });
     }
 }

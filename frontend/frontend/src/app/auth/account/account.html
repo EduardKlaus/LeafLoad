@@ -38,6 +38,61 @@
                         </ng-container>
                     </div>
                 </div>
+                <!-- ADDRESS -->
+                <div class="row">
+                    <div class="row__label">Address</div>
+
+                    <div class="row__value" *ngIf="editField !== 'address'">{{ p.address }}</div>
+
+                    <div class="row__edit" *ngIf="editField === 'address'">
+                        <input type="text" [(ngModel)]="editAddress" autocomplete="address" />
+                    </div>
+
+                    <div class="row__actions">
+                        <button class="btn__ghost" *ngIf="editField !== 'address'" (click)="startEdit('address')">
+                            Edit
+                        </button>
+
+                        <ng-container *ngIf="editField === 'address'">
+                            <button (click)="saveAddress()" [disabled]="savingField === 'address'">
+                                Save
+                            </button>
+                            <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'address'">
+                                Cancel
+                            </button>
+                        </ng-container>
+                    </div>
+                </div>
+                <!-- REGION -->
+                <div class="row">
+                    <div class="row__label">Region</div>
+
+                    <div class="row__value" *ngIf="editField !== 'regionId'">
+                        {{ p.regionName ? p.regionName : '—' }}
+                    </div>
+
+                    <div class="row__edit" *ngIf="editField === 'regionId'">
+                        <select [(ngModel)]="editRegionId">
+                        <option [ngValue]="null" disabled>Select Region</option>
+                        <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
+                        </select>
+                    </div>
+
+                    <div class="row__actions">
+                        <button class="btn__ghost" *ngIf="editField !== 'regionId'" (click)="startEdit('regionId')">
+                        Edit
+                        </button>
+
+                        <ng-container *ngIf="editField === 'regionId'">
+                        <button (click)="saveRegion()" [disabled]="savingField === 'regionId'">
+                            Save
+                        </button>
+                        <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'regionId'">
+                            Cancel
+                        </button>
+                        </ng-container>
+                    </div>
+                </div>
                 <!-- ROLE -->
                 <div class="row">
                     <div class="row__label">Role</div>
@@ -101,6 +156,7 @@
                     <div class="row__label">Created on</div>
                     <div class="row__value">{{ p.createdOn | date:'mediumDate' }}</div>
                 </div>
+                
             </div>
         </ng-container>
     </section>

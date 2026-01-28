@@ -1,33 +1,82 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 
+type Region = { id: number; name: string };
+
 @Component({
-    selector: 'app-header',
-    standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
-    templateUrl: './header.component.html',
-    styleUrls: ['./header.component.scss'],
+  selector: 'app-header',
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule, HttpClientModule],
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
 })
+export class HeaderComponent implements OnInit {
+  menuOpen = false;
 
-export class HeaderComponent {
-    region: string | null = null;
+  regions: Region[] = [];
+  regionId: number | null = null;
 
-    menuOpen = false;
+  private readonly API_REGIONS = '/regions';
+  private readonly API_ME = '/account/me';
 
-    constructor(private auth: AuthService) {}
+  constructor(
+    private auth: AuthService,
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: object
+  ) {}
 
-    get state$() {
-        return this.auth.state$;
-    }
+  get state$() {
+    return this.auth.state$;
+  }
 
-    toggleMenu() {
-        this.menuOpen = !this.menuOpen;
-    }
+  ngOnInit(): void {
+    // Regions laden
+    this.http.get<Region[]>(this.API_REGIONS).subscribe({
+      next: (r) => (this.regions = r),
+      error: () => {
+        // optional: still fail silently
+      },
+    });
 
-    closeMenu() {
-        this.menuOpen = false;
-    }
+    // Region aus Profil übernehmen, sobald eingeloggt
+    this.auth.state$.subscribe((s: any) => {
+      // Erwartung: AuthState enthält regionId (wenn du es noch nicht drin hast, siehe Hinweis unten)
+      if (s?.isLoggedIn) {
+        this.regionId = s.regionId ?? null;
+      } else {
+        this.regionId = null;
+      }
+    });
+  }
+
+  onRegionChange(nextId: number | null): void {
+    this.regionId = nextId;
+
+    // nur speichern, wenn eingeloggt und eine Region gewählt
+    // und nur im Browser (SSR-sicher)
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (nextId == null) return;
+
+    this.http.patch(this.API_ME, { regionId: nextId }).subscribe({
+      next: () => {
+        // optional: du könntest hier auch AuthState aktualisieren, wenn du willst
+      },
+      error: () => {
+        // optional: revert oder Fehlermeldung
+      },
+    });
+  }
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu() {
+    this.menuOpen = false;
+  }
 }
