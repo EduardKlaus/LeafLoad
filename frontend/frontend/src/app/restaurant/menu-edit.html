@@ -1,0 +1,110 @@
+<main>
+  <section class="card">
+    <header class="card__header">
+      <h1>Edit Dish</h1>
+      <p class="muted" *ngIf="item">Restaurant: {{ item.restaurant?.name }}</p>
+    </header>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <p class="loading" *ngIf="isLoading">Loading…</p>
+
+    <ng-container *ngIf="!isLoading && item as it">
+      <div class="list">
+        <!-- NAME -->
+        <div class="row">
+          <div class="row__label">Dish Name</div>
+
+          <div class="row__value" *ngIf="editField !== 'title'">{{ it.title }}</div>
+
+          <div class="row__edit" *ngIf="editField === 'title'">
+            <input type="text" [(ngModel)]="editTitle" />
+          </div>
+
+          <div class="row__actions">
+            <button class="btn__ghost" *ngIf="editField !== 'title'" (click)="startEdit('title')">Edit</button>
+
+            <ng-container *ngIf="editField === 'title'">
+              <button (click)="save()" [disabled]="saving">Save</button>
+              <button class="btn__ghost" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="row">
+          <div class="row__label">Description</div>
+
+          <div class="row__value" *ngIf="editField !== 'description'">
+            {{ it.description ? it.description : '—' }}
+          </div>
+
+          <div class="row__edit" *ngIf="editField === 'description'">
+            <textarea [(ngModel)]="editDescription" rows="4"></textarea>
+            <p class="muted small">Can be empty.</p>
+          </div>
+
+          <div class="row__actions">
+            <button class="btn__ghost" *ngIf="editField !== 'description'" (click)="startEdit('description')">Edit</button>
+
+            <ng-container *ngIf="editField === 'description'">
+              <button (click)="save()" [disabled]="saving">Save</button>
+              <button class="btn__ghost" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- IMAGE URL -->
+        <div class="row">
+          <div class="row__label">Image URL</div>
+
+          <div class="row__value" *ngIf="editField !== 'imageUrl'">
+            {{ it.imageUrl ? it.imageUrl : '—' }}
+          </div>
+
+          <div class="row__edit" *ngIf="editField === 'imageUrl'">
+            <input type="text" [(ngModel)]="editImageUrl" placeholder="https://..." />
+            <p class="muted small">Can be empty.</p>
+          </div>
+
+          <div class="row__actions">
+            <button class="btn__ghost" *ngIf="editField !== 'imageUrl'" (click)="startEdit('imageUrl')">Edit</button>
+
+            <ng-container *ngIf="editField === 'imageUrl'">
+              <button (click)="save()" [disabled]="saving">Save</button>
+              <button class="btn__ghost" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- CATEGORY -->
+        <div class="row">
+          <div class="row__label">Category</div>
+
+          <div class="row__value" *ngIf="editField !== 'categoryId'">
+            {{
+              categories.find(x => x.id === it.categoryId)?.name
+                ? categories.find(x => x.id === it.categoryId)!.name
+                : 'Other'
+            }}
+          </div>
+
+          <div class="row__edit" *ngIf="editField === 'categoryId'">
+            <select [(ngModel)]="editCategoryId">
+              <option [ngValue]="null">Other</option>
+              <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+
+          <div class="row__actions">
+            <button class="btn__ghost" *ngIf="editField !== 'categoryId'" (click)="startEdit('categoryId')">Edit</button>
+
+            <ng-container *ngIf="editField === 'categoryId'">
+              <button (click)="save()" [disabled]="saving">Save</button>
+              <button class="btn__ghost" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+</main>

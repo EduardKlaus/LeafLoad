@@ -43,6 +43,7 @@ model Restaurant {
   id          Int       @id @default(autoincrement())
   name        String
   imageUrl    String?     // in /assets/uploads/...
+  description String?
 
   address     String
   regionId    Int?
