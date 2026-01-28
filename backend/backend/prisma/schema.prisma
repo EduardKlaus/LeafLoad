@@ -17,7 +17,12 @@ model User {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  address     String?
+  regionId    Int?
+  region      Region?   @relation(fields: [regionId], references: [id])
+
   restaurants Restaurant[]
+  orders      Order[]
 }
 
 enum UserRole {
@@ -25,18 +30,32 @@ enum UserRole {
   RESTAURANT_OWNER
 }
 
+model Region {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  users       User[]
+  restaurants Restaurant[]
+}
 
 model Restaurant {
   id          Int       @id @default(autoincrement())
   name        String
-  address     String
   imageUrl    String?     // in /assets/uploads/...
+  description String?
+
+  address     String
+  regionId    Int?
+  region      Region?   @relation(fields: [regionId], references: [id])
 
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     Int
 
   menuItems   MenuItems[]
   reviews     Review[]
+  categories  Category[]
+  orders      Order[]
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -48,14 +67,63 @@ model MenuItems {
   restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   restaurantId  Int
 
+  categoryId    Int?
+  category      Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   title         String
   description   String?
   imageUrl      String?
+  price         Decimal
 
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
+  orderItems    OrderItem[]
+
   @@index([restaurantId])
+  @@index([categoryId])
+}
+
+model Category {
+  id           Int        @id @default(autoincrement())
+  restaurantId Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  name        String
+  createdAt   DateTime   @default(now())
+
+  menuItems   MenuItems[]
+
+  @@index([restaurantId])
+}
+
+model Order {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  restaurantId Int
+  createdAt    DateTime   @default(now())
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  items        OrderItem[]
+
+  @@index([userId])
+  @@index([restaurantId])
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  menuItemId Int
+  quantity   Int      @default(1)
+
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  menuItem   MenuItems @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([menuItemId])
 }
 
 model Review {

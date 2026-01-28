@@ -1,0 +1,32 @@
+<section class="banner">
+    <div>
+        <h1>Bon Appetit!</h1>
+    </div>
+</section>
+
+<main>
+    <section class="restaurants">
+        <h2>Restaurants</h2>
+
+        <ng-container *ngIf="restaurants$ | async as restaurants; else loading">
+            <div class="grid">
+                <article class="card" *ngFor="let r of restaurants; trackBy: trackById"
+                    [routerLink]="['/restaurants', r.id]" style="cursor: pointer;">
+                    <div class="card__imageWrap">
+                        <img [src]="imgSrc(r)" [alt]="r.name" loading="lazy" />
+                    </div>
+                    <h3 class="card__title">{{ r.name }}</h3>
+                    <div class="card__rating" aria-hidden="true">☆ ☆ ☆ ☆ ☆</div>
+                </article>
+            </div>
+
+            <p class="empty" *ngIf="restaurants.length === 0">
+                Keine Restaurants gefunden.
+            </p>
+        </ng-container>
+
+        <ng-template #loading>
+            <p class="loading">Lade Restaurants…</p>
+        </ng-template>
+    </section>
+</main>
