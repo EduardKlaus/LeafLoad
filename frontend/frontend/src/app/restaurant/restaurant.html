@@ -1,0 +1,57 @@
+<main>
+    <div class="header">
+    <div class="left">
+      <h1>{{ restaurant.name }}</h1>
+      <div class="stars">★★★★★</div>
+      <p *ngIf="restaurant.description">{{ restaurant.description }}</p>
+    </div>
+
+    <div class="right">
+      <button *ngIf="isOwner" routerLink="/owner/restaurant/edit">Edit Info</button>
+      <button *ngIf="isOtherUser" (click)="rate(5)">Rate Restaurant</button>
+      <button *ngIf="!isLoggedIn" disabled>Rate Restaurant</button>
+
+      <p class="eta" *ngIf="isOtherUser">Estimated delivery: 30–40 min</p>
+    </div>
+  </div>
+
+  <img class="banner" [src]="restaurant.imageUrl || fallbackRestaurantImg"/>
+
+  <div class="categories sticky">
+    <span
+      *ngFor="let c of categories"
+      (click)="scrollTo('cat-' + c.id)"
+    >
+      {{ c.name }}
+    </span>
+    <span *ngIf="otherItems.length" (click)="scrollTo('cat-other')">
+      Other
+    </span>
+  </div>
+
+  <section *ngFor="let c of categories" [id]="'cat-' + c.id">
+    <h2>{{ c.name }}</h2>
+
+    <div *ngFor="let item of c.menuItems" class="item">
+      <img [src]="item.imageUrl || fallbackItemImg" />
+
+      <div class="info">
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.description }}</p>
+      </div>
+
+      <div class="actions">
+        <span class="price">€{{ item.price }}</span>
+
+        <button *ngIf="isOwner" (click)="deleteItem(item.id)">Delete</button>
+        <button *ngIf="isOtherUser">Add to cart</button>
+        <button *ngIf="!isLoggedIn" disabled>Add to cart</button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="otherItems.length" id="cat-other">
+    <h2>Other</h2>
+    <!-- gleiches Item-Layout -->
+  </section>
+</main>

@@ -10,6 +10,7 @@ export interface AuthState {
   role: Role | null;
   username: string | null;
   displayName: string | null;
+  userId: number | null;
 }
 
 type LoginResponse = {
@@ -25,6 +26,7 @@ export class AuthService {
     role: null,
     username: null,
     displayName: null,
+    userId: null,
   });
 
   readonly state$: Observable<AuthState> = this._state$.asObservable();
@@ -40,39 +42,58 @@ export class AuthService {
           const parsed = JSON.parse(raw) as AuthState;
           this._state$.next(parsed);
         } catch {
-          /* ignore */
+          /* ignore invalid storage */
         }
       }
     }
   }
 
-  login(username: string, password: string) {
-    return this.http.post<LoginResponse>('/auth/login', { username, password }).pipe(
-      tap((result) => {
-        const next: AuthState = {
-          isLoggedIn: true,
-          role: result.role,
-          username,
-          displayName: result.name ?? username,
-        };
-
-        this._state$.next(next);
-
-        // ✅ nur im Browser localStorage schreiben
-        if (isPlatformBrowser(this.platformId)) {
-          localStorage.setItem('auth_state', JSON.stringify(next));
-        }
-      })
-    );
+  /**
+   * 🔹 Snapshot des aktuellen Auth-States
+   * (für Rollen- & Owner-Checks)
+   */
+  currentState(): AuthState {
+    return this._state$.value;
   }
 
+  /**
+   * 🔹 Login
+   */
+  login(username: string, password: string) {
+    return this.http
+      .post<LoginResponse>('/auth/login', { username, password })
+      .pipe(
+        tap((result) => {
+          const next: AuthState = {
+            isLoggedIn: true,
+            role: result.role,
+            username,
+            displayName: result.name ?? username,
+            userId: result.id,
+          };
+
+          this._state$.next(next);
+
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('auth_state', JSON.stringify(next));
+          }
+        })
+      );
+  }
+
+  /**
+   * 🔹 Logout
+   */
   logout() {
-    this._state$.next({
+    const empty: AuthState = {
       isLoggedIn: false,
       role: null,
       username: null,
       displayName: null,
-    });
+      userId: null,
+    };
+
+    this._state$.next(empty);
 
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('auth_state');
