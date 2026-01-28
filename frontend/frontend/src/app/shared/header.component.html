@@ -5,8 +5,14 @@
 
     <!-- DESKTOP NAVIGATION -->
     <nav class="nav nav--desktop" aria-label="main navigation">
-      <!-- OWNER BUTTON-->
+      <!-- OWNER BUTTONS -->
        <ng-container *ngIf="state$ | async as s">
+        <button
+          *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'"
+          type="button"
+          routerLink="/owner/dashboard"
+        >See Orders</button>
+        
         <button
           *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'"
           type="button"
@@ -54,6 +60,7 @@
           </select>
 
           <ng-container *ngIf="state$ | async as s">
+            <a *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" class="drawer__link" routerLink="/owner/dashboard" (click)="closeMenu()">See Orders</a>
             <a *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" class="drawer__link" routerLink="/owner/dashboard" (click)="closeMenu()">Restaurant Dashboard</a>
             <a *ngIf="!s.isLoggedIn" class="drawer__link" routerLink="/auth/login" (click)="closeMenu()">Login</a>
             <a *ngIf="s.isLoggedIn" class="drawer__link" routerLink="/account" (click)="closeMenu()">{{ s.username }}</a>
