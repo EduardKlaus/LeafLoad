@@ -7,26 +7,15 @@
   <nav class="nav nav--desktop" aria-label="main navigation">
     <!-- OWNER BUTTONS -->
     <ng-container *ngIf="state$ | async as s">
-      <button
-        *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'"
-        type="button"
-        routerLink="/orders"
-      >See Orders</button>
+      <button *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" type="button" routerLink="/orders">See
+        Orders</button>
 
-      <button
-        *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'"
-        type="button"
-        routerLink="/owner/dashboard"
-      >Restaurant Dashboard</button>
+      <button *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" type="button"
+        [routerLink]="['/restaurants', s.restaurantId]">Restaurant Dashboard</button>
     </ng-container>
 
     <!-- REGION (DB) -->
-    <select
-      id="region"
-      name="region"
-      [(ngModel)]="regionId"
-      (ngModelChange)="onRegionChange($event)"
-    >
+    <select id="region" name="region" [(ngModel)]="regionId" (ngModelChange)="onRegionChange($event)">
       <option [ngValue]="null" disabled>Select Region</option>
       <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
     </select>
@@ -35,10 +24,16 @@
       <!-- LOGIN BUTTON -->
       <button *ngIf="!s.isLoggedIn" type="button" routerLink="/auth/login">Login</button>
 
-      <!-- USER PROFILE -->
-      <button *ngIf="s.isLoggedIn" type="button" routerLink="/account">
-        {{ s.username }}
-      </button>
+      <!-- USER PROFILE with Dropdown -->
+      <div *ngIf="s.isLoggedIn" class="user-dropdown">
+        <button type="button" class="user-dropdown__trigger">
+          {{ s.username }}
+        </button>
+        <div class="user-dropdown__menu">
+          <a routerLink="/account" class="user-dropdown__item">My Account</a>
+          <button type="button" class="user-dropdown__item" (click)="logout()">Logout</button>
+        </div>
+      </div>
     </ng-container>
 
     <button type="button" routerLink="/cart">Cart</button>
@@ -57,44 +52,24 @@
 
       <div class="drawer__content">
         <!-- REGION (DB) -->
-        <select
-          id="region-mobile"
-          name="region-mobile"
-          [(ngModel)]="regionId"
-          (ngModelChange)="onRegionChange($event)"
-        >
+        <select id="region-mobile" name="region-mobile" [(ngModel)]="regionId" (ngModelChange)="onRegionChange($event)">
           <option [ngValue]="null" disabled>Select Region</option>
           <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
         </select>
 
         <ng-container *ngIf="state$ | async as s">
-          <a
-            *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'"
-            class="drawer__link"
-            routerLink="/orders"
-            (click)="closeMenu()"
-          >See Orders</a>
+          <a *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" class="drawer__link" routerLink="/orders"
+            (click)="closeMenu()">See Orders</a>
 
-          <a
-            *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'"
-            class="drawer__link"
-            routerLink="/owner/dashboard"
-            (click)="closeMenu()"
-          >Restaurant Dashboard</a>
+          <a *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" class="drawer__link"
+            [routerLink]="['/restaurants', s.restaurantId]" (click)="closeMenu()">Restaurant Dashboard</a>
 
-          <a
-            *ngIf="!s.isLoggedIn"
-            class="drawer__link"
-            routerLink="/auth/login"
-            (click)="closeMenu()"
-          >Login</a>
+          <a *ngIf="!s.isLoggedIn" class="drawer__link" routerLink="/auth/login" (click)="closeMenu()">Login</a>
 
-          <a
-            *ngIf="s.isLoggedIn"
-            class="drawer__link"
-            routerLink="/account"
-            (click)="closeMenu()"
-          >{{ s.username }}</a>
+          <a *ngIf="s.isLoggedIn" class="drawer__link" routerLink="/account" (click)="closeMenu()">{{ s.username }}</a>
+
+          <button *ngIf="s.isLoggedIn" class="drawer__link drawer__logout" type="button"
+            (click)="logout(); closeMenu()">Logout</button>
         </ng-container>
 
         <a class="drawer__link" routerLink="/cart" (click)="closeMenu()">Cart</a>

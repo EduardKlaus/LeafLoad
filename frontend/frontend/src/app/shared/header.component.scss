@@ -18,6 +18,7 @@ header {
     display: inline-flex;
     align-items: center;
 }
+
 #logo {
     display: flex;
     align-items: center;
@@ -35,10 +36,12 @@ header {
     flex-wrap: nowrap;
     white-space: nowrap;
 }
+
 // dropdown menu - desktop
 header nav select {
     padding: 8px, 10px;
 }
+
 // buttons nav - desktop
 header nav button {
     background-color: var(--dark-sage);
@@ -48,8 +51,62 @@ header nav button {
     border: 0;
     cursor: pointer;
 }
+
 .nav--desktop {
     display: flex;
+}
+
+// User dropdown
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+
+    &__trigger {
+        background-color: var(--dark-sage);
+        color: white;
+        padding: 10px 14px;
+        border: 0;
+        cursor: pointer;
+    }
+
+    &__menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        min-width: 140px;
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        z-index: 100;
+        overflow: hidden;
+    }
+
+    &:hover &__menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    &__item {
+        display: block;
+        width: 100%;
+        padding: 10px 14px;
+        text-align: left;
+        background: transparent;
+        border: none;
+        color: #333;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 14px;
+
+        &:hover {
+            background: var(--light-sage);
+        }
+    }
 }
 
 // MOBILE VIEW -------------------------------------------------------------
@@ -61,7 +118,7 @@ header nav button {
 .backdrop {
     position: fixed;
     inset: 0;
-    background-color: rgba(0,0,0,.35);
+    background-color: rgba(0, 0, 0, .35);
     z-index: 40;
 }
 
@@ -76,7 +133,7 @@ header nav button {
     transform: translateX(100%);
     transition: transform .2s ease;
     padding: 16px;
-    box-shadow: -12px 0 24px rgba(0,0,0,.25);
+    box-shadow: -12px 0 24px rgba(0, 0, 0, .25);
 }
 
 .drawer__open {
@@ -93,39 +150,53 @@ header nav button {
 }
 
 .drawer__content {
-  display: grid;
-  gap: 12px;
-  margin-top: 10px;
+    display: grid;
+    gap: 12px;
+    margin-top: 10px;
 }
 
 .drawer__link {
-  display: block;
-  padding: 12px 10px;
-  background: rgba(255,255,255,.25);
-  text-decoration: none;
-  color: #0b0b0b;
-  border-radius: 6px;
+    display: block;
+    padding: 12px 10px;
+    background: rgba(255, 255, 255, .25);
+    text-decoration: none;
+    color: #0b0b0b;
+    border-radius: 6px;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+.drawer__logout {
+    background: rgba(200, 50, 50, 0.2);
+    color: #8b0000;
 }
 
 @media (max-width: 900px) {
-  .nav--desktop { display: none; }
-  .burger {
-    display: inline-flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 40px;
-    height: 36px;
-    justify-content: center;
-    align-items: center;
-    background: var(--dark-sage);
-    border: 0;
-    cursor: pointer;
-    margin-right: 30px;
-  }
-  .burger span {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background: white;
-  }
+    .nav--desktop {
+        display: none;
+    }
+
+    .burger {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 5px;
+        width: 40px;
+        height: 36px;
+        justify-content: center;
+        align-items: center;
+        background: var(--dark-sage);
+        border: 0;
+        cursor: pointer;
+        margin-right: 30px;
+    }
+
+    .burger span {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: white;
+    }
 }

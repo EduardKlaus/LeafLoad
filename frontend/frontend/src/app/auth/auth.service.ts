@@ -12,12 +12,14 @@ export interface AuthState {
   username: string | null;
   displayName: string | null;
   userId: number | null;
+  restaurantId: number | null;
 }
 
 type LoginResponse = {
   id: number;
   name: string;
   role: Role;
+  restaurantId: number | null;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -28,6 +30,7 @@ export class AuthService {
     username: null,
     displayName: null,
     userId: null,
+    restaurantId: null,
   });
 
   readonly state$: Observable<AuthState> = this._state$.asObservable();
@@ -42,11 +45,34 @@ export class AuthService {
         try {
           const parsed = JSON.parse(raw) as AuthState;
           this._state$.next(parsed);
+
+          // If user is logged in but restaurantId is missing, fetch it from server
+          if (parsed.isLoggedIn && parsed.role === 'RESTAURANT_OWNER' && parsed.restaurantId == null) {
+            this.refreshRestaurantId(parsed);
+          }
         } catch {
           /* ignore invalid storage */
         }
       }
     }
+  }
+
+  private refreshRestaurantId(currentState: AuthState) {
+    if (!currentState.userId) return;
+
+    const headers = { 'x-user-id': String(currentState.userId) };
+    this.http.get<{ restaurantId: number | null }>(`${environment.apiUrl}/account/me`, { headers }).subscribe({
+      next: (res) => {
+        if (res.restaurantId != null) {
+          const updated: AuthState = { ...currentState, restaurantId: res.restaurantId };
+          this._state$.next(updated);
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('auth_state', JSON.stringify(updated));
+          }
+        }
+      },
+      error: () => { /* ignore */ }
+    });
   }
 
   /**
@@ -71,6 +97,7 @@ export class AuthService {
             username,
             displayName: result.name ?? username,
             userId: result.id,
+            restaurantId: result.restaurantId,
           };
 
           this._state$.next(next);
@@ -92,6 +119,7 @@ export class AuthService {
       username: null,
       displayName: null,
       userId: null,
+      restaurantId: null,
     };
 
     this._state$.next(empty);

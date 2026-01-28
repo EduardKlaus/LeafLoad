@@ -15,6 +15,11 @@ export class RestaurantsController {
     return this.restaurantsService.getRestaurantDetails(+id);
   }
 
+  @Get(':id/edit')
+  getRestaurantEditData(@Param('id') id: string) {
+    return this.restaurantsService.getRestaurantEditData(+id);
+  }
+
   @Patch(':id')
   updateRestaurant(
     @Param('id') id: string,

@@ -7,7 +7,7 @@
     </div>
 
     <div class="right">
-      <button *ngIf="isOwner" routerLink="/owner/restaurant/edit">Edit Info</button>
+      <button *ngIf="isOwner" [routerLink]="['/restaurants', restaurant.id, 'edit']">Edit Info</button>
       <button *ngIf="isOtherUser" (click)="rate(5)">Rate Restaurant</button>
       <button *ngIf="!isLoggedIn" disabled>Rate Restaurant</button>
 
@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <img class="banner" [src]="restaurant.imageUrl || fallbackRestaurantImg" />
+  <img class="banner" [src]="restaurant.imageUrl || fallbackImg" />
 
   <div class="categories sticky">
     <span *ngFor="let c of categories" (click)="scrollTo('cat-' + c.id)">
@@ -30,7 +30,7 @@
     <h2>{{ c.name }}</h2>
 
     <div *ngFor="let item of c.menuItems" class="item">
-      <img [src]="item.imageUrl || fallbackItemImg" />
+      <img [src]="item.imageUrl || fallbackImg" />
 
       <div class="info">
         <h3>{{ item.title }}</h3>
@@ -41,7 +41,7 @@
         <span class="price">€{{ item.price }}</span>
 
         <button *ngIf="isOwner" (click)="deleteItem(item.id)">Delete</button>
-        <button *ngIf="isOtherUser">Add to cart</button>
+        <button *ngIf="isOtherUser" (click)="addToCart(item)">Add to cart</button>
         <button *ngIf="!isLoggedIn" disabled>Add to cart</button>
       </div>
     </div>

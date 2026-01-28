@@ -6,10 +6,18 @@ type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async validateUser(username: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { username } });
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      include: {
+        restaurants: {
+          select: { id: true },
+          take: 1,
+        },
+      },
+    });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const ok = await bcrypt.compare(password, user.password);
@@ -18,8 +26,8 @@ export class AuthService {
     return user; // später hier JWT erzeugen
   }
 
-// user signup
-  async signup(input: { username: string; email: string; firstName: string; lastName: string; password: string; role: Role}) {
+  // user signup
+  async signup(input: { username: string; email: string; firstName: string; lastName: string; password: string; role: Role }) {
     const { username, email, firstName, lastName, password, role } = input;
 
     if (!username || !firstName || !lastName || !password || !role) {
@@ -50,8 +58,8 @@ export class AuthService {
     return { userId: user.id, role: user.role };
   }
 
-// restaurant signup
-  async signupRestaurant(input: {ownerId: number; name: string; address: string; imageUrl: string }) {
+  // restaurant signup
+  async signupRestaurant(input: { ownerId: number; name: string; address: string; imageUrl: string }) {
     const { ownerId, name, address, imageUrl } = input;
 
     if (!ownerId || !name || !address) {

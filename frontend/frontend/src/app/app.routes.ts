@@ -20,5 +20,8 @@ export const routes: Routes = [
   // Account
   { path: 'account', loadComponent: () => import('./auth/account/account.component').then(m => m.AccountComponent) },
 
+  // Cart
+  { path: 'cart', loadComponent: () => import('./cart/cart.component').then(m => m.CartComponent) },
+
   { path: '**', redirectTo: '' },
 ];

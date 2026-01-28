@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
+import { CartService } from '../shared/cart.service';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -21,13 +22,13 @@ export class RestaurantComponent implements OnInit {
   isLoggedIn = false;
   isOtherUser = false;
 
-  readonly fallbackRestaurantImg = 'assets/pexels-pixabay-54455.jpg';
-  readonly fallbackItemImg = 'assets/pexels-ella-olsson-572949-1640773.jpg';
+  readonly fallbackImg = 'assets/fallback_image.png';
 
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private auth: AuthService,
+    private cart: CartService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -70,5 +71,17 @@ export class RestaurantComponent implements OnInit {
 
   rate(rating: number) {
     this.http.post(`${environment.apiUrl}/api/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
+  }
+
+  addToCart(item: any) {
+    this.cart.addItem({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      price: item.price,
+      imageUrl: item.imageUrl,
+      restaurantId: this.restaurant.id,
+      restaurantName: this.restaurant.name,
+    });
   }
 }

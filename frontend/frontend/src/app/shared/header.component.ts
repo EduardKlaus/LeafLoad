@@ -1,6 +1,6 @@
 import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
@@ -27,6 +27,7 @@ export class HeaderComponent implements OnInit {
   constructor(
     private auth: AuthService,
     private http: HttpClient,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: object
   ) { }
 
@@ -79,5 +80,10 @@ export class HeaderComponent implements OnInit {
 
   closeMenu() {
     this.menuOpen = false;
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 }
