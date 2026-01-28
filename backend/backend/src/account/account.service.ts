@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AccountService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getMe(userId: number) {
     const user = await this.prisma.user.findUnique({
@@ -15,6 +15,10 @@ export class AccountService {
         email: true,
         role: true,
         createdAt: true, // falls dein Feld anders heißt: anpassen
+        restaurants: {
+          select: { id: true },
+          take: 1,
+        },
       },
     });
 
@@ -26,6 +30,7 @@ export class AccountService {
       email: user.email,
       role: user.role,
       createdOn: user.createdAt, // Frontend erwartet createdOn
+      restaurantId: user.restaurants[0]?.id ?? null,
     };
   }
 

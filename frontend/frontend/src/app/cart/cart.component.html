@@ -1,0 +1,38 @@
+<main>
+  <h1>Your Cart</h1>
+
+  <div *ngIf="(cart.items$ | async)?.length === 0" class="empty">
+    <p>Your cart is empty</p>
+    <a routerLink="/">Browse restaurants</a>
+  </div>
+
+  <div class="cart-items">
+    <div *ngFor="let item of cart.items$ | async" class="cart-item">
+      <img [src]="item.imageUrl || fallbackImg" [alt]="item.title" />
+
+      <div class="info">
+        <h3>{{ item.title }}</h3>
+        <p class="description">{{ item.description }}</p>
+        <span class="restaurant">{{ item.restaurantName }}</span>
+      </div>
+
+      <div class="price">€{{ item.price.toFixed(2) }}</div>
+
+      <div class="quantity">
+        <button class="qty-btn" (click)="decrement(item)">−</button>
+        <span class="qty-value">{{ item.quantity }}</span>
+        <button class="qty-btn" (click)="increment(item)">+</button>
+      </div>
+
+      <div class="subtotal">€{{ (item.price * item.quantity).toFixed(2) }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="(cart.items$ | async)?.length" class="cart-footer">
+    <div class="total">
+      <span>Total:</span>
+      <strong>€{{ cart.getTotal().toFixed(2) }}</strong>
+    </div>
+    <button class="checkout-btn">Proceed to Checkout</button>
+  </div>
+</main>

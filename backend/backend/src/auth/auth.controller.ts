@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('login')
   async login(@Body() body: { username: string; password: string }) {
@@ -14,31 +14,32 @@ export class AuthController {
       id: user.id,
       name: user.name,
       role: user.role,
+      restaurantId: user.restaurants?.[0]?.id ?? null,
     };
   }
 
   @Post('signup')
   signup(
-      @Body() 
-      body: { 
-        username: string;
-        email: string;
-        firstName: string; 
-        lastName: string;
-        password: string;
-        role: 'CUSTOMER' | 'RESTAURANT_OWNER' 
+    @Body()
+    body: {
+      username: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      password: string;
+      role: 'CUSTOMER' | 'RESTAURANT_OWNER'
     }) {
     return this.authService.signup(body);
   }
 
   @Post('signup/restaurant')
   signupRestaurant(
-      @Body() 
-      body: { 
-        ownerId: number; 
-        name: string; 
-        address: string; 
-        imageUrl: string    // can't be null? fix for later
+    @Body()
+    body: {
+      ownerId: number;
+      name: string;
+      address: string;
+      imageUrl: string    // can't be null? fix for later
     }) {
     return this.authService.signupRestaurant(body);
   }
