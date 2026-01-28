@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
+import { environment } from '../../environments/environment';
 
 type Region = { id: number; name: string };
 
@@ -20,8 +21,8 @@ export class HeaderComponent implements OnInit {
   regions: Region[] = [];
   regionId: number | null = null;
 
-  private readonly API_REGIONS = '/regions';
-  private readonly API_ME = '/account/me';
+  private readonly API_REGIONS = `${environment.apiUrl}/regions`;
+  private readonly API_ME = `${environment.apiUrl}/account/me`;
 
   constructor(
     private auth: AuthService,

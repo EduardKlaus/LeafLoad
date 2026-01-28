@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 type Restaurant = {
   id: number;
@@ -25,7 +26,7 @@ export class HomeComponent implements OnInit {
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.restaurants$ = this.http.get<Restaurant[]>('/api/restaurants');
+    this.restaurants$ = this.http.get<Restaurant[]>(`${environment.apiUrl}/api/restaurants`);
   }
 
   imgSrc(r: Restaurant): string {

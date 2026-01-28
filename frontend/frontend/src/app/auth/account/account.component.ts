@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
@@ -29,7 +30,7 @@ type Region = { id: number; name: string };
     styleUrls: ['./account.scss'],
 })
 export class AccountComponent implements OnInit {
-    private readonly API_ME = '/account/me';
+    private readonly API_ME = `${environment.apiUrl}/account/me`;
 
     isLoading = false;
     error = '';
@@ -175,7 +176,7 @@ export class AccountComponent implements OnInit {
     }
 
     loadRegions(): void {
-        this.http.get<Region[]>('/regions').subscribe({
+        this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
             next: (r) => (this.regions = r),
             error: () => { } // optional
         });

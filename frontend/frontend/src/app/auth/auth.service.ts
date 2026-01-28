@@ -2,6 +2,7 @@ import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
@@ -61,7 +62,7 @@ export class AuthService {
    */
   login(username: string, password: string) {
     return this.http
-      .post<LoginResponse>('/auth/login', { username, password })
+      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, { username, password })
       .pipe(
         tap((result) => {
           const next: AuthState = {

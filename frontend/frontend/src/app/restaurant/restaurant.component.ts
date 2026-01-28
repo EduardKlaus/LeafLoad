@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   standalone: true,
@@ -39,7 +40,7 @@ export class RestaurantComponent implements OnInit {
 
   private loadRestaurant(id: number) {
     this.restaurant = null; // Reset while loading
-    this.http.get<any>(`/api/restaurants/${id}/details`).subscribe((res) => {
+    this.http.get<any>(`${environment.apiUrl}/api/restaurants/${id}/details`).subscribe((res) => {
       this.restaurant = res.restaurant;
       this.rating = res.rating;
       this.categories = res.restaurant.categories;
@@ -62,12 +63,12 @@ export class RestaurantComponent implements OnInit {
 
   deleteItem(id: number) {
     if (!confirm('Delete this item?')) return;
-    this.http.delete(`/api/restaurants/menu-items/${id}`).subscribe(() => {
+    this.http.delete(`${environment.apiUrl}/api/restaurants/menu-items/${id}`).subscribe(() => {
       location.reload();
     });
   }
 
   rate(rating: number) {
-    this.http.post(`/api/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
+    this.http.post(`${environment.apiUrl}/api/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
   }
 }

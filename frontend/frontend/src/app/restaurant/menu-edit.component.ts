@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 type Category = { id: number; name: string };
 
@@ -41,7 +42,7 @@ export class MenuItemEditComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.http.get<any>(`/api/restaurants/menu-items/${this.itemId}/edit`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/api/restaurants/menu-items/${this.itemId}/edit`).subscribe({
       next: (res) => {
         this.item = res;
         this.categories = res.restaurant?.categories ?? [];
@@ -91,7 +92,7 @@ export class MenuItemEditComponent implements OnInit {
     if (this.editField === 'categoryId') payload.categoryId = this.editCategoryId; // can be null -> Other
 
     this.saving = true;
-    this.http.patch<any>(`/api/restaurants/menu-items/${this.itemId}`, payload).subscribe({
+    this.http.patch<any>(`${environment.apiUrl}/api/restaurants/menu-items/${this.itemId}`, payload).subscribe({
       next: (updated) => {
         this.item = { ...this.item, ...updated };
         this.saving = false;
