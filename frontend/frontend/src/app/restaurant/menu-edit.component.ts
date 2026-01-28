@@ -30,7 +30,7 @@ export class MenuItemEditComponent implements OnInit {
 
   private itemId!: number;
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) {}
+  constructor(private route: ActivatedRoute, private http: HttpClient) { }
 
   ngOnInit(): void {
     this.itemId = Number(this.route.snapshot.paramMap.get('id'));
@@ -41,7 +41,7 @@ export class MenuItemEditComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.http.get<any>(`/restaurants/menu-items/${this.itemId}/edit`).subscribe({
+    this.http.get<any>(`/api/restaurants/menu-items/${this.itemId}/edit`).subscribe({
       next: (res) => {
         this.item = res;
         this.categories = res.restaurant?.categories ?? [];
@@ -91,7 +91,7 @@ export class MenuItemEditComponent implements OnInit {
     if (this.editField === 'categoryId') payload.categoryId = this.editCategoryId; // can be null -> Other
 
     this.saving = true;
-    this.http.patch<any>(`/restaurants/menu-items/${this.itemId}`, payload).subscribe({
+    this.http.patch<any>(`/api/restaurants/menu-items/${this.itemId}`, payload).subscribe({
       next: (updated) => {
         this.item = { ...this.item, ...updated };
         this.saving = false;
@@ -102,5 +102,11 @@ export class MenuItemEditComponent implements OnInit {
         this.error = err?.error?.message ?? 'Could not save changes.';
       },
     });
+  }
+
+  getCategoryName(categoryId: number | null): string {
+    if (categoryId === null) return 'Other';
+    const category = this.categories.find(c => c.id === categoryId);
+    return category?.name ?? 'Other';
   }
 }

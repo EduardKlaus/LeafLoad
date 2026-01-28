@@ -1,5 +1,5 @@
-<main>
-    <div class="header">
+<main *ngIf="restaurant">
+  <div class="header">
     <div class="left">
       <h1>{{ restaurant.name }}</h1>
       <div class="stars">★★★★★</div>
@@ -15,13 +15,10 @@
     </div>
   </div>
 
-  <img class="banner" [src]="restaurant.imageUrl || fallbackRestaurantImg"/>
+  <img class="banner" [src]="restaurant.imageUrl || fallbackRestaurantImg" />
 
   <div class="categories sticky">
-    <span
-      *ngFor="let c of categories"
-      (click)="scrollTo('cat-' + c.id)"
-    >
+    <span *ngFor="let c of categories" (click)="scrollTo('cat-' + c.id)">
       {{ c.name }}
     </span>
     <span *ngIf="otherItems.length" (click)="scrollTo('cat-other')">

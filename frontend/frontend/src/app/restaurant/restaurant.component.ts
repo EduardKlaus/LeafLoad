@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -26,13 +26,20 @@ export class RestaurantComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private auth: AuthService
-  ) {}
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.route.paramMap.subscribe(params => {
+      const id = Number(params.get('id'));
+      this.loadRestaurant(id);
+    });
+  }
 
-    this.http.get<any>(`/restaurants/${id}/details`).subscribe((res) => {
+  private loadRestaurant(id: number) {
+    this.restaurant = null; // Reset while loading
+    this.http.get<any>(`/api/restaurants/${id}/details`).subscribe((res) => {
       this.restaurant = res.restaurant;
       this.rating = res.rating;
       this.categories = res.restaurant.categories;
@@ -44,6 +51,8 @@ export class RestaurantComponent implements OnInit {
         state.role === 'RESTAURANT_OWNER' &&
         state.userId === this.restaurant.ownerId;
       this.isOtherUser = this.isLoggedIn && !this.isOwner;
+
+      this.cdr.detectChanges();
     });
   }
 
@@ -53,12 +62,12 @@ export class RestaurantComponent implements OnInit {
 
   deleteItem(id: number) {
     if (!confirm('Delete this item?')) return;
-    this.http.delete(`/restaurants/menu-items/${id}`).subscribe(() => {
+    this.http.delete(`/api/restaurants/menu-items/${id}`).subscribe(() => {
       location.reload();
     });
   }
 
   rate(rating: number) {
-    this.http.post(`/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
+    this.http.post(`/api/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
   }
 }

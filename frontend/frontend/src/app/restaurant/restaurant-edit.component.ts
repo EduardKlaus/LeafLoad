@@ -48,7 +48,7 @@ export class RestaurantEditComponent implements OnInit {
 
   private restaurantId!: number;
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) {}
+  constructor(private route: ActivatedRoute, private http: HttpClient) { }
 
   ngOnInit(): void {
     this.restaurantId = Number(this.route.snapshot.paramMap.get('id'));
@@ -59,7 +59,7 @@ export class RestaurantEditComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.http.get<RestaurantEditData>(`/restaurants/${this.restaurantId}/edit`).subscribe({
+    this.http.get<RestaurantEditData>(`/api/restaurants/${this.restaurantId}/edit`).subscribe({
       next: (r) => {
         this.restaurant = r;
         this.editDescription = r.description ?? '';
@@ -70,7 +70,7 @@ export class RestaurantEditComponent implements OnInit {
         // regions parallel laden
         this.http.get<Region[]>('/regions').subscribe({
           next: (regs) => (this.regions = regs),
-          error: () => {},
+          error: () => { },
         });
       },
       error: (err) => {
@@ -118,7 +118,7 @@ export class RestaurantEditComponent implements OnInit {
     this.savingField = this.editField ?? 'restaurant';
     this.error = '';
 
-    this.http.patch(`/restaurants/${this.restaurantId}`, payload).subscribe({
+    this.http.patch(`/api/restaurants/${this.restaurantId}`, payload).subscribe({
       next: (updated: any) => {
         // lokal updaten
         this.restaurant = {
@@ -145,7 +145,7 @@ export class RestaurantEditComponent implements OnInit {
     }
 
     this.savingField = 'addCategory';
-    this.http.post<Category>(`/restaurants/${this.restaurantId}/categories`, { name }).subscribe({
+    this.http.post<Category>(`/api/restaurants/${this.restaurantId}/categories`, { name }).subscribe({
       next: (cat) => {
         this.restaurant!.categories = [...this.restaurant!.categories, cat];
         this.newCategoryName = '';
@@ -177,7 +177,7 @@ export class RestaurantEditComponent implements OnInit {
     }
 
     this.savingCategoryId = catId;
-    this.http.patch<Category>(`/restaurants/categories/${catId}`, { name }).subscribe({
+    this.http.patch<Category>(`/api/restaurants/categories/${catId}`, { name }).subscribe({
       next: (updated) => {
         this.restaurant!.categories = this.restaurant!.categories.map((c) =>
           c.id === catId ? updated : c
@@ -199,7 +199,7 @@ export class RestaurantEditComponent implements OnInit {
     if (!ok) return;
 
     this.savingCategoryId = cat.id;
-    this.http.delete(`/restaurants/categories/${cat.id}`).subscribe({
+    this.http.delete(`/api/restaurants/categories/${cat.id}`).subscribe({
       next: () => {
         this.restaurant!.categories = this.restaurant!.categories.filter((c) => c.id !== cat.id);
         this.savingCategoryId = null;
@@ -209,5 +209,11 @@ export class RestaurantEditComponent implements OnInit {
         this.error = err?.error?.message ?? 'Could not delete category.';
       },
     });
+  }
+
+  getRegionName(regionId: number | null): string {
+    if (regionId === null) return '—';
+    const region = this.regions.find(r => r.id === regionId);
+    return region?.name ?? '—';
   }
 }

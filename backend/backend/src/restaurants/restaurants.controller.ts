@@ -1,9 +1,14 @@
 import { Patch, Controller, Get, Param, Post, Body, Delete } from '@nestjs/common';
 import { RestaurantsService } from './restaurants.service';
 
-@Controller('restaurants')
+@Controller('api/restaurants')
 export class RestaurantsController {
-  constructor(private readonly restaurantsService: RestaurantsService) {}
+  constructor(private readonly restaurantsService: RestaurantsService) { }
+
+  @Get()
+  getAllRestaurants() {
+    return this.restaurantsService.getAllRestaurants();
+  }
 
   @Get(':id/details')
   getRestaurantDetails(@Param('id') id: string) {

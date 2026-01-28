@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 
 type Restaurant = {
@@ -12,7 +13,7 @@ type Restaurant = {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
@@ -21,10 +22,10 @@ export class HomeComponent implements OnInit {
 
   readonly fallbackImage = 'assets/restaurant_fallback.jpg'; // if restaurant doesn't have an image
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.restaurants$ = this.http.get<Restaurant[]>('/restaurants'); // TODO: path anpassen
+    this.restaurants$ = this.http.get<Restaurant[]>('/api/restaurants');
   }
 
   imgSrc(r: Restaurant): string {

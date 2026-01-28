@@ -3,7 +3,25 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class RestaurantsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
+
+  async getAllRestaurants() {
+    const restaurants = await this.prisma.restaurant.findMany({
+      include: {
+        reviews: true,
+      },
+    });
+
+    return restaurants.map((restaurant) => ({
+      ...restaurant,
+      rating:
+        restaurant.reviews.length > 0
+          ? restaurant.reviews.reduce((a, r) => a + r.rating, 0) /
+          restaurant.reviews.length
+          : null,
+      reviews: undefined,
+    }));
+  }
 
   async getRestaurantDetails(restaurantId: number) {
     const restaurant = await this.prisma.restaurant.findUnique({
@@ -28,7 +46,7 @@ export class RestaurantsService {
     const rating =
       restaurant.reviews.length > 0
         ? restaurant.reviews.reduce((a, r) => a + r.rating, 0) /
-          restaurant.reviews.length
+        restaurant.reviews.length
         : null;
 
     return {

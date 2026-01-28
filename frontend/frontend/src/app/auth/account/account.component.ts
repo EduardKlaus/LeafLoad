@@ -6,15 +6,15 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
 type UserProfile = {
-  username: string;
-  name: string;
-  email: string;
-  role: Role;
-  createdOn: string; // ISO string
+    username: string;
+    name: string;
+    email: string;
+    role: Role;
+    createdOn: string; // ISO string
 
-  address?: string | null;
-  regionId?: number | null;
-  regionName?: string | null;
+    address?: string | null;
+    regionId?: number | null;
+    regionName?: string | null;
 };
 
 type EditableField = 'name' | 'email' | 'password' | 'address' | 'regionId';
@@ -22,11 +22,11 @@ type EditableField = 'name' | 'email' | 'password' | 'address' | 'regionId';
 type Region = { id: number; name: string };
 
 @Component({
-  selector: 'app-account',
-  standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
-  templateUrl: './account.html',
-  styleUrls: ['./account.scss'],
+    selector: 'app-account',
+    standalone: true,
+    imports: [CommonModule, FormsModule, HttpClientModule],
+    templateUrl: './account.html',
+    styleUrls: ['./account.scss'],
 })
 export class AccountComponent implements OnInit {
     private readonly API_ME = '/account/me';
@@ -49,7 +49,7 @@ export class AccountComponent implements OnInit {
     editAddress = '';
     editRegionId: number | null = null;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     ngOnInit(): void {
         this.loadProfile();
@@ -61,14 +61,14 @@ export class AccountComponent implements OnInit {
         this.error = '';
 
         this.http.get<UserProfile>(this.API_ME).subscribe({
-        next: (p) => {
-            this.profile = p;
-            this.resetEditBuffers();
-            this.isLoading = false;
-        },
-        error: (err) => {
-            this.isLoading = false;
-            this.error = err?.error?.message ?? 'Could not load Profile.';
+            next: (p) => {
+                this.profile = p;
+                this.resetEditBuffers();
+                this.isLoading = false;
+            },
+            error: (err) => {
+                this.isLoading = false;
+                this.error = err?.error?.message ?? 'Could not load Profile.';
             },
         });
     }
@@ -83,8 +83,8 @@ export class AccountComponent implements OnInit {
         if (field === 'email') this.editEmail = this.profile.email;
 
         if (field === 'password') {
-        this.newPassword = '';
-        this.newPasswordRepeat = '';
+            this.newPassword = '';
+            this.newPasswordRepeat = '';
         }
     }
 
@@ -98,8 +98,8 @@ export class AccountComponent implements OnInit {
         if (!this.profile) return;
         const value = this.editName.trim();
         if (!value) {
-        this.error = 'Field cannot be empty.';
-        return;
+            this.error = 'Field cannot be empty.';
+            return;
         }
         this.patchAndUpdate('name', value);
     }
@@ -108,12 +108,12 @@ export class AccountComponent implements OnInit {
         if (!this.profile) return;
         const value = this.editEmail.trim();
         if (!value) {
-        this.error = 'Field cannot be empty.';
-        return;
+            this.error = 'Field cannot be empty.';
+            return;
         }
         if (!value.includes('@')) {
-        this.error = 'Please enter a valid E-Mail-Address.';
-        return;
+            this.error = 'Please enter a valid E-Mail-Address.';
+            return;
         }
         this.patchAndUpdate('email', value);
     }
@@ -122,24 +122,24 @@ export class AccountComponent implements OnInit {
         if (!this.profile) return;
 
         if (this.newPassword !== this.newPasswordRepeat) {
-        this.error = 'Passwords do not match.';
-        return;
+            this.error = 'Passwords do not match.';
+            return;
         }
 
         this.savingField = 'password';
         this.error = '';
 
         this.http.patch(this.API_ME, { password: this.newPassword }).subscribe({
-        next: () => {
-            this.savingField = null;
-            this.editField = null;
-            this.newPassword = '';
-            this.newPasswordRepeat = '';
-        },
-        error: (err) => {
-            this.savingField = null;
-            this.error = err?.error?.message ?? 'Could not change password.';
-        },
+            next: () => {
+                this.savingField = null;
+                this.editField = null;
+                this.newPassword = '';
+                this.newPasswordRepeat = '';
+            },
+            error: (err) => {
+                this.savingField = null;
+                this.error = err?.error?.message ?? 'Could not change password.';
+            },
         });
     }
 
@@ -150,21 +150,21 @@ export class AccountComponent implements OnInit {
         this.error = '';
 
         this.http.patch<Partial<UserProfile>>(this.API_ME, { [field]: value }).subscribe({
-        next: (res) => {
-            // Update lokal (entweder Response-Values oder den gesendeten Value)
-            this.profile = {
-            ...this.profile!,
-            [field]: (res as any)?.[field] ?? value,
-            } as UserProfile;
+            next: (res) => {
+                // Update lokal (entweder Response-Values oder den gesendeten Value)
+                this.profile = {
+                    ...this.profile!,
+                    [field]: (res as any)?.[field] ?? value,
+                } as UserProfile;
 
-            this.savingField = null;
-            this.editField = null;
-            this.resetEditBuffers();
-        },
-        error: (err) => {
-            this.savingField = null;
-            this.error = err?.error?.message ?? 'Changes could not be saved.';
-        },
+                this.savingField = null;
+                this.editField = null;
+                this.resetEditBuffers();
+            },
+            error: (err) => {
+                this.savingField = null;
+                this.error = err?.error?.message ?? 'Changes could not be saved.';
+            },
         });
     }
 
@@ -177,7 +177,7 @@ export class AccountComponent implements OnInit {
     loadRegions(): void {
         this.http.get<Region[]>('/regions').subscribe({
             next: (r) => (this.regions = r),
-            error: () => {} // optional
+            error: () => { } // optional
         });
     }
 
@@ -195,13 +195,13 @@ export class AccountComponent implements OnInit {
         this.savingField = 'regionId';
         this.http.patch(this.API_ME, { regionId: this.editRegionId }).subscribe({
             next: () => {
-            this.savingField = null;
-            this.editField = null;
-            if (this.profile) this.profile.regionId = this.editRegionId;
+                this.savingField = null;
+                this.editField = null;
+                if (this.profile) this.profile.regionId = this.editRegionId;
             },
             error: (err) => {
-            this.savingField = null;
-            this.error = err?.error?.message ?? 'Region konnte nicht gespeichert werden.';
+                this.savingField = null;
+                this.error = err?.error?.message ?? 'Region konnte nicht gespeichert werden.';
             }
         });
     }

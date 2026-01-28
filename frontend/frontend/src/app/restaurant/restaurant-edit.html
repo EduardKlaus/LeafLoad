@@ -74,11 +74,7 @@
           <div class="row__label">Region</div>
 
           <div class="row__value" *ngIf="editField !== 'regionId'">
-            {{
-              regions.find(x => x.id === r.regionId)?.name
-                ? regions.find(x => x.id === r.regionId)!.name
-                : '—'
-            }}
+            {{ getRegionName(r.regionId) }}
           </div>
 
           <div class="row__edit" *ngIf="editField === 'regionId'">
@@ -108,11 +104,7 @@
           <h2>Categories</h2>
 
           <div class="addCategory">
-            <input
-              type="text"
-              [(ngModel)]="newCategoryName"
-              placeholder="New category name"
-            />
+            <input type="text" [(ngModel)]="newCategoryName" placeholder="New category name" />
             <button (click)="addCategory()" [disabled]="savingField === 'addCategory'">Add</button>
           </div>
         </div>
@@ -131,11 +123,7 @@
             <div class="row__actions">
               <ng-container *ngIf="editingCategoryId !== c.id">
                 <button class="btn__ghost" (click)="startEditCategory(c)">Edit</button>
-                <button
-                  class="btn__danger"
-                  (click)="deleteCategory(c)"
-                  [disabled]="savingCategoryId === c.id"
-                >
+                <button class="btn__danger" (click)="deleteCategory(c)" [disabled]="savingCategoryId === c.id">
                   Delete
                 </button>
               </ng-container>

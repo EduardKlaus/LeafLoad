@@ -44,7 +44,8 @@
           </div>
 
           <div class="row__actions">
-            <button class="btn__ghost" *ngIf="editField !== 'description'" (click)="startEdit('description')">Edit</button>
+            <button class="btn__ghost" *ngIf="editField !== 'description'"
+              (click)="startEdit('description')">Edit</button>
 
             <ng-container *ngIf="editField === 'description'">
               <button (click)="save()" [disabled]="saving">Save</button>
@@ -81,11 +82,7 @@
           <div class="row__label">Category</div>
 
           <div class="row__value" *ngIf="editField !== 'categoryId'">
-            {{
-              categories.find(x => x.id === it.categoryId)?.name
-                ? categories.find(x => x.id === it.categoryId)!.name
-                : 'Other'
-            }}
+            {{ getCategoryName(it.categoryId) }}
           </div>
 
           <div class="row__edit" *ngIf="editField === 'categoryId'">
@@ -96,7 +93,8 @@
           </div>
 
           <div class="row__actions">
-            <button class="btn__ghost" *ngIf="editField !== 'categoryId'" (click)="startEdit('categoryId')">Edit</button>
+            <button class="btn__ghost" *ngIf="editField !== 'categoryId'"
+              (click)="startEdit('categoryId')">Edit</button>
 
             <ng-container *ngIf="editField === 'categoryId'">
               <button (click)="save()" [disabled]="saving">Save</button>

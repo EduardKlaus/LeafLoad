@@ -27,7 +27,7 @@ export class HeaderComponent implements OnInit {
     private auth: AuthService,
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: object
-  ) {}
+  ) { }
 
   get state$() {
     return this.auth.state$;
