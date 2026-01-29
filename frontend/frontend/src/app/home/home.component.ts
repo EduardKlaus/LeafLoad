@@ -26,7 +26,7 @@ export class HomeComponent implements OnInit {
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.restaurants$ = this.http.get<Restaurant[]>(`${environment.apiUrl}/api/restaurants`);
+    this.restaurants$ = this.http.get<Restaurant[]>(`${environment.apiUrl}/restaurants`);
   }
 
   imgSrc(r: Restaurant): string {

@@ -41,7 +41,7 @@ export class RestaurantComponent implements OnInit {
 
   private loadRestaurant(id: number) {
     this.restaurant = null; // Reset while loading
-    this.http.get<any>(`${environment.apiUrl}/api/restaurants/${id}/details`).subscribe((res) => {
+    this.http.get<any>(`${environment.apiUrl}/restaurants/${id}/details`).subscribe((res) => {
       this.restaurant = res.restaurant;
       this.rating = res.rating;
       this.categories = res.restaurant.categories;
@@ -64,13 +64,13 @@ export class RestaurantComponent implements OnInit {
 
   deleteItem(id: number) {
     if (!confirm('Delete this item?')) return;
-    this.http.delete(`${environment.apiUrl}/api/restaurants/menu-items/${id}`).subscribe(() => {
+    this.http.delete(`${environment.apiUrl}/restaurants/menu-items/${id}`).subscribe(() => {
       location.reload();
     });
   }
 
   rate(rating: number) {
-    this.http.post(`${environment.apiUrl}/api/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
+    this.http.post(`${environment.apiUrl}/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
   }
 
   addToCart(item: any) {

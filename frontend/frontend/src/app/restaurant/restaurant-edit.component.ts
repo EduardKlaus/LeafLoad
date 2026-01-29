@@ -60,7 +60,7 @@ export class RestaurantEditComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.http.get<RestaurantEditData>(`${environment.apiUrl}/api/restaurants/${this.restaurantId}/edit`).subscribe({
+    this.http.get<RestaurantEditData>(`${environment.apiUrl}/restaurants/${this.restaurantId}/edit`).subscribe({
       next: (r) => {
         this.restaurant = r;
         this.editDescription = r.description ?? '';
@@ -119,7 +119,7 @@ export class RestaurantEditComponent implements OnInit {
     this.savingField = this.editField ?? 'restaurant';
     this.error = '';
 
-    this.http.patch(`${environment.apiUrl}/api/restaurants/${this.restaurantId}`, payload).subscribe({
+    this.http.patch(`${environment.apiUrl}/restaurants/${this.restaurantId}`, payload).subscribe({
       next: (updated: any) => {
         // lokal updaten
         this.restaurant = {
@@ -146,7 +146,7 @@ export class RestaurantEditComponent implements OnInit {
     }
 
     this.savingField = 'addCategory';
-    this.http.post<Category>(`${environment.apiUrl}/api/restaurants/${this.restaurantId}/categories`, { name }).subscribe({
+    this.http.post<Category>(`${environment.apiUrl}/restaurants/${this.restaurantId}/categories`, { name }).subscribe({
       next: (cat) => {
         this.restaurant!.categories = [...this.restaurant!.categories, cat];
         this.newCategoryName = '';
@@ -178,7 +178,7 @@ export class RestaurantEditComponent implements OnInit {
     }
 
     this.savingCategoryId = catId;
-    this.http.patch<Category>(`${environment.apiUrl}/api/restaurants/categories/${catId}`, { name }).subscribe({
+    this.http.patch<Category>(`${environment.apiUrl}/restaurants/categories/${catId}`, { name }).subscribe({
       next: (updated) => {
         this.restaurant!.categories = this.restaurant!.categories.map((c) =>
           c.id === catId ? updated : c
@@ -200,7 +200,7 @@ export class RestaurantEditComponent implements OnInit {
     if (!ok) return;
 
     this.savingCategoryId = cat.id;
-    this.http.delete(`${environment.apiUrl}/api/restaurants/categories/${cat.id}`).subscribe({
+    this.http.delete(`${environment.apiUrl}/restaurants/categories/${cat.id}`).subscribe({
       next: () => {
         this.restaurant!.categories = this.restaurant!.categories.filter((c) => c.id !== cat.id);
         this.savingCategoryId = null;

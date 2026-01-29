@@ -40,19 +40,22 @@ header {
 
 // 4. dropdown menu styling - desktop
 header nav select {
-    padding: 8px 12px;
-    height: 40px; // Gleiche Höhe wie Buttons
+    padding: 10px 16px;
+    /* mehr padding */
+    height: auto;
     border: 2px solid var(--dark-sage);
-    border-radius: 4px;
+    border-radius: 8px;
+    /* abgerundet */
     background: white;
     color: var(--dark-sage);
-    font-size: 0.9rem;
+    font-size: 1rem;
+    /* größerer text */
     cursor: pointer;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667B68' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 30px;
+    background-position: right 14px center;
+    padding-right: 34px;
 
     &:focus {
         outline: none;
@@ -64,10 +67,21 @@ header nav select {
 header nav button {
     background-color: var(--dark-sage);
     color: white;
-    padding: 10px 14px;
-    height: 40px; // Gleiche Höhe wie Dropdown
+    padding: 12px 18px;
+    /* größer */
+    height: auto;
+    border-radius: 8px;
+    /* abgerundet */
+    font-size: 1rem;
+    /* größerer text */
+    font-weight: 500;
     border: 0;
     cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        opacity: 0.9;
+    }
 }
 
 .nav--desktop {
@@ -123,6 +137,23 @@ header nav button {
 
         &:hover {
             background: var(--light-sage);
+        }
+
+        // Logout Button rot stylen (letztes Item im Dropdown)
+        &:last-child {
+            color: #b00020;
+            border: 1px solid #b00020;
+            /* Roter Rahmen */
+            border-radius: 4px;
+            /* leicht abgerundet */
+            background: white;
+            margin-top: 4px;
+            /* etwas Abstand zum rest */
+
+            &:hover {
+                background: rgba(176, 0, 32, 0.1);
+                /* Deutlicheres Rot beim Hover */
+            }
         }
     }
 }

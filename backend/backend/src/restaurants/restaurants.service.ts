@@ -1,9 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { OrderStatus } from '@prisma/client';
 
 @Injectable()
 export class RestaurantsService {
   constructor(private prisma: PrismaService) { }
+
 
   async getAllRestaurants() {
     const restaurants = await this.prisma.restaurant.findMany({
@@ -313,7 +315,7 @@ export class RestaurantsService {
       data: {
         userId,
         restaurantId,
-        status: 'PENDING',
+        status: OrderStatus.PENDING,
         items: {
           create: items.map((item) => ({
             menuItemId: item.menuItemId,

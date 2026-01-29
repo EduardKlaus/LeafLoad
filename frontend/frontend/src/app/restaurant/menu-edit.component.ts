@@ -61,7 +61,7 @@ export class MenuItemEditComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.http.get<any>(`${environment.apiUrl}/api/restaurants/menu-items/${this.itemId}/edit`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/restaurants/menu-items/${this.itemId}/edit`).subscribe({
       next: (res) => {
         this.item = res;
         this.categories = res.restaurant?.categories ?? [];
@@ -86,7 +86,7 @@ export class MenuItemEditComponent implements OnInit {
     if (!this.restaurantId) return;
 
     this.isLoading = true;
-    this.http.get<any>(`${environment.apiUrl}/api/restaurants/${this.restaurantId}/details`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/restaurants/${this.restaurantId}/details`).subscribe({
       next: (res) => {
         this.categories = res.restaurant?.categories ?? [];
         this.isLoading = false;
@@ -130,7 +130,7 @@ export class MenuItemEditComponent implements OnInit {
     if (this.editField === 'price') payload.price = this.editPrice;
 
     this.saving = true;
-    this.http.patch<any>(`${environment.apiUrl}/api/restaurants/menu-items/${this.itemId}`, payload).subscribe({
+    this.http.patch<any>(`${environment.apiUrl}/restaurants/menu-items/${this.itemId}`, payload).subscribe({
       next: (updated) => {
         this.item = { ...this.item, ...updated };
         this.saving = false;
@@ -163,7 +163,7 @@ export class MenuItemEditComponent implements OnInit {
     };
 
     this.saving = true;
-    this.http.post<any>(`${environment.apiUrl}/api/restaurants/menu-items`, payload).subscribe({
+    this.http.post<any>(`${environment.apiUrl}/restaurants/menu-items`, payload).subscribe({
       next: () => {
         this.saving = false;
         this.router.navigate(['/restaurants', this.restaurantId]);
