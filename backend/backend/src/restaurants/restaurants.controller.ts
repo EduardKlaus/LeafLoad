@@ -85,4 +85,17 @@ export class RestaurantsController {
   deleteCategory(@Param('categoryId') categoryId: string) {
     return this.restaurantsService.deleteCategory(+categoryId);
   }
+
+  @Get(':id/orders')
+  getOrdersForRestaurant(@Param('id') id: string) {
+    return this.restaurantsService.getOrdersForRestaurant(+id);
+  }
+
+  @Patch('orders/:orderId/status')
+  updateOrderStatus(
+    @Param('orderId') orderId: string,
+    @Body() body: { status: 'PREPARING' | 'DELIVERING' | 'COMPLETED' }
+  ) {
+    return this.restaurantsService.updateOrderStatus(+orderId, body.status);
+  }
 }

@@ -33,6 +33,21 @@
       <span>Total:</span>
       <strong>€{{ cart.getTotal().toFixed(2) }}</strong>
     </div>
-    <button class="checkout-btn">Proceed to Checkout</button>
+    <button 
+      class="checkout-btn" 
+      (click)="checkout()" 
+      [disabled]="isCheckingOut"
+    >
+      {{ isCheckingOut ? 'Processing...' : 'Proceed to Checkout' }}
+    </button>
+  </div>
+
+  <div *ngIf="checkoutSuccess" class="checkout-success">
+    <p>✓ Your order has been placed successfully!</p>
+    <a routerLink="/">Continue shopping</a>
+  </div>
+
+  <div *ngIf="checkoutError" class="checkout-error">
+    <p>{{ checkoutError }}</p>
   </div>
 </main>

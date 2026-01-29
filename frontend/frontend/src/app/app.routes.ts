@@ -15,7 +15,7 @@ export const routes: Routes = [
   { path: 'restaurants/:id', loadComponent: () => import('./restaurant/restaurant.component').then(m => m.RestaurantComponent) },
   { path: 'restaurants/:id/edit', loadComponent: () => import('./restaurant/restaurant-edit.component').then(m => m.RestaurantEditComponent) },
   { path: 'menu-items/:id/edit', loadComponent: () => import('./restaurant/menu-edit.component').then(m => m.MenuItemEditComponent) },
-  //{ path: 'orders', loadComponent: () => import('./orders/orders.component').then(m => m.OrdersComponent) },
+  { path: 'orders', loadComponent: () => import('./orders/orders.component').then(m => m.OrdersComponent) },
 
   // Account
   { path: 'account', loadComponent: () => import('./auth/account/account.component').then(m => m.AccountComponent) },

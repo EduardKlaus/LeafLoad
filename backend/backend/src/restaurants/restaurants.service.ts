@@ -216,4 +216,53 @@ export class RestaurantsService {
     await this.prisma.menuItems.delete({ where: { id: menuItemId } });
     return { ok: true };
   }
+
+  async getOrdersForRestaurant(restaurantId: number) {
+    const restaurant = await this.prisma.restaurant.findUnique({
+      where: { id: restaurantId },
+      select: { name: true },
+    });
+
+    if (!restaurant) throw new BadRequestException('Restaurant not found');
+
+    const orders = await this.prisma.order.findMany({
+      where: { restaurantId },
+      include: {
+        user: {
+          select: { name: true, address: true },
+        },
+        items: {
+          include: {
+            menuItem: {
+              select: { title: true },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      restaurantName: restaurant.name,
+      orders: orders.map((o) => ({
+        id: o.id,
+        status: o.status,
+        createdAt: o.createdAt,
+        userName: o.user.name,
+        userAddress: o.user.address ?? '',
+        items: o.items.map((item) => ({
+          title: item.menuItem.title,
+          quantity: item.quantity,
+        })),
+      })),
+    };
+  }
+
+  async updateOrderStatus(orderId: number, status: 'PREPARING' | 'DELIVERING' | 'COMPLETED') {
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+      select: { id: true, status: true },
+    });
+  }
 }
