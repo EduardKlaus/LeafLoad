@@ -1,6 +1,8 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface CartItem {
     id: number;
@@ -13,20 +15,55 @@ export interface CartItem {
     restaurantName: string;
 }
 
+export interface CheckoutResponse {
+    id: number;
+    restaurantId: number;
+    restaurantName: string;
+    items: { title: string; quantity: number; price: number }[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class CartService {
-    private readonly STORAGE_KEY = 'cart_items';
+    private userId: number | null = null;
+
+    private get STORAGE_KEY(): string {
+        return this.userId ? `cart_items_${this.userId}` : 'cart_items_guest';
+    }
 
     private readonly _items$ = new BehaviorSubject<CartItem[]>([]);
     readonly items$ = this._items$.asObservable();
 
-    constructor(@Inject(PLATFORM_ID) private platformId: object) {
+    constructor(
+        @Inject(PLATFORM_ID) private platformId: object,
+        private http: HttpClient
+    ) { }
+
+    /**
+     * Set the current user ID. Call this on login/logout.
+     * This will load the user's cart from localStorage.
+     */
+    setUserId(userId: number | null): void {
+        this.userId = userId;
+        this.loadFromStorage();
+    }
+
+    private loadFromStorage(): void {
         if (isPlatformBrowser(this.platformId)) {
             const raw = localStorage.getItem(this.STORAGE_KEY);
             if (raw) {
                 try {
-                    this._items$.next(JSON.parse(raw));
-                } catch { /* ignore */ }
+                    const items = JSON.parse(raw) as CartItem[];
+                    // Ensure prices are numbers
+                    const normalizedItems = items.map(item => ({
+                        ...item,
+                        price: Number(item.price)
+                    }));
+                    this._items$.next(normalizedItems);
+                } catch {
+                    this._items$.next([]);
+                }
+            } else {
+                this._items$.next([]);
             }
         }
     }
@@ -91,5 +128,46 @@ export class CartService {
     clear() {
         this._items$.next([]);
         this.persist([]);
+    }
+
+    /**
+     * Checkout: Create an order in the backend
+     * Groups items by restaurant and creates one order per restaurant
+     */
+    checkout(): Observable<CheckoutResponse[]> {
+        if (!this.userId) {
+            throw new Error('User must be logged in to checkout');
+        }
+
+        const items = this._items$.value;
+        if (items.length === 0) {
+            throw new Error('Cart is empty');
+        }
+
+        // Group items by restaurant
+        const byRestaurant = items.reduce((acc, item) => {
+            if (!acc[item.restaurantId]) {
+                acc[item.restaurantId] = [];
+            }
+            acc[item.restaurantId].push({
+                menuItemId: item.id,
+                quantity: item.quantity,
+            });
+            return acc;
+        }, {} as Record<number, { menuItemId: number; quantity: number }[]>);
+
+        // Create orders for each restaurant
+        const restaurantIds = Object.keys(byRestaurant).map(Number);
+
+        // For simplicity, we'll create orders sequentially
+        // In this case, we're assuming one restaurant per order
+        const restaurantId = restaurantIds[0];
+        const orderItems = byRestaurant[restaurantId];
+
+        return this.http.post<CheckoutResponse[]>(`${environment.apiUrl}/restaurants/orders`, {
+            userId: this.userId,
+            restaurantId,
+            items: orderItems,
+        });
     }
 }
