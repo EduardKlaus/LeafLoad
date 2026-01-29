@@ -1,0 +1,42 @@
+<section class="orders">
+    <h1>Orders for {{ restaurantName }}</h1>
+
+    <p *ngIf="loading">Loading orders...</p>
+
+    <p *ngIf="!loading && orders.length === 0" class="empty">
+        No orders yet.
+    </p>
+
+    <table *ngIf="!loading && orders.length > 0" class="orders-table">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Order</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let order of orders">
+                <td class="customer">
+                    <span class="name">{{ order.userName }}</span>
+                    <span class="address">{{ order.userAddress }}</span>
+                </td>
+                <td class="items">{{ formatItems(order.items) }}</td>
+                <td class="status-buttons">
+                    <button [disabled]="!canClick(order, 'PREPARING')" [class.active]="order.status === 'PREPARING'"
+                        (click)="setStatus(order, 'PREPARING')">
+                        Preparing
+                    </button>
+                    <button [disabled]="!canClick(order, 'DELIVERING')" [class.active]="order.status === 'DELIVERING'"
+                        (click)="setStatus(order, 'DELIVERING')">
+                        Delivering
+                    </button>
+                    <button [disabled]="!canClick(order, 'COMPLETED')" [class.active]="order.status === 'COMPLETED'"
+                        (click)="setStatus(order, 'COMPLETED')">
+                        Completed
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
