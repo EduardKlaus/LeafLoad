@@ -14,17 +14,20 @@
         <h3>{{ item.title }}</h3>
         <p class="description">{{ item.description }}</p>
         <span class="restaurant">{{ item.restaurantName }}</span>
+        <span class="unit-price">€{{ (+item.price).toFixed(2) }}</span>
       </div>
 
-      <div class="price">€{{ item.price.toFixed(2) }}</div>
+      <div class="subtotal mobile-only">€{{ (+item.price * item.quantity).toFixed(2) }}</div>
 
       <div class="quantity">
-        <button class="qty-btn" (click)="decrement(item)">−</button>
+        <button class="qty-btn" (click)="decrement(item)" [disabled]="item.quantity <= 1"
+          [class.disabled]="item.quantity <= 1">−</button>
         <span class="qty-value">{{ item.quantity }}</span>
         <button class="qty-btn" (click)="increment(item)">+</button>
+        <button class="remove-btn" (click)="removeItem(item)">Remove</button>
       </div>
 
-      <div class="subtotal">€{{ (item.price * item.quantity).toFixed(2) }}</div>
+      <div class="subtotal desktop-only">€{{ (+item.price * item.quantity).toFixed(2) }}</div>
     </div>
   </div>
 
@@ -33,11 +36,7 @@
       <span>Total:</span>
       <strong>€{{ cart.getTotal().toFixed(2) }}</strong>
     </div>
-    <button 
-      class="checkout-btn" 
-      (click)="checkout()" 
-      [disabled]="isCheckingOut"
-    >
+    <button class="checkout-btn" (click)="checkout()" [disabled]="isCheckingOut">
       {{ isCheckingOut ? 'Processing...' : 'Proceed to Checkout' }}
     </button>
   </div>

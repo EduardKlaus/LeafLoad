@@ -27,7 +27,13 @@ export class CartComponent {
     }
 
     decrement(item: CartItem) {
-        this.cart.updateQuantity(item.id, -1);
+        if (item.quantity > 1) {
+            this.cart.updateQuantity(item.id, -1);
+        }
+    }
+
+    removeItem(item: CartItem) {
+        this.cart.removeItem(item.id);
     }
 
     get isLoggedIn(): boolean {
