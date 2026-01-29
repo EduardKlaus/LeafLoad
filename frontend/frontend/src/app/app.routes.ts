@@ -14,6 +14,7 @@ export const routes: Routes = [
   // Restaurant & Edits & Orders
   { path: 'restaurants/:id', loadComponent: () => import('./restaurant/restaurant.component').then(m => m.RestaurantComponent) },
   { path: 'restaurants/:id/edit', loadComponent: () => import('./restaurant/restaurant-edit.component').then(m => m.RestaurantEditComponent) },
+  { path: 'menu-items/new', loadComponent: () => import('./restaurant/menu-edit.component').then(m => m.MenuItemEditComponent) },
   { path: 'menu-items/:id/edit', loadComponent: () => import('./restaurant/menu-edit.component').then(m => m.MenuItemEditComponent) },
   { path: 'orders', loadComponent: () => import('./orders/orders.component').then(m => m.OrdersComponent) },
 

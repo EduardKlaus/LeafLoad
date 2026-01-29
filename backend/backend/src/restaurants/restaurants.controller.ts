@@ -65,6 +65,21 @@ export class RestaurantsController {
     return this.restaurantsService.deleteMenuItem(+id);
   }
 
+  @Post('menu-items')
+  createMenuItem(
+    @Body()
+    body: {
+      restaurantId: number;
+      title: string;
+      description?: string | null;
+      imageUrl?: string | null;
+      categoryId?: number | null;
+      price: number;
+    }
+  ) {
+    return this.restaurantsService.createMenuItem(body);
+  }
+
   @Post(':id/categories')
   createCategory(
     @Param('id') id: string,

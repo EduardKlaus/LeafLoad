@@ -217,6 +217,39 @@ export class RestaurantsService {
     return { ok: true };
   }
 
+  async createMenuItem(body: {
+    restaurantId: number;
+    title: string;
+    description?: string | null;
+    imageUrl?: string | null;
+    categoryId?: number | null;
+    price: number;
+  }) {
+    const trimmedTitle = (body.title ?? '').trim();
+    if (!trimmedTitle) throw new BadRequestException('Title cannot be empty');
+    if (body.price <= 0) throw new BadRequestException('Price must be greater than 0');
+
+    return this.prisma.menuItems.create({
+      data: {
+        restaurantId: body.restaurantId,
+        title: trimmedTitle,
+        description: body.description ?? null,
+        imageUrl: body.imageUrl ?? null,
+        categoryId: body.categoryId ?? null,
+        price: body.price,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        price: true,
+        categoryId: true,
+        restaurantId: true,
+      },
+    });
+  }
+
   async getOrdersForRestaurant(restaurantId: number) {
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { id: restaurantId },

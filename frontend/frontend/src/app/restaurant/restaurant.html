@@ -27,7 +27,11 @@
   </div>
 
   <section *ngFor="let c of categories" [id]="'cat-' + c.id">
-    <h2>{{ c.name }}</h2>
+    <div class="category-header">
+      <h2>{{ c.name }}</h2>
+      <button *ngIf="isOwner" class="add-btn" [routerLink]="['/menu-items', 'new']"
+        [queryParams]="{restaurantId: restaurant.id, categoryId: c.id}">+ Add Item</button>
+    </div>
 
     <div *ngFor="let item of c.menuItems" class="item">
       <img [src]="item.imageUrl || fallbackImg" />
@@ -40,6 +44,7 @@
       <div class="actions">
         <span class="price">€{{ item.price }}</span>
 
+        <button *ngIf="isOwner" [routerLink]="['/menu-items', item.id, 'edit']">Edit</button>
         <button *ngIf="isOwner" (click)="deleteItem(item.id)">Delete</button>
         <button *ngIf="isOtherUser" (click)="addToCart(item)">Add to cart</button>
         <button *ngIf="!isLoggedIn" disabled>Add to cart</button>

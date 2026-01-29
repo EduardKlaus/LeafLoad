@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
@@ -20,22 +20,41 @@ export class MenuItemEditComponent implements OnInit {
 
   isLoading = false;
   error = '';
+  isCreateMode = false;
 
-  editField: 'title' | 'description' | 'imageUrl' | 'categoryId' | null = null;
+  editField: 'title' | 'description' | 'imageUrl' | 'categoryId' | 'price' | null = null;
   saving = false;
 
   editTitle = '';
   editDescription = '';
   editImageUrl = '';
   editCategoryId: number | null = null;
+  editPrice = 0;
 
-  private itemId!: number;
+  private itemId: number | null = null;
+  private restaurantId: number | null = null;
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) { }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient
+  ) { }
 
   ngOnInit(): void {
-    this.itemId = Number(this.route.snapshot.paramMap.get('id'));
-    this.load();
+    const idParam = this.route.snapshot.paramMap.get('id');
+
+    if (idParam) {
+      // Edit mode
+      this.itemId = Number(idParam);
+      this.isCreateMode = false;
+      this.load();
+    } else {
+      // Create mode
+      this.isCreateMode = true;
+      this.restaurantId = Number(this.route.snapshot.queryParamMap.get('restaurantId'));
+      this.editCategoryId = Number(this.route.snapshot.queryParamMap.get('categoryId')) || null;
+      this.loadCategoriesForCreate();
+    }
   }
 
   load(): void {
@@ -46,11 +65,13 @@ export class MenuItemEditComponent implements OnInit {
       next: (res) => {
         this.item = res;
         this.categories = res.restaurant?.categories ?? [];
+        this.restaurantId = res.restaurantId;
 
         this.editTitle = res.title ?? '';
         this.editDescription = res.description ?? '';
         this.editImageUrl = res.imageUrl ?? '';
         this.editCategoryId = res.categoryId ?? null;
+        this.editPrice = res.price ?? 0;
 
         this.isLoading = false;
       },
@@ -61,7 +82,22 @@ export class MenuItemEditComponent implements OnInit {
     });
   }
 
-  startEdit(field: 'title' | 'description' | 'imageUrl' | 'categoryId') {
+  loadCategoriesForCreate(): void {
+    if (!this.restaurantId) return;
+
+    this.isLoading = true;
+    this.http.get<any>(`${environment.apiUrl}/api/restaurants/${this.restaurantId}/details`).subscribe({
+      next: (res) => {
+        this.categories = res.restaurant?.categories ?? [];
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  startEdit(field: 'title' | 'description' | 'imageUrl' | 'categoryId' | 'price') {
     this.error = '';
     this.editField = field;
   }
@@ -75,6 +111,7 @@ export class MenuItemEditComponent implements OnInit {
     this.editDescription = this.item.description ?? '';
     this.editImageUrl = this.item.imageUrl ?? '';
     this.editCategoryId = this.item.categoryId ?? null;
+    this.editPrice = this.item.price ?? 0;
   }
 
   save() {
@@ -90,6 +127,7 @@ export class MenuItemEditComponent implements OnInit {
     if (this.editField === 'description') payload.description = this.editDescription; // can be empty
     if (this.editField === 'imageUrl') payload.imageUrl = this.editImageUrl; // can be empty
     if (this.editField === 'categoryId') payload.categoryId = this.editCategoryId; // can be null -> Other
+    if (this.editField === 'price') payload.price = this.editPrice;
 
     this.saving = true;
     this.http.patch<any>(`${environment.apiUrl}/api/restaurants/menu-items/${this.itemId}`, payload).subscribe({
@@ -101,6 +139,38 @@ export class MenuItemEditComponent implements OnInit {
       error: (err) => {
         this.saving = false;
         this.error = err?.error?.message ?? 'Could not save changes.';
+      },
+    });
+  }
+
+  createItem() {
+    if (!this.editTitle.trim()) {
+      this.error = 'Dish name cannot be empty.';
+      return;
+    }
+    if (this.editPrice <= 0) {
+      this.error = 'Price must be greater than 0.';
+      return;
+    }
+
+    const payload = {
+      restaurantId: this.restaurantId,
+      title: this.editTitle,
+      description: this.editDescription,
+      imageUrl: this.editImageUrl,
+      categoryId: this.editCategoryId,
+      price: this.editPrice,
+    };
+
+    this.saving = true;
+    this.http.post<any>(`${environment.apiUrl}/api/restaurants/menu-items`, payload).subscribe({
+      next: () => {
+        this.saving = false;
+        this.router.navigate(['/restaurants', this.restaurantId]);
+      },
+      error: (err) => {
+        this.saving = false;
+        this.error = err?.error?.message ?? 'Could not create item.';
       },
     });
   }

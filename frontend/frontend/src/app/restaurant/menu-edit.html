@@ -1,14 +1,62 @@
 <main>
   <section class="card">
     <header class="card__header">
-      <h1>Edit Dish</h1>
+      <h1>{{ isCreateMode ? 'New Dish' : 'Edit Dish' }}</h1>
       <p class="muted" *ngIf="item">Restaurant: {{ item.restaurant?.name }}</p>
     </header>
 
     <p class="error" *ngIf="error">{{ error }}</p>
     <p class="loading" *ngIf="isLoading">Loading…</p>
 
-    <ng-container *ngIf="!isLoading && item as it">
+    <!-- CREATE MODE -->
+    <ng-container *ngIf="isCreateMode && !isLoading">
+      <div class="list">
+        <div class="row">
+          <div class="row__label">Dish Name *</div>
+          <div class="row__edit">
+            <input type="text" [(ngModel)]="editTitle" placeholder="e.g. Wiener Schnitzel" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row__label">Description</div>
+          <div class="row__edit">
+            <textarea [(ngModel)]="editDescription" rows="3" placeholder="Optional description..."></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row__label">Price (€) *</div>
+          <div class="row__edit">
+            <input type="number" [(ngModel)]="editPrice" min="0" step="0.01" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row__label">Image URL</div>
+          <div class="row__edit">
+            <input type="text" [(ngModel)]="editImageUrl" placeholder="https://..." />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row__label">Category</div>
+          <div class="row__edit">
+            <select [(ngModel)]="editCategoryId">
+              <option [ngValue]="null">Other</option>
+              <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button (click)="createItem()" [disabled]="saving">{{ saving ? 'Creating...' : 'Create Dish' }}</button>
+      </div>
+    </ng-container>
+
+    <!-- EDIT MODE -->
+    <ng-container *ngIf="!isCreateMode && !isLoading && item as it">
       <div class="list">
         <!-- NAME -->
         <div class="row">
@@ -48,6 +96,26 @@
               (click)="startEdit('description')">Edit</button>
 
             <ng-container *ngIf="editField === 'description'">
+              <button (click)="save()" [disabled]="saving">Save</button>
+              <button class="btn__ghost" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- PRICE -->
+        <div class="row">
+          <div class="row__label">Price</div>
+
+          <div class="row__value" *ngIf="editField !== 'price'">€{{ it.price }}</div>
+
+          <div class="row__edit" *ngIf="editField === 'price'">
+            <input type="number" [(ngModel)]="editPrice" min="0" step="0.01" />
+          </div>
+
+          <div class="row__actions">
+            <button class="btn__ghost" *ngIf="editField !== 'price'" (click)="startEdit('price')">Edit</button>
+
+            <ng-container *ngIf="editField === 'price'">
               <button (click)="save()" [disabled]="saving">Save</button>
               <button class="btn__ghost" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
             </ng-container>
