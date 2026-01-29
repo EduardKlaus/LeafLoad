@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../auth.service';
+import { Subscription, filter, take, switchMap } from 'rxjs';
 
 type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
@@ -25,12 +27,13 @@ type Region = { id: number; name: string };
 @Component({
     selector: 'app-account',
     standalone: true,
-    imports: [CommonModule, FormsModule, HttpClientModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './account.html',
     styleUrls: ['./account.scss'],
 })
-export class AccountComponent implements OnInit {
+export class AccountComponent implements OnInit, OnDestroy {
     private readonly API_ME = `${environment.apiUrl}/account/me`;
+    private authSub?: Subscription;
 
     isLoading = false;
     error = '';
@@ -50,11 +53,28 @@ export class AccountComponent implements OnInit {
     editAddress = '';
     editRegionId: number | null = null;
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private authService: AuthService
+    ) { }
 
     ngOnInit(): void {
-        this.loadProfile();
+        // Wait for auth to be ready (localStorage loaded), then check if logged in
+        this.authSub = this.authService.authReady$.pipe(
+            take(1),
+            switchMap(() => this.authService.state$.pipe(
+                filter(state => state.isLoggedIn && state.userId != null),
+                take(1)
+            ))
+        ).subscribe(() => {
+            this.loadProfile();
+        });
+
         this.loadRegions();
+    }
+
+    ngOnDestroy(): void {
+        this.authSub?.unsubscribe();
     }
 
     loadProfile(): void {

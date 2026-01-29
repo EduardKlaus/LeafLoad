@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { environment } from '../../environments/environment';
@@ -23,7 +23,7 @@ type OrdersResponse = {
 @Component({
     selector: 'app-orders',
     standalone: true,
-    imports: [CommonModule, HttpClientModule, RouterModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './orders.component.html',
     styleUrls: ['./orders.component.scss'],
 })

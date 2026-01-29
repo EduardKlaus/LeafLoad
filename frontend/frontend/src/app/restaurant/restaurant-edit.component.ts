@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 type Region = { id: number; name: string };
@@ -22,7 +22,7 @@ type EditField = 'description' | 'imageUrl' | 'regionId' | null;
 @Component({
   selector: 'app-restaurant-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './restaurant-edit.html',
   styleUrls: ['./restaurant-edit.scss'],
 })

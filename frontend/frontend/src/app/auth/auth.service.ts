@@ -1,6 +1,6 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
@@ -33,27 +33,39 @@ export class AuthService {
     restaurantId: null,
   });
 
+  private readonly _authReady$ = new ReplaySubject<boolean>(1);
+
   readonly state$: Observable<AuthState> = this._state$.asObservable();
+
+  /** Emits true once auth state has been loaded from localStorage (or immediately if not in browser) */
+  readonly authReady$: Observable<boolean> = this._authReady$.asObservable();
 
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: object
   ) {
     if (isPlatformBrowser(this.platformId)) {
-      const raw = localStorage.getItem('auth_state');
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw) as AuthState;
-          this._state$.next(parsed);
+      // Use setTimeout to ensure this runs after Angular hydration
+      setTimeout(() => {
+        const raw = localStorage.getItem('auth_state');
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw) as AuthState;
+            this._state$.next(parsed);
 
-          // If user is logged in but restaurantId is missing, fetch it from server
-          if (parsed.isLoggedIn && parsed.role === 'RESTAURANT_OWNER' && parsed.restaurantId == null) {
-            this.refreshRestaurantId(parsed);
+            // If user is logged in but restaurantId is missing, fetch it from server
+            if (parsed.isLoggedIn && parsed.role === 'RESTAURANT_OWNER' && parsed.restaurantId == null) {
+              this.refreshRestaurantId(parsed);
+            }
+          } catch {
+            /* ignore invalid storage */
           }
-        } catch {
-          /* ignore invalid storage */
         }
-      }
+        this._authReady$.next(true);
+      }, 0);
+    } else {
+      // On server, mark as ready immediately (no localStorage available)
+      this._authReady$.next(true);
     }
   }
 
