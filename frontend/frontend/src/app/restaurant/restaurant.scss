@@ -14,6 +14,13 @@ main {
   margin: 0;
 }
 
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
 .banner {
   width: 100%;
   height: 260px;
@@ -24,12 +31,13 @@ main {
 
 .categories {
   display: flex;
+  justify-content: center; // 1. Kategorien zentrieren
   gap: 16px;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   padding: 12px 0;
   overflow-x: auto;
-  margin-bottom: 24px; // 1. Mehr Platz nach der Kategorien-Zeile
+  margin-bottom: 24px;
 }
 
 .sticky {
@@ -49,7 +57,7 @@ main {
   margin: 0;
 }
 
-// 2. Buttons im Sage-Style
+// Buttons im Sage-Style
 button {
   background-color: var(--dark-sage);
   color: white;
@@ -96,6 +104,7 @@ button {
   width: 80px;
   height: 80px;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 .info {
@@ -106,11 +115,11 @@ button {
   text-align: right;
   display: flex;
   align-items: center;
-  gap: 8px; // 2. Abstand zwischen Buttons
+  gap: 8px;
 }
 
 .price {
-  margin-right: 16px; // 3. Platz rechts vom Preis
+  margin-right: 16px;
   font-weight: 600;
 }
 
@@ -119,7 +128,19 @@ button {
 
 @media (max-width: 900px) {
   .header {
-    flex-direction: column;
+    flex-direction: row; // 2. Buttons neben Namen
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .left {
+    flex: 1;
+  }
+
+  .right {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .hero {
@@ -128,6 +149,16 @@ button {
 
   .item {
     grid-template-columns: 60px 1fr;
+    gap: 12px; // 3. Mehr Platz zwischen Bild und Text
+  }
+
+  .item img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .info {
+    padding-left: 4px; // 3. Extra Platz zum Bild
   }
 
   .actions {

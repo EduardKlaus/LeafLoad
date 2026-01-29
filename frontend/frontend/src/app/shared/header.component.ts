@@ -1,10 +1,11 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 import { environment } from '../../environments/environment';
+import { Subscription, filter } from 'rxjs';
 
 type Region = { id: number; name: string };
 
@@ -15,7 +16,7 @@ type Region = { id: number; name: string };
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   menuOpen = false;
 
   regions: Region[] = [];
@@ -23,6 +24,7 @@ export class HeaderComponent implements OnInit {
 
   private readonly API_REGIONS = `${environment.apiUrl}/regions`;
   private readonly API_ME = `${environment.apiUrl}/account/me`;
+  private routerSub?: Subscription;
 
   constructor(
     private auth: AuthService,
@@ -36,6 +38,13 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Menü automatisch schließen bei Navigation
+    this.routerSub = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.menuOpen = false;
+      });
+
     // Regions laden
     this.http.get<Region[]>(this.API_REGIONS).subscribe({
       next: (r) => (this.regions = r),
@@ -53,6 +62,10 @@ export class HeaderComponent implements OnInit {
         this.regionId = null;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
 
   onRegionChange(nextId: number | null): void {
@@ -87,3 +100,4 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/']);
   }
 }
+

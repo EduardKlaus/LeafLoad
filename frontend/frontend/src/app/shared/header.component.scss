@@ -38,9 +38,26 @@ header {
     white-space: nowrap;
 }
 
-// dropdown menu - desktop
+// 4. dropdown menu styling - desktop
 header nav select {
-    padding: 8px, 10px;
+    padding: 8px 12px;
+    height: 40px; // Gleiche Höhe wie Buttons
+    border: 2px solid var(--dark-sage);
+    border-radius: 4px;
+    background: white;
+    color: var(--dark-sage);
+    font-size: 0.9rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667B68' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+
+    &:focus {
+        outline: none;
+        border-color: var(--dark-sage);
+    }
 }
 
 // buttons nav - desktop
@@ -48,7 +65,7 @@ header nav button {
     background-color: var(--dark-sage);
     color: white;
     padding: 10px 14px;
-    //margin: 0 10px;
+    height: 40px; // Gleiche Höhe wie Dropdown
     border: 0;
     cursor: pointer;
 }
@@ -141,13 +158,25 @@ header nav button {
     transform: translateX(0);
 }
 
-.drawer__closed {
-    background: transparent;
-    border: 0;
-    font-size: 22px;
+// 6. X-Button Styling - korrigierter Klassenname (vorher drawer__closed)
+.drawer__close {
+    background: var(--dark-sage);
+    border: none;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
     cursor: pointer;
-    display: block;
-    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: auto;
+
+    &:hover {
+        background: var(--light-sage);
+    }
 }
 
 .drawer__content {
@@ -165,6 +194,7 @@ header nav button {
     border-radius: 6px;
     border: none;
     width: 100%;
+    box-sizing: border-box;
     text-align: left;
     font-size: inherit;
     cursor: pointer;
@@ -173,6 +203,18 @@ header nav button {
 .drawer__logout {
     background: rgba(200, 50, 50, 0.2);
     color: #8b0000;
+}
+
+// 4. Dropdown styling in mobile drawer
+.drawer select {
+    padding: 8px 12px;
+    border: 2px solid var(--dark-sage);
+    border-radius: 4px;
+    background: white;
+    color: var(--dark-sage);
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 100%;
 }
 
 @media (max-width: 900px) {
