@@ -6,7 +6,7 @@
     h1 {
         font-size: 1.75rem;
         margin-bottom: 1.5rem;
-        color: #2e7d32;
+        color: #000;
     }
 
     .empty {
@@ -70,12 +70,12 @@
             color: #888;
 
             &:not(:disabled) {
-                background: #4caf50;
+                background: var(--light-sage);
                 color: #fff;
                 cursor: pointer;
 
                 &:hover {
-                    background: #388e3c;
+                    background: var(--dark-sage);
                 }
             }
 
@@ -84,7 +84,7 @@
             }
 
             &.active {
-                background: #2e7d32;
+                background: var(--dark-sage);
                 color: #fff;
             }
         }

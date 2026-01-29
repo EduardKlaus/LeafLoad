@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { AuthService } from '../auth/auth.service';
 
 export interface CartItem {
     id: number;
@@ -35,8 +36,18 @@ export class CartService {
 
     constructor(
         @Inject(PLATFORM_ID) private platformId: object,
-        private http: HttpClient
-    ) { }
+        private http: HttpClient,
+        private authService: AuthService
+    ) {
+        // Subscribe to auth state changes to update userId
+        this.authService.state$.subscribe(state => {
+            const newUserId = state.isLoggedIn ? state.userId : null;
+            if (newUserId !== this.userId) {
+                this.userId = newUserId;
+                this.loadFromStorage();
+            }
+        });
+    }
 
     /**
      * Set the current user ID. Call this on login/logout.

@@ -1,7 +1,7 @@
 import { Patch, Controller, Get, Param, Post, Body, Delete } from '@nestjs/common';
 import { RestaurantsService } from './restaurants.service';
 
-@Controller('api/restaurants')
+@Controller('restaurants')
 export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) { }
 
@@ -104,6 +104,13 @@ export class RestaurantsController {
   @Get(':id/orders')
   getOrdersForRestaurant(@Param('id') id: string) {
     return this.restaurantsService.getOrdersForRestaurant(+id);
+  }
+
+  @Post('orders')
+  createOrder(
+    @Body() body: { userId: number; restaurantId: number; items: { menuItemId: number; quantity: number }[] }
+  ) {
+    return this.restaurantsService.createOrder(body.userId, body.restaurantId, body.items);
   }
 
   @Patch('orders/:orderId/status')

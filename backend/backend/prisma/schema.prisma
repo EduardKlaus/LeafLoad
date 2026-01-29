@@ -114,6 +114,7 @@ model Order {
 }
 
 enum OrderStatus {
+  PENDING
   PREPARING
   DELIVERING
   COMPLETED

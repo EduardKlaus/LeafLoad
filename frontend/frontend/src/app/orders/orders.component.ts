@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 type OrderItem = { title: string; quantity: number };
 type Order = {
     id: number;
-    status: 'PREPARING' | 'DELIVERING' | 'COMPLETED' | null;
+    status: 'PENDING' | 'PREPARING' | 'DELIVERING' | 'COMPLETED' | null;
     createdAt: string;
     userName: string;
     userAddress: string;
@@ -77,7 +77,7 @@ export class OrdersComponent implements OnInit {
 
     canClick(order: Order, button: 'PREPARING' | 'DELIVERING' | 'COMPLETED'): boolean {
         const current = order.status;
-        if (button === 'PREPARING') return current === null;
+        if (button === 'PREPARING') return current === null || current === 'PENDING';
         if (button === 'DELIVERING') return current === 'PREPARING';
         if (button === 'COMPLETED') return current === 'DELIVERING';
         return false;

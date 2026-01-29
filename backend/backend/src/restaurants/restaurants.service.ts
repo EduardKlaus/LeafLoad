@@ -291,6 +291,59 @@ export class RestaurantsService {
     };
   }
 
+  async createOrder(
+    userId: number,
+    restaurantId: number,
+    items: { menuItemId: number; quantity: number }[]
+  ) {
+    if (!items || items.length === 0) {
+      throw new BadRequestException('Order must have at least one item');
+    }
+
+    // Get restaurant name
+    const restaurant = await this.prisma.restaurant.findUnique({
+      where: { id: restaurantId },
+      select: { name: true },
+    });
+
+    if (!restaurant) throw new BadRequestException('Restaurant not found');
+
+    // Create order with items
+    const order = await this.prisma.order.create({
+      data: {
+        userId,
+        restaurantId,
+        status: 'PENDING',
+        items: {
+          create: items.map((item) => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+          })),
+        },
+      },
+      include: {
+        items: {
+          include: {
+            menuItem: {
+              select: { title: true, price: true },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      id: order.id,
+      restaurantId,
+      restaurantName: restaurant.name,
+      items: (order as any).items.map((item: any) => ({
+        title: item.menuItem.title,
+        quantity: item.quantity,
+        price: item.menuItem.price,
+      })),
+    };
+  }
+
   async updateOrderStatus(orderId: number, status: 'PREPARING' | 'DELIVERING' | 'COMPLETED') {
     return this.prisma.order.update({
       where: { id: orderId },
