@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 import { environment } from '../../environments/environment';
-import { Subscription, filter } from 'rxjs';
+import { Observable, Subscription, filter } from 'rxjs';
 
 type Region = { id: number; name: string };
 
@@ -19,7 +19,7 @@ type Region = { id: number; name: string };
 export class HeaderComponent implements OnInit, OnDestroy {
   menuOpen = false;
 
-  regions: Region[] = [];
+  regions$: Observable<Region[]> | undefined;
   regionId: number | null = null;
 
   private readonly API_REGIONS = `${environment.apiUrl}/regions`;
@@ -46,12 +46,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
 
     // Regions laden
-    this.http.get<Region[]>(this.API_REGIONS).subscribe({
-      next: (r) => (this.regions = r),
-      error: () => {
-        // optional: still fail silently
-      },
-    });
+    // Regions laden
+    this.regions$ = this.http.get<Region[]>(this.API_REGIONS);
 
     // Region aus Profil übernehmen, sobald eingeloggt
     this.auth.state$.subscribe((s: any) => {

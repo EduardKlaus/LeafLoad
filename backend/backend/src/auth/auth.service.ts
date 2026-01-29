@@ -27,8 +27,8 @@ export class AuthService {
   }
 
   // user signup
-  async signup(input: { username: string; email: string; firstName: string; lastName: string; password: string; role: Role }) {
-    const { username, email, firstName, lastName, password, role } = input;
+  async signup(input: { username: string; email: string; firstName: string; lastName: string; password: string; role: Role; address?: string; regionId?: number }) {
+    const { username, email, firstName, lastName, password, role, address, regionId } = input;
 
     if (!username || !firstName || !lastName || !password || !role) {
       throw new BadRequestException('Missing field input.');
@@ -51,6 +51,8 @@ export class AuthService {
         name: fullName,
         password: hashed,
         role,
+        address: address ? address.trim() : undefined,
+        regionId,
       },
       select: { id: true, role: true },
     });
@@ -59,8 +61,8 @@ export class AuthService {
   }
 
   // restaurant signup
-  async signupRestaurant(input: { ownerId: number; name: string; address: string; imageUrl: string }) {
-    const { ownerId, name, address, imageUrl } = input;
+  async signupRestaurant(input: { ownerId: number; name: string; address: string; imageUrl: string; regionId?: number }) {
+    const { ownerId, name, address, imageUrl, regionId } = input;
 
     if (!ownerId || !name || !address) {
       throw new BadRequestException('Missing field input.');
@@ -82,6 +84,7 @@ export class AuthService {
         address,
         imageUrl: imageUrl || null,
         ownerId,
+        regionId,
       },
       select: { id: true },
     });

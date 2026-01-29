@@ -15,6 +15,9 @@ export class AccountService {
         email: true,
         role: true,
         createdAt: true, // falls dein Feld anders heißt: anpassen
+        address: true,
+        regionId: true,
+        region: { select: { name: true } },
         restaurants: {
           select: { id: true },
           take: 1,
@@ -30,13 +33,22 @@ export class AccountService {
       email: user.email,
       role: user.role,
       createdOn: user.createdAt, // Frontend erwartet createdOn
+      address: user.address,
+      regionId: user.regionId,
+      regionName: user.region?.name ?? null,
       restaurantId: user.restaurants[0]?.id ?? null,
     };
   }
 
   async updateMe(
     userId: number,
-    body: { name?: string; email?: string; password?: string },
+    body: {
+      name?: string;
+      email?: string;
+      password?: string;
+      address?: string;
+      regionId?: number;
+    },
   ) {
     const data: any = {};
 
@@ -60,6 +72,14 @@ export class AccountService {
       data.password = hash; // Feldname ggf. "passwordHash" o.ä. anpassen
     }
 
+    if (body.address !== undefined) {
+      data.address = body.address.trim();
+    }
+
+    if (body.regionId !== undefined) {
+      data.regionId = body.regionId;
+    }
+
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('No fields provided');
     }
@@ -73,6 +93,9 @@ export class AccountService {
         email: true,
         role: true,
         createdAt: true,
+        address: true,
+        regionId: true,
+        region: { select: { name: true } },
       },
     });
 
@@ -82,6 +105,9 @@ export class AccountService {
       email: updated.email,
       role: updated.role,
       createdOn: updated.createdAt,
+      address: updated.address,
+      regionId: updated.regionId,
+      regionName: updated.region?.name ?? null,
     };
   }
 }

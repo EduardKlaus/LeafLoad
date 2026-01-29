@@ -27,7 +27,9 @@ export class AuthController {
       firstName: string;
       lastName: string;
       password: string;
-      role: 'CUSTOMER' | 'RESTAURANT_OWNER'
+      role: 'CUSTOMER' | 'RESTAURANT_OWNER';
+      address?: string;
+      regionId?: number;
     }) {
     return this.authService.signup(body);
   }
@@ -39,7 +41,8 @@ export class AuthController {
       ownerId: number;
       name: string;
       address: string;
-      imageUrl: string    // can't be null? fix for later
+      imageUrl: string;    // can't be null? fix for later
+      regionId?: number;
     }) {
     return this.authService.signupRestaurant(body);
   }

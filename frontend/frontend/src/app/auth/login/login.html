@@ -1,40 +1,29 @@
 <main>
   <div id="background">
-  <img src="./assets/pexels-pixabay-54455.jpg" alt="" loading="lazy" decoding="async"/>
+    <img src="./assets/pexels-pixabay-54455.jpg" alt="" loading="lazy" decoding="async" />
   </div>
-  
+
   <section class="login" aria-label="login">
     <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" class="login-form" novalidate>
       <label for="username">Username</label>
-      <input 
-        id="username"
-        name="username"
-        type="text"
-        placeholder="username"
-        required
-        [(ngModel)]="model.username"
-        autocomplete="username"
-      />
+      <input id="username" name="username" type="text" placeholder="username" required [(ngModel)]="model.username"
+        autocomplete="username" />
 
       <label for="password">Password</label>
-      <input 
-        id="password"
-        name="password"
-        type="text"
-        placeholder="password"
-        required
-        [(ngModel)]="model.password"
-        autocomplete="current-password"
-      />
+      <input id="password" name="password" type="password" placeholder="password" required [(ngModel)]="model.password"
+        autocomplete="current-password" />
 
       <p class="error" *ngIf="error">{{ error }}</p>
 
-      <button type="submit" [disabled]="loginForm.invalid || isLoading">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
+      <button type="submit" [disabled]="loginForm.invalid || isLoading">{{ isLoading ? 'Logging in...' : 'Login'
+        }}</button>
 
-      <a routerLink="/auth/forgot-password"><p>Passwort vergessen?</p></a>
+      <a routerLink="/auth/forgot-password">
+        <p>Passwort vergessen?</p>
+      </a>
 
       <button type="button" routerLink="/auth/signup">Sign up</button>
     </form>
   </section>
-    
+
 </main>

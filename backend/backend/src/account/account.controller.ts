@@ -10,7 +10,7 @@ import { AccountService } from './account.service';
 
 @Controller('account')
 export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(private readonly accountService: AccountService) { }
 
   // Demo: User-ID kommt aus Header (später JWT)
   private getUserIdFromHeaders(headers: Record<string, string | undefined>): number {
@@ -36,6 +36,8 @@ export class AccountController {
       name?: string;
       email?: string;
       password?: string;
+      address?: string;
+      regionId?: number;
     },
   ) {
     const userId = this.getUserIdFromHeaders(headers);

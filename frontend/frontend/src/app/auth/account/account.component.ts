@@ -214,11 +214,14 @@ export class AccountComponent implements OnInit, OnDestroy {
         }
 
         this.savingField = 'regionId';
-        this.http.patch(this.API_ME, { regionId: this.editRegionId }).subscribe({
-            next: () => {
+        this.http.patch<Partial<UserProfile>>(this.API_ME, { regionId: this.editRegionId }).subscribe({
+            next: (res) => {
                 this.savingField = null;
                 this.editField = null;
-                if (this.profile) this.profile.regionId = this.editRegionId;
+                if (this.profile) {
+                    this.profile.regionId = (res as any)?.regionId ?? this.editRegionId;
+                    this.profile.regionName = (res as any)?.regionName;
+                }
             },
             error: (err) => {
                 this.savingField = null;

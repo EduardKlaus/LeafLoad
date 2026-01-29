@@ -4,7 +4,12 @@ import { FormsModule, NgForm } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { email } from "@angular/forms/signals";
 
+import { HttpClient } from "@angular/common/http";
+import { environment } from "../../../environments/environment";
+
 type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
+
+type Region = { id: number; name: string };
 
 @Component({
     selector: 'app-signup',
@@ -22,16 +27,29 @@ export class SignupComponent {
         lastName: '',
         password: '',
         repeatPassword: '',
+        address: '',
+        regionId: null as number | null,
     };
+
+    regions: Region[] = [];
 
     error = '';
     loading = false;
 
-    constructor(private router: Router) {}
+    constructor(private router: Router, private http: HttpClient) {
+        this.loadRegions();
+    }
+
+    loadRegions() {
+        this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
+            next: (r) => (this.regions = r),
+            error: () => { }
+        });
+    }
 
     async onSubmit(form: NgForm) {
         this.error = '';
-        if(form.invalid) return;
+        if (form.invalid) return;
 
         // error message if password is not the same
         if (this.model.password !== this.model.repeatPassword) {
@@ -44,16 +62,18 @@ export class SignupComponent {
             // backend call to create user
             const result = await fetch(
                 'http://localhost:3000/auth/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: this.model.username,
-                        email: this.model.email,
-                        firstName: this.model.firstName,
-                        lastName: this.model.lastName,
-                        password: this.model.password,
-                        role: this.model.role,
-                    }),
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: this.model.username,
+                    email: this.model.email,
+                    firstName: this.model.firstName,
+                    lastName: this.model.lastName,
+                    password: this.model.password,
+                    role: this.model.role,
+                    address: this.model.address,
+                    regionId: this.model.regionId,
+                }),
             });
 
             // error message if signup fail
@@ -66,7 +86,7 @@ export class SignupComponent {
 
             if (data.role === 'RESTAURANT_OWNER') {
                 // move to restaurant sign up
-                this.router.navigateByUrl('/auth/signup/restaurant', { state: { userId: data.userId} });
+                this.router.navigateByUrl('/auth/signup/restaurant', { state: { userId: data.userId } });
             } else {
                 // move to login
                 this.router.navigateByUrl('/auth/login');

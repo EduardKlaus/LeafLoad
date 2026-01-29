@@ -17,7 +17,7 @@
     <!-- REGION (DB) -->
     <select id="region" name="region" [(ngModel)]="regionId" (ngModelChange)="onRegionChange($event)">
       <option [ngValue]="null" disabled>Select Region</option>
-      <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
+      <option *ngFor="let r of regions$ | async" [ngValue]="r.id">{{ r.name }}</option>
     </select>
 
     <ng-container *ngIf="state$ | async as s">
@@ -54,7 +54,7 @@
         <!-- REGION (DB) -->
         <select id="region-mobile" name="region-mobile" [(ngModel)]="regionId" (ngModelChange)="onRegionChange($event)">
           <option [ngValue]="null" disabled>Select Region</option>
-          <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
+          <option *ngFor="let r of regions$ | async" [ngValue]="r.id">{{ r.name }}</option>
         </select>
 
         <ng-container *ngIf="state$ | async as s">

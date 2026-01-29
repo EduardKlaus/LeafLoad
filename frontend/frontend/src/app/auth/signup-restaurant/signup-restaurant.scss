@@ -5,12 +5,24 @@ main {
 }
 
 .card {
-    width: min(900px, 80vw);     /* 70-80% */
+    width: min(900px, 80vw);
+    /* 70-80% */
     background: white;
-    border: 1px solid rgba(0,0,0,.12);
+    border: 1px solid rgba(0, 0, 0, .12);
     border-radius: 10px;
     padding: 22px;
-    box-shadow: 0 14px 26px rgba(0,0,0,.12);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, .12);
+}
+
+form select,
+form input {
+    width: 100%;
+    padding: 14px 16px;
+    /* mehr luft */
+    border: 1px solid rgba(0, 0, 0, .25);
+    border-radius: 8px;
+    box-sizing: border-box;
+    outline: none;
 }
 
 form {
@@ -20,7 +32,8 @@ form {
 
 .row {
     display: grid;
-    grid-template-columns: 2fr 3fr; /* 2:3 */
+    grid-template-columns: 2fr 3fr;
+    /* 2:3 */
     gap: 12px;
     align-items: center;
 }
@@ -54,11 +67,13 @@ form a {
     main {
         padding: 14px;
     }
+
     .card {
         width: 100%;
     }
 
     .row {
-        grid-template-columns: 1fr; /* mobil untereinander */
+        grid-template-columns: 1fr;
+        /* mobil untereinander */
     }
 }
