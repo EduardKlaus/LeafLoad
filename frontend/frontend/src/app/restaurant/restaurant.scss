@@ -29,6 +29,7 @@ main {
   border-bottom: 1px solid #ddd;
   padding: 12px 0;
   overflow-x: auto;
+  margin-bottom: 24px; // 1. Mehr Platz nach der Kategorien-Zeile
 }
 
 .sticky {
@@ -48,18 +49,39 @@ main {
   margin: 0;
 }
 
+// 2. Buttons im Sage-Style
+button {
+  background-color: var(--dark-sage);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--light-sage);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .add-btn {
-  background: #4CAF50;
+  background: var(--light-sage);
   color: white;
   border: none;
   padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
-}
 
-.add-btn:hover {
-  background: #45a049;
+  &:hover {
+    background: var(--dark-sage);
+  }
 }
 
 .item {
@@ -82,6 +104,14 @@ main {
 
 .actions {
   text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 8px; // 2. Abstand zwischen Buttons
+}
+
+.price {
+  margin-right: 16px; // 3. Platz rechts vom Preis
+  font-weight: 600;
 }
 
 
