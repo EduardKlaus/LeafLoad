@@ -5,15 +5,6 @@
 
   <!-- DESKTOP NAVIGATION -->
   <nav class="nav nav--desktop" aria-label="main navigation">
-    <!-- OWNER BUTTONS -->
-    <ng-container *ngIf="state$ | async as s">
-      <button *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" type="button" routerLink="/orders">See
-        Orders</button>
-
-      <button *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" type="button"
-        [routerLink]="['/restaurants', s.restaurantId]">Restaurant Dashboard</button>
-    </ng-container>
-
     <!-- REGION (DB) -->
     <select id="region" name="region" [(ngModel)]="regionId" (ngModelChange)="onRegionChange($event)">
       <option [ngValue]="null" disabled>Select Region</option>
@@ -31,6 +22,18 @@
         </button>
         <div class="user-dropdown__menu">
           <a routerLink="/account" class="user-dropdown__item">My Account</a>
+          
+          <!-- OWNER LINKS -->
+          <ng-container *ngIf="s.role === 'RESTAURANT_OWNER'">
+             <a [routerLink]="['/restaurants', s.restaurantId]" class="user-dropdown__item">Restaurant Dashboard</a>
+             <a routerLink="/orders" class="user-dropdown__item">See Orders</a>
+          </ng-container>
+
+          <!-- CUSTOMER LINKS -->
+          <ng-container *ngIf="s.role === 'CUSTOMER'">
+             <a routerLink="/orders" class="user-dropdown__item">Your Orders</a>
+          </ng-container>
+
           <button type="button" class="user-dropdown__item" (click)="logout()">Logout</button>
         </div>
       </div>

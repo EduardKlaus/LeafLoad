@@ -43,4 +43,9 @@ export class AccountController {
     const userId = this.getUserIdFromHeaders(headers);
     return this.accountService.updateMe(userId, body);
   }
+  @Get('orders')
+  async getMyOrders(@Headers() headers: Record<string, string | undefined>) {
+    const userId = this.getUserIdFromHeaders(headers);
+    return this.accountService.getMyOrders(userId);
+  }
 }

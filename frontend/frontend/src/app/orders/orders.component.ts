@@ -12,6 +12,7 @@ type Order = {
     createdAt: string;
     userName: string;
     userAddress: string;
+    restaurantName?: string;
     items: OrderItem[];
 };
 
@@ -34,18 +35,28 @@ export class OrdersComponent implements OnInit {
 
     private restaurantId: number | null = null;
 
+    role: string | null = null;
+    currentUserId: number | null = null;
+
     constructor(private http: HttpClient, private auth: AuthService) { }
 
     ngOnInit(): void {
         this.auth.state$.subscribe((s: any) => {
-            if (s?.restaurantId) {
+            this.role = s?.role ?? null;
+            this.currentUserId = s?.userId ?? null;
+
+            if (s?.restaurantId && s.role === 'RESTAURANT_OWNER') {
                 this.restaurantId = s.restaurantId;
-                this.loadOrders();
+                this.loadRestaurantOrders();
+            } else if (s?.isLoggedIn && s.role === 'CUSTOMER') {
+                this.loadCustomerOrders();
+            } else {
+                this.loading = false;
             }
         });
     }
 
-    private loadOrders(): void {
+    private loadRestaurantOrders(): void {
         if (!this.restaurantId) return;
 
         this.http
@@ -53,6 +64,22 @@ export class OrdersComponent implements OnInit {
             .subscribe({
                 next: (res) => {
                     this.restaurantName = res.restaurantName;
+                    this.orders = res.orders;
+                    this.loading = false;
+                },
+                error: () => {
+                    this.loading = false;
+                },
+            });
+    }
+
+    private loadCustomerOrders(): void {
+        this.http
+            .get<{ orders: Order[] }>(`${environment.apiUrl}/account/orders`)
+            .subscribe({
+                next: (res) => {
+                    // For customers, the concept of "restaurantName" is per order, not per page. 
+                    // But we can leave restaurantName empty or set it to "My Orders" in the template title.
                     this.orders = res.orders;
                     this.loading = false;
                 },

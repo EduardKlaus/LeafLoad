@@ -1,5 +1,6 @@
 <section class="orders">
-    <h1>Orders for {{ restaurantName }}</h1>
+    <h1 *ngIf="role === 'RESTAURANT_OWNER'">Orders for {{ restaurantName }}</h1>
+    <h1 *ngIf="role === 'CUSTOMER'">Your Orders</h1>
 
     <p *ngIf="loading">Loading orders...</p>
 
@@ -10,31 +11,49 @@
     <table *ngIf="!loading && orders.length > 0" class="orders-table">
         <thead>
             <tr>
-                <th>Customer</th>
+                <th *ngIf="role === 'RESTAURANT_OWNER'">Customer</th>
+                <th *ngIf="role === 'CUSTOMER'">Restaurant</th>
                 <th>Order</th>
                 <th>Status</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let order of orders">
-                <td class="customer">
+                <!-- OWNER VIEW: Customer Info -->
+                <td class="customer" *ngIf="role === 'RESTAURANT_OWNER'">
                     <span class="name">{{ order.userName }}</span>
                     <span class="address">{{ order.userAddress }}</span>
                 </td>
+
+                <!-- CUSTOMER VIEW: Restaurant Name -->
+                <td class="customer" *ngIf="role === 'CUSTOMER'">
+                    <span class="name">{{ order.restaurantName }}</span>
+                    <span class="address">{{ order.createdAt | date:'short' }}</span>
+                </td>
+
                 <td class="items">{{ formatItems(order.items) }}</td>
+
                 <td class="status-buttons">
-                    <button [disabled]="!canClick(order, 'PREPARING')" [class.active]="order.status === 'PREPARING'"
-                        (click)="setStatus(order, 'PREPARING')">
-                        Preparing
-                    </button>
-                    <button [disabled]="!canClick(order, 'DELIVERING')" [class.active]="order.status === 'DELIVERING'"
-                        (click)="setStatus(order, 'DELIVERING')">
-                        Delivering
-                    </button>
-                    <button [disabled]="!canClick(order, 'COMPLETED')" [class.active]="order.status === 'COMPLETED'"
-                        (click)="setStatus(order, 'COMPLETED')">
-                        Completed
-                    </button>
+                    <!-- OWNER VIEW: Buttons -->
+                    <ng-container *ngIf="role === 'RESTAURANT_OWNER'">
+                        <button [disabled]="!canClick(order, 'PREPARING')" [class.active]="order.status === 'PREPARING'"
+                            (click)="setStatus(order, 'PREPARING')">
+                            Preparing
+                        </button>
+                        <button [disabled]="!canClick(order, 'DELIVERING')"
+                            [class.active]="order.status === 'DELIVERING'" (click)="setStatus(order, 'DELIVERING')">
+                            Delivering
+                        </button>
+                        <button [disabled]="!canClick(order, 'COMPLETED')" [class.active]="order.status === 'COMPLETED'"
+                            (click)="setStatus(order, 'COMPLETED')">
+                            Completed
+                        </button>
+                    </ng-container>
+
+                    <!-- CUSTOMER VIEW: Text -->
+                    <ng-container *ngIf="role === 'CUSTOMER'">
+                        <span class="status-text">{{ order.status || 'PENDING' }}</span>
+                    </ng-container>
                 </td>
             </tr>
         </tbody>

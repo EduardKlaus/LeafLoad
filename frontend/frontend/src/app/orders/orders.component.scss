@@ -89,6 +89,11 @@
             }
         }
     }
+
+    .status-text {
+        font-weight: bold;
+        color: var(--dark-sage);
+    }
 }
 
 @media (max-width: 768px) {
