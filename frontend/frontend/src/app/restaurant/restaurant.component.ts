@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
@@ -32,7 +32,8 @@ export class RestaurantComponent implements OnInit {
     private http: HttpClient,
     private auth: AuthService,
     private cart: CartService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   ngOnInit() {
@@ -73,6 +74,10 @@ export class RestaurantComponent implements OnInit {
   private setupObserver() {
     if (this.observer) {
       this.observer.disconnect();
+    }
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
     }
 
     const options = {

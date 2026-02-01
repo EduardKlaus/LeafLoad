@@ -42,7 +42,7 @@
       </div>
 
       <div class="actions">
-        <span class="price">€{{ item.price }}</span>
+        <span class="price">€{{ item.price | number:'1.2-2' }}</span>
 
         <button *ngIf="isOwner" [routerLink]="['/menu-items', item.id, 'edit']">Edit</button>
         <button *ngIf="isOwner" (click)="deleteItem(item.id)">Delete</button>
@@ -53,7 +53,9 @@
   </section>
 
   <section *ngIf="otherItems.length" id="cat-other">
-    <h2>Other</h2>
+    <div class="category-header">
+      <h2>Other</h2>
+    </div>
     <div *ngFor="let item of otherItems" class="item">
       <img [src]="item.imageUrl || fallbackImg" />
 
@@ -63,7 +65,7 @@
       </div>
 
       <div class="actions">
-        <span class="price">€{{ item.price }}</span>
+        <span class="price">€{{ item.price | number:'1.2-2' }}</span>
 
         <button *ngIf="isOwner" [routerLink]="['/menu-items', item.id, 'edit']">Edit</button>
         <button *ngIf="isOwner" (click)="deleteItem(item.id)">Delete</button>
