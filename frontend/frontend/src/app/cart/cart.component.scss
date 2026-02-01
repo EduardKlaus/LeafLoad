@@ -1,5 +1,5 @@
 main {
-    max-width: 900px;
+    max-width: 1200px;
     margin: auto;
     padding: 24px;
 }
@@ -18,9 +18,22 @@ h1 {
     display: block;
 }
 
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+    align-items: start;
+}
+
+.cart-main {
+    /* Takes up remaining space */
+    min-width: 0;
+}
+
 .empty {
     text-align: center;
     padding: 48px 0;
+    grid-column: 1 / -1;
 
     p {
         font-size: 1.2rem;
@@ -167,11 +180,32 @@ h1 {
     border-top: 2px solid #eee;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
+}
+
+.summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.discount-row {
+    font-size: 0.9rem;
+    color: var(--dark-sage);
+    /* User mentioned dark sage framework roughly */
+    display: flex;
+    gap: 16px;
+
+    .discount-amount {
+        font-weight: bold;
+    }
 }
 
 .total {
     font-size: 1.25rem;
+    display: flex;
+    align-items: baseline;
 
     strong {
         color: var(--dark-sage);
@@ -200,8 +234,80 @@ h1 {
     }
 }
 
+/* Voucher Card Styles */
+.voucher-card {
+    border: 1px solid var(--dark-sage);
+    border-radius: 8px;
+    padding: 24px;
+    background: #fff;
+    /* Assuming white background */
+
+    h3 {
+        margin-top: 0;
+        margin-bottom: 16px;
+        font-size: 1.1rem;
+    }
+
+    .voucher-label {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 1rem;
+
+        &:focus {
+            outline: none;
+            border-color: var(--dark-sage);
+        }
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    button {
+        padding: 8px 16px;
+        background: var(--dark-sage);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+
+        &:hover {
+            opacity: 0.9;
+        }
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    }
+
+    .success-msg {
+        color: var(--dark-sage);
+        margin-top: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+}
+
+
 // MOBILE VIEW
-@media (max-width: 700px) {
+@media (max-width: 900px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+    }
+
     .mobile-only {
         display: block;
     }
@@ -245,7 +351,12 @@ h1 {
 
     .cart-footer {
         flex-direction: column;
+        align-items: stretch;
         gap: 16px;
+
+        .summary {
+            align-items: center;
+        }
     }
 
     .checkout-btn {
@@ -260,6 +371,7 @@ h1 {
     background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
     border-radius: 12px;
     border: 1px solid #a5d6a7;
+    grid-column: 1 / -1;
 
     p {
         font-size: 1.2rem;
@@ -282,6 +394,7 @@ h1 {
     background: #ffebee;
     border-radius: 8px;
     border: 1px solid #ef9a9a;
+    grid-column: 1 / -1;
 
     p {
         margin: 0;

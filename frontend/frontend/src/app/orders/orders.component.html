@@ -1,4 +1,4 @@
-<section class="orders">
+<section class="orders" [class.customer-view]="role === 'CUSTOMER'">
     <h1 *ngIf="role === 'RESTAURANT_OWNER'">Orders for {{ restaurantName }}</h1>
     <h1 *ngIf="role === 'CUSTOMER'">Your Orders</h1>
 

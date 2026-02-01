@@ -1,44 +1,67 @@
 <main>
   <h1>Your Cart</h1>
 
-  <div *ngIf="(cart.items$ | async)?.length === 0" class="empty">
-    <p>Your cart is empty</p>
-    <a routerLink="/">Browse restaurants</a>
-  </div>
-
-  <div class="cart-items">
-    <div *ngFor="let item of cart.items$ | async" class="cart-item">
-      <img [src]="item.imageUrl || fallbackImg" [alt]="item.title" />
-
-      <div class="info">
-        <h3>{{ item.title }}</h3>
-        <p class="description">{{ item.description }}</p>
-        <span class="restaurant">{{ item.restaurantName }}</span>
-        <span class="unit-price">€{{ (+item.price).toFixed(2) }}</span>
+  <div class="cart-layout">
+    <div class="cart-main">
+      <div *ngIf="(cart.items$ | async)?.length === 0" class="empty">
+        <p>Your cart is empty</p>
+        <a routerLink="/">Browse restaurants</a>
       </div>
 
-      <div class="subtotal mobile-only">€{{ (+item.price * item.quantity).toFixed(2) }}</div>
+      <div class="cart-items">
+        <div *ngFor="let item of cart.items$ | async" class="cart-item">
+          <img [src]="item.imageUrl || fallbackImg" [alt]="item.title" />
 
-      <div class="quantity">
-        <button class="qty-btn" (click)="decrement(item)" [disabled]="item.quantity <= 1"
-          [class.disabled]="item.quantity <= 1">−</button>
-        <span class="qty-value">{{ item.quantity }}</span>
-        <button class="qty-btn" (click)="increment(item)">+</button>
-        <button class="remove-btn" (click)="removeItem(item)">Remove</button>
+          <div class="info">
+            <h3>{{ item.title }}</h3>
+            <p class="description">{{ item.description }}</p>
+            <span class="restaurant">{{ item.restaurantName }}</span>
+            <span class="unit-price">€{{ (+item.price).toFixed(2) }}</span>
+          </div>
+
+          <div class="subtotal mobile-only">€{{ (+item.price * item.quantity).toFixed(2) }}</div>
+
+          <div class="quantity">
+            <button class="qty-btn" (click)="decrement(item)" [disabled]="item.quantity <= 1"
+              [class.disabled]="item.quantity <= 1">−</button>
+            <span class="qty-value">{{ item.quantity }}</span>
+            <button class="qty-btn" (click)="increment(item)">+</button>
+            <button class="remove-btn" (click)="removeItem(item)">Remove</button>
+          </div>
+
+          <div class="subtotal desktop-only">€{{ (+item.price * item.quantity).toFixed(2) }}</div>
+        </div>
       </div>
 
-      <div class="subtotal desktop-only">€{{ (+item.price * item.quantity).toFixed(2) }}</div>
+      <div *ngIf="(cart.items$ | async)?.length" class="cart-footer">
+        <div class="summary">
+          <div *ngIf="discountApplied" class="discount-row">
+            <span>Discount (10%):</span>
+            <span class="discount-amount">-€{{ discountAmount.toFixed(2) }}</span>
+          </div>
+          <div class="total">
+            <span>Total:</span>
+            <strong>€{{ finalTotal.toFixed(2) }}</strong>
+          </div>
+        </div>
+        <button class="checkout-btn" (click)="checkout()" [disabled]="isCheckingOut">
+          {{ isCheckingOut ? 'Processing...' : 'Proceed to Checkout' }}
+        </button>
+      </div>
     </div>
-  </div>
 
-  <div *ngIf="(cart.items$ | async)?.length" class="cart-footer">
-    <div class="total">
-      <span>Total:</span>
-      <strong>€{{ cart.getTotal().toFixed(2) }}</strong>
+    <!-- Sidebar with Voucher -->
+    <div class="cart-sidebar" *ngIf="(cart.items$ | async)?.length">
+      <div class="voucher-card">
+        <h3>Voucher Code</h3>
+        <p class="voucher-label">Enter voucher code</p>
+        <input type="text" [(ngModel)]="voucherCode" placeholder="Code" [disabled]="discountApplied">
+        <div class="actions">
+          <button (click)="redeemVoucher()" [disabled]="discountApplied">Redeem</button>
+        </div>
+        <p *ngIf="discountApplied" class="success-msg">Voucher applied!</p>
+      </div>
     </div>
-    <button class="checkout-btn" (click)="checkout()" [disabled]="isCheckingOut">
-      {{ isCheckingOut ? 'Processing...' : 'Proceed to Checkout' }}
-    </button>
   </div>
 
   <div *ngIf="checkoutSuccess" class="checkout-success">

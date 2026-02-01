@@ -96,6 +96,10 @@
     }
 }
 
+.orders.customer-view .orders-table td.status-buttons {
+    border-bottom: none;
+}
+
 @media (max-width: 768px) {
     .orders-table {
         display: block;
