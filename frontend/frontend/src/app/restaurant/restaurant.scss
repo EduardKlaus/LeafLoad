@@ -38,6 +38,24 @@ main {
   padding: 12px 0;
   overflow-x: auto;
   margin-bottom: 24px;
+
+  span {
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &.active {
+      background: var(--light-sage);
+      color: white;
+      font-weight: 500;
+    }
+  }
 }
 
 .sticky {

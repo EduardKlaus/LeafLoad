@@ -18,10 +18,10 @@
   <img class="banner" [src]="restaurant.imageUrl || fallbackImg" />
 
   <div class="categories sticky">
-    <span *ngFor="let c of categories" (click)="scrollTo('cat-' + c.id)">
+    <span *ngFor="let c of categories" (click)="scrollTo('cat-' + c.id)" [class.active]="activeCategoryId === c.id">
       {{ c.name }}
     </span>
-    <span *ngIf="otherItems.length" (click)="scrollTo('cat-other')">
+    <span *ngIf="otherItems.length" (click)="scrollTo('cat-other')" [class.active]="activeCategoryId === 'other'">
       Other
     </span>
   </div>
@@ -54,6 +54,22 @@
 
   <section *ngIf="otherItems.length" id="cat-other">
     <h2>Other</h2>
-    <!-- gleiches Item-Layout -->
+    <div *ngFor="let item of otherItems" class="item">
+      <img [src]="item.imageUrl || fallbackImg" />
+
+      <div class="info">
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.description }}</p>
+      </div>
+
+      <div class="actions">
+        <span class="price">€{{ item.price }}</span>
+
+        <button *ngIf="isOwner" [routerLink]="['/menu-items', item.id, 'edit']">Edit</button>
+        <button *ngIf="isOwner" (click)="deleteItem(item.id)">Delete</button>
+        <button *ngIf="isOtherUser" (click)="addToCart(item)">Add to cart</button>
+        <button *ngIf="!isLoggedIn" disabled>Add to cart</button>
+      </div>
+    </div>
   </section>
 </main>

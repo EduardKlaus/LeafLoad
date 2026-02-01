@@ -22,6 +22,9 @@ export class RestaurantComponent implements OnInit {
   isLoggedIn = false;
   isOtherUser = false;
 
+  activeCategoryId: number | 'other' | null = null;
+  private observer: IntersectionObserver | null = null;
+
   readonly fallbackImg = 'assets/fallback_image.png';
 
   constructor(
@@ -37,6 +40,12 @@ export class RestaurantComponent implements OnInit {
       const id = Number(params.get('id'));
       this.loadRestaurant(id);
     });
+  }
+
+  ngOnDestroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
   }
 
   private loadRestaurant(id: number) {
@@ -55,6 +64,42 @@ export class RestaurantComponent implements OnInit {
       this.isOtherUser = this.isLoggedIn && !this.isOwner;
 
       this.cdr.detectChanges();
+
+      // Delay slightly to ensure DOM is ready
+      setTimeout(() => this.setupObserver(), 100);
+    });
+  }
+
+  private setupObserver() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+
+    const options = {
+      root: null,
+      rootMargin: '-100px 0px -70% 0px', // Trigger when section is near top
+      threshold: 0
+    };
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          if (id === 'cat-other') {
+            this.activeCategoryId = 'other';
+          } else if (id.startsWith('cat-')) {
+            this.activeCategoryId = Number(id.replace('cat-', ''));
+          } else {
+            this.activeCategoryId = null;
+          }
+          this.cdr.detectChanges(); // Update view
+        }
+      });
+    }, options);
+
+    // Observe all category sections
+    document.querySelectorAll('section[id^="cat-"]').forEach(section => {
+      this.observer?.observe(section);
     });
   }
 
