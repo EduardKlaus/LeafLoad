@@ -166,4 +166,13 @@ export class RestaurantComponent implements OnInit {
       restaurantName: this.restaurant.name,
     });
   }
+
+  getRatingStars(rating?: number | null): string {
+    if (rating === null || rating === undefined) return '☆☆☆☆☆';
+
+    // Round to nearest whole number for star display
+    const stars = Math.round(rating);
+    return '★'.repeat(stars) + '☆'.repeat(5 - stars);
+  }
 }
+

@@ -16,7 +16,7 @@
                         <img [src]="imgSrc(r)" [alt]="r.name" loading="lazy" />
                     </div>
                     <h3 class="card__title">{{ r.name }}</h3>
-                    <div class="card__rating" aria-hidden="true">☆ ☆ ☆ ☆ ☆</div>
+                    <div class="card__rating" aria-hidden="true">{{ getRatingStars(r.rating) }}</div>
                 </article>
             </div>
 

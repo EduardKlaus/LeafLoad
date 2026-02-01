@@ -2,7 +2,7 @@
   <div class="header">
     <div class="left">
       <h1>{{ restaurant.name }}</h1>
-      <div class="stars">★★★★★</div>
+      <div class="stars">{{ getRatingStars(rating) }}</div>
       <p *ngIf="restaurant.description">{{ restaurant.description }}</p>
     </div>
 

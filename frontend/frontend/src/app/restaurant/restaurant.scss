@@ -14,6 +14,13 @@ main {
   margin: 0;
 }
 
+.stars {
+  color: var(--dark-sage);
+  font-size: 1.5rem;
+  margin: 4px 0;
+  letter-spacing: 2px;
+}
+
 .right {
   display: flex;
   flex-direction: column;

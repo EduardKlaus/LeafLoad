@@ -1,0 +1,59 @@
+:host {
+    display: block;
+}
+
+main {
+    padding: 28px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.legal-page__header h1 {
+    margin: 0 0 10px 0;
+    font-size: 2rem;
+    line-height: 1.2;
+}
+
+.legal-card {
+    background: white;
+    /* Changed from semi-transparent white as Impressum might be on dark bg? Wait, Impressum used rgba(255, 255, 255, 0.06). If the global theme is dark or sage, that makes sense. If simple white page, then it might be invisible. Let's check global styles or assume it works. Impressum seemed to use 0.06 opacity white which implies a dark background or it's very subtle on white?
+  Wait, Impressum SCSS had:
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  
+  This usually implies a dark background. Let me check `impressum.html` again or `styles.scss`? 
+  Actually, let's look at `index.html` or `styles.scss` again if I can.
+  But for now I'll just copy the style. If it looks bad I can fix it.
+  Actually, the user said "design von impressum halten". So I should copy it exactly.
+  */
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 18px;
+}
+
+/* If the background is actually light, then 0.06 white is invisible. 
+   But "dark sage" theme suggests maybe dark background?
+   Let's stick to the requested copy. */
+
+.legal-block {
+    margin: 0;
+    line-height: 1.6;
+    font-size: 1.05rem;
+}
+
+.legal-page__footer {
+    margin-top: 16px;
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+    .legal-page {
+        padding: 18px;
+    }
+
+    .legal-card {
+        padding: 14px;
+    }
+}

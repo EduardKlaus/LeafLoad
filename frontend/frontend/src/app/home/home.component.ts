@@ -9,6 +9,7 @@ type Restaurant = {
   id: number;
   name: string;
   imageUrl?: string | null;
+  rating?: number | null;
 }
 
 @Component({
@@ -31,6 +32,14 @@ export class HomeComponent implements OnInit {
 
   imgSrc(r: Restaurant): string {
     return (r.imageUrl && r.imageUrl.trim().length > 0) ? r.imageUrl : this.fallbackImage;
+  }
+
+  getRatingStars(rating?: number | null): string {
+    if (rating === null || rating === undefined) return '☆☆☆☆☆';
+
+    // Round to nearest whole number for star display
+    const stars = Math.round(rating);
+    return '★'.repeat(stars) + '☆'.repeat(5 - stars);
   }
 
   trackById(_: number, r: Restaurant) {

@@ -10,6 +10,7 @@ export const routes: Routes = [
   { path: 'auth/signup/restaurant', loadComponent: () => import('./auth/signup-restaurant/signup-restaurant.component').then(m => m.SignupRestaurantComponent) },
 
   { path: 'impressum', loadComponent: () => import('./impressum/impressum.component').then(m => m.ImpressumComponent) },
+  { path: 'about', loadComponent: () => import('./about/about.component').then(m => m.AboutComponent) },
 
   // Restaurant & Edits & Orders
   { path: 'restaurants/:id', loadComponent: () => import('./restaurant/restaurant.component').then(m => m.RestaurantComponent) },
