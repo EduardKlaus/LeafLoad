@@ -186,3 +186,82 @@ button {
     gap: 8px;
   }
 }
+
+// Rating Modal Styles
+.rating-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.rating-content {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: #333;
+  }
+}
+
+.stars-input {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.star {
+  font-size: 2.5rem;
+  color: #ddd; // Empty star color
+  cursor: pointer;
+  transition: color 0.1s;
+  user-select: none;
+
+  &.filled {
+    color: var(--dark-sage); // Dark Sage for filled stars
+  }
+}
+
+.rating-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+
+  button {
+    min-width: 100px;
+  }
+
+  .cancel {
+    background: #eee;
+    color: #333;
+
+    &:hover {
+      background: #ddd;
+    }
+  }
+
+  .submit {
+    background-color: var(--dark-sage);
+    color: white;
+
+    &:disabled {
+      background-color: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+  }
+}

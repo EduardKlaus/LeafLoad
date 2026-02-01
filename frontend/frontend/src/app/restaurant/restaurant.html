@@ -8,7 +8,7 @@
 
     <div class="right">
       <button *ngIf="isOwner" [routerLink]="['/restaurants', restaurant.id, 'edit']">Edit Info</button>
-      <button *ngIf="isOtherUser" (click)="rate(5)">Rate Restaurant</button>
+      <button *ngIf="isOtherUser" (click)="openRatingModal()">Rate Restaurant</button>
       <button *ngIf="!isLoggedIn" disabled>Rate Restaurant</button>
 
       <p class="eta" *ngIf="isOtherUser">Estimated delivery: 30–40 min</p>
@@ -72,4 +72,21 @@
       </div>
     </div>
   </section>
+
+  <!-- Rating Modal -->
+  <div class="rating-overlay" *ngIf="showRatingModal" (click)="closeRatingModal()">
+    <div class="rating-content" (click)="$event.stopPropagation()">
+      <h3>Rate {{ restaurant.name }}</h3>
+
+      <div class="stars-input">
+        <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (hoverRating || currentRating)"
+          (mouseenter)="setHoverRating(star)" (mouseleave)="setHoverRating(0)" (click)="selectRating(star)">★</span>
+      </div>
+
+      <div class="rating-actions">
+        <button (click)="closeRatingModal()" class="cancel">Cancel</button>
+        <button (click)="submitRating()" [disabled]="currentRating === 0" class="submit">Submit</button>
+      </div>
+    </div>
+  </div>
 </main>

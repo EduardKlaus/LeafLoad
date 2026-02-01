@@ -115,7 +115,39 @@ export class RestaurantComponent implements OnInit {
   }
 
   rate(rating: number) {
-    this.http.post(`${environment.apiUrl}/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
+    this.http.post(`${environment.apiUrl}/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe(() => {
+      // Optionally show success or reload
+      this.closeRatingModal();
+    });
+  }
+
+  // Rating Modal Logic
+  showRatingModal = false;
+  currentRating = 0;
+  hoverRating = 0;
+
+  openRatingModal() {
+    this.currentRating = 0;
+    this.hoverRating = 0;
+    this.showRatingModal = true;
+  }
+
+  closeRatingModal() {
+    this.showRatingModal = false;
+  }
+
+  setHoverRating(stars: number) {
+    this.hoverRating = stars;
+  }
+
+  selectRating(stars: number) {
+    this.currentRating = stars;
+  }
+
+  submitRating() {
+    if (this.currentRating > 0) {
+      this.rate(this.currentRating);
+    }
   }
 
   addToCart(item: any) {
