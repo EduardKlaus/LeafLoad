@@ -8,6 +8,7 @@ type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 export class AuthService {
   constructor(private readonly prisma: PrismaService) { }
 
+  // validates user credentials (username and password)
   async validateUser(username: string, password: string) {
     const user = await this.prisma.user.findUnique({
       where: { username },
@@ -18,6 +19,8 @@ export class AuthService {
         },
       },
     });
+
+    // no leak if username exists, same error message for invalid username and password
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const ok = await bcrypt.compare(password, user.password);
@@ -42,6 +45,7 @@ export class AuthService {
       throw new BadRequestException('Username already exists.');
     }
 
+    // hash password
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await this.prisma.user.create({

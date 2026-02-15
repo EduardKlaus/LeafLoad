@@ -15,8 +15,11 @@ import { extname, join } from 'path';
 import type { Response } from 'express';
 import { existsSync, mkdirSync } from 'fs';
 
+// Controller for file uploads
 @Controller('uploads')
 export class UploadController {
+
+    // handles file upload using multer
     @Post('image')
     @UseInterceptors(
         FileInterceptor('file', {
@@ -38,7 +41,7 @@ export class UploadController {
             }),
             limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
             fileFilter: (req, file, cb) => {
-                if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+                if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) { // only allow image files
                     return cb(new Error('Only image files are allowed!'), false);
                 }
                 cb(null, true);

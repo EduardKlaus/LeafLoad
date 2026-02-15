@@ -2,10 +2,12 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
+// used for database access and operations
 @Injectable()
 export class AccountService {
   constructor(private readonly prisma: PrismaService) { }
 
+  // get current user
   async getMe(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -14,7 +16,7 @@ export class AccountService {
         name: true,
         email: true,
         role: true,
-        createdAt: true, // falls dein Feld anders heißt: anpassen
+        createdAt: true, // frontend expects createdOn
         address: true,
         regionId: true,
         region: { select: { name: true } },
@@ -25,6 +27,7 @@ export class AccountService {
       },
     });
 
+    // if user not found throw error
     if (!user) throw new NotFoundException('User not found');
 
     return {
@@ -32,7 +35,7 @@ export class AccountService {
       name: user.name,
       email: user.email,
       role: user.role,
-      createdOn: user.createdAt, // Frontend erwartet createdOn
+      createdOn: user.createdAt, // frontend expects createdOn
       address: user.address,
       regionId: user.regionId,
       regionName: user.region?.name ?? null,
@@ -40,50 +43,58 @@ export class AccountService {
     };
   }
 
+  // updates current user profile
   async updateMe(
     userId: number,
     body: {
       name?: string;
       email?: string;
-      password?: string;
+      password?: string; // password is hashed with bcrypt
       address?: string;
       regionId?: number;
     },
   ) {
+    // dynamic prisma update payload
     const data: any = {};
 
+    // validate name
     if (body.name !== undefined) {
       const v = body.name.trim();
       if (!v) throw new BadRequestException('Name cannot be empty');
       data.name = v;
     }
 
+    // validate email
     if (body.email !== undefined) {
       const v = body.email.trim().toLowerCase();
       if (!v || !v.includes('@')) throw new BadRequestException('Invalid email');
       data.email = v;
     }
 
+    // validate and hash password
     if (body.password !== undefined) {
       if (body.password.length < 6) {
         throw new BadRequestException('Password must be at least 6 characters');
       }
       const hash = await bcrypt.hash(body.password, 10);
-      data.password = hash; // Feldname ggf. "passwordHash" o.ä. anpassen
+      data.password = hash;
     }
 
     if (body.address !== undefined) {
       data.address = body.address.trim();
     }
 
+    // stored as foreign key in user table
     if (body.regionId !== undefined) {
       data.regionId = body.regionId;
     }
 
+    // prevent empty update
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('No fields provided');
     }
 
+    // update user and return updated user
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data,
@@ -110,6 +121,8 @@ export class AccountService {
       regionName: updated.region?.name ?? null,
     };
   }
+
+  // returns all of user's orders
   async getMyOrders(userId: number) {
     const orders = await this.prisma.order.findMany({
       where: { userId },

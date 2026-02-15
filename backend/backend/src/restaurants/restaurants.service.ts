@@ -7,6 +7,7 @@ export class RestaurantsService {
   constructor(private prisma: PrismaService) { }
 
 
+  // returns all restaurants with their computed average rating
   async getAllRestaurants() {
     const restaurants = await this.prisma.restaurant.findMany({
       include: {
@@ -16,6 +17,7 @@ export class RestaurantsService {
 
     return restaurants.map((restaurant) => ({
       ...restaurant,
+      // computes rating based on rating in database
       rating:
         restaurant.reviews.length > 0
           ? restaurant.reviews.reduce((a, r) => a + r.rating, 0) /
@@ -25,6 +27,7 @@ export class RestaurantsService {
     }));
   }
 
+  // returns a specific restaurant with all data related to it (for details page)
   async getRestaurantDetails(restaurantId: number) {
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { id: restaurantId },
@@ -58,6 +61,7 @@ export class RestaurantsService {
     };
   }
 
+  // returns a specific restaurant with all data related to it (for edit page)
   async getRestaurantEditData(restaurantId: number) {
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { id: restaurantId },
@@ -76,6 +80,7 @@ export class RestaurantsService {
     return restaurant;
   }
 
+  // updates a specific restaurant
   async updateRestaurant(
     restaurantId: number,
     body: { description?: string | null; imageUrl?: string | null; regionId?: number | null }
@@ -101,6 +106,7 @@ export class RestaurantsService {
     });
   }
 
+  // creates a new category for a specific restaurant
   async createCategory(restaurantId: number, name: string) {
     const trimmed = (name ?? '').trim();
     if (!trimmed) throw new BadRequestException('Category name cannot be empty');
@@ -114,6 +120,7 @@ export class RestaurantsService {
     });
   }
 
+  // updates a specific category
   async updateCategory(categoryId: number, name: string) {
     const trimmed = (name ?? '').trim();
     if (!trimmed) throw new BadRequestException('Category name cannot be empty');
@@ -125,6 +132,7 @@ export class RestaurantsService {
     });
   }
 
+  // deletes a specific category
   async deleteCategory(categoryId: number) {
     // Damit Speisen nicht gelöscht werden:
     // Entweder onDelete:SetNull reicht (bei dir vorhanden),
@@ -139,6 +147,7 @@ export class RestaurantsService {
     return { ok: true };
   }
 
+  // creates a new review for a specific restaurant
   async rateRestaurant(restaurantId: number, rating: number) {
     if (rating < 1 || rating > 5) {
       throw new BadRequestException('Rating must be between 1 and 5');
@@ -152,6 +161,7 @@ export class RestaurantsService {
     });
   }
 
+  // returns a specific menu item with all data related to it (for edit page)
   async getMenuItemEditData(menuItemId: number) {
     const item = await this.prisma.menuItems.findUnique({
       where: { id: menuItemId },
@@ -178,6 +188,7 @@ export class RestaurantsService {
     return item;
   }
 
+  // updates a specific menu item
   async updateMenuItem(
     menuItemId: number,
     body: { title?: string; description?: string | null; imageUrl?: string | null; categoryId?: number | null }
@@ -214,11 +225,13 @@ export class RestaurantsService {
     });
   }
 
+  // deletes a specific menu item
   async deleteMenuItem(menuItemId: number) {
     await this.prisma.menuItems.delete({ where: { id: menuItemId } });
     return { ok: true };
   }
 
+  // creates a new menu item for a specific restaurant
   async createMenuItem(body: {
     restaurantId: number;
     title: string;
@@ -252,6 +265,7 @@ export class RestaurantsService {
     });
   }
 
+  // returns all orders for a specific restaurant
   async getOrdersForRestaurant(restaurantId: number) {
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { id: restaurantId },
@@ -293,6 +307,7 @@ export class RestaurantsService {
     };
   }
 
+  // creates a new order for a specific restaurant
   async createOrder(
     userId: number,
     restaurantId: number,
@@ -346,6 +361,7 @@ export class RestaurantsService {
     };
   }
 
+  // updates the status of a specific order
   async updateOrderStatus(orderId: number, status: 'PREPARING' | 'DELIVERING' | 'COMPLETED') {
     return this.prisma.order.update({
       where: { id: orderId },

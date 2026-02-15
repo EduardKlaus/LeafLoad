@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 
+// Controller for account related endpoints
 @Controller('account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) { }
@@ -22,12 +23,15 @@ export class AccountController {
     return id;
   }
 
+  // get current user (/account/me)
+  // user id from headers
   @Get('me')
   async me(@Headers() headers: Record<string, string | undefined>) {
     const userId = this.getUserIdFromHeaders(headers);
     return this.accountService.getMe(userId);
   }
 
+  // update current user (/account/me)
   @Patch('me')
   async updateMe(
     @Headers() headers: Record<string, string | undefined>,
@@ -43,6 +47,8 @@ export class AccountController {
     const userId = this.getUserIdFromHeaders(headers);
     return this.accountService.updateMe(userId, body);
   }
+
+  // get current user's orders (/account/orders)
   @Get('orders')
   async getMyOrders(@Headers() headers: Record<string, string | undefined>) {
     const userId = this.getUserIdFromHeaders(headers);
