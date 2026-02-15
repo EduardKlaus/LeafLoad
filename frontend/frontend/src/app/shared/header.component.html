@@ -5,11 +5,7 @@
 
   <!-- DESKTOP NAVIGATION -->
   <nav class="nav nav--desktop" aria-label="main navigation">
-    <!-- REGION (DB) -->
-    <select id="region" name="region" [(ngModel)]="regionId" (ngModelChange)="onRegionChange($event)">
-      <option [ngValue]="null" disabled>Select Region</option>
-      <option *ngFor="let r of regions$ | async" [ngValue]="r.id">{{ r.name }}</option>
-    </select>
+
 
     <ng-container *ngIf="state$ | async as s">
       <!-- LOGIN BUTTON -->
@@ -22,16 +18,16 @@
         </button>
         <div class="user-dropdown__menu">
           <a routerLink="/account" class="user-dropdown__item">My Account</a>
-          
+
           <!-- OWNER LINKS -->
           <ng-container *ngIf="s.role === 'RESTAURANT_OWNER'">
-             <a [routerLink]="['/restaurants', s.restaurantId]" class="user-dropdown__item">Restaurant Dashboard</a>
-             <a routerLink="/orders" class="user-dropdown__item">See Orders</a>
+            <a [routerLink]="['/restaurants', s.restaurantId]" class="user-dropdown__item">Restaurant Dashboard</a>
+            <a routerLink="/orders" class="user-dropdown__item">See Orders</a>
           </ng-container>
 
           <!-- CUSTOMER LINKS -->
           <ng-container *ngIf="s.role === 'CUSTOMER'">
-             <a routerLink="/orders" class="user-dropdown__item">Your Orders</a>
+            <a routerLink="/orders" class="user-dropdown__item">Your Orders</a>
           </ng-container>
 
           <button type="button" class="user-dropdown__item" (click)="logout()">Logout</button>
@@ -54,11 +50,7 @@
       <button class="drawer__close" type="button" aria-label="Close Menu" (click)="closeMenu()">X</button>
 
       <div class="drawer__content">
-        <!-- REGION (DB) -->
-        <select id="region-mobile" name="region-mobile" [(ngModel)]="regionId" (ngModelChange)="onRegionChange($event)">
-          <option [ngValue]="null" disabled>Select Region</option>
-          <option *ngFor="let r of regions$ | async" [ngValue]="r.id">{{ r.name }}</option>
-        </select>
+
 
         <ng-container *ngIf="state$ | async as s">
           <a *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" class="drawer__link" routerLink="/orders"

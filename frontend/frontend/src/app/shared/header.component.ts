@@ -19,10 +19,6 @@ type Region = { id: number; name: string };
 export class HeaderComponent implements OnInit, OnDestroy {
   menuOpen = false;
 
-  regions$: Observable<Region[]> | undefined;
-  regionId: number | null = null;
-
-  private readonly API_REGIONS = `${environment.apiUrl}/regions`;
   private readonly API_ME = `${environment.apiUrl}/account/me`;
   private routerSub?: Subscription;
 
@@ -44,44 +40,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.menuOpen = false;
       });
-
-    // Regions laden
-    // Regions laden
-    this.regions$ = this.http.get<Region[]>(this.API_REGIONS);
-
-    // Region aus Profil übernehmen, sobald eingeloggt
-    this.auth.state$.subscribe((s: any) => {
-      // Erwartung: AuthState enthält regionId (wenn du es noch nicht drin hast, siehe Hinweis unten)
-      if (s?.isLoggedIn) {
-        this.regionId = s.regionId ?? null;
-      } else {
-        this.regionId = null;
-      }
-    });
   }
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
   }
 
-  onRegionChange(nextId: number | null): void {
-    this.regionId = nextId;
 
-    // nur speichern, wenn eingeloggt und eine Region gewählt
-    // und nur im Browser (SSR-sicher)
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    if (nextId == null) return;
-
-    this.http.patch(this.API_ME, { regionId: nextId }).subscribe({
-      next: () => {
-        // optional: du könntest hier auch AuthState aktualisieren, wenn du willst
-      },
-      error: () => {
-        // optional: revert oder Fehlermeldung
-      },
-    });
-  }
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;

@@ -6,11 +6,20 @@
 
 <main>
     <section class="restaurants">
-        <h2 style="font-size: 2em; margin-bottom: 1em;">Restaurants</h2>
+        <div class="restaurants__header">
+            <h2>Restaurants</h2>
 
-        <ng-container *ngIf="restaurants$ | async as restaurants; else loading">
+            <div class="filter-wrapper">
+                <select id="region-filter" [(ngModel)]="regionId" (change)="onRegionChange()">
+                    <option [ngValue]="null">Alle Regionen</option>
+                    <option *ngFor="let r of regions$ | async" [ngValue]="r.id">{{ r.name }}</option>
+                </select>
+            </div>
+        </div>
+
+        <ng-container *ngIf="!isLoading; else loading">
             <div class="grid">
-                <article class="card" *ngFor="let r of restaurants; trackBy: trackById"
+                <article class="card" *ngFor="let r of filteredRestaurants; trackBy: trackById"
                     [routerLink]="['/restaurants', r.id]" style="cursor: pointer;">
                     <div class="card__imageWrap">
                         <img [src]="imgSrc(r)" [alt]="r.name" loading="lazy" />
@@ -20,7 +29,7 @@
                 </article>
             </div>
 
-            <p class="empty" *ngIf="restaurants.length === 0">
+            <p class="empty" *ngIf="filteredRestaurants.length === 0">
                 Keine Restaurants gefunden.
             </p>
         </ng-container>
