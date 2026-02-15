@@ -53,7 +53,7 @@ export class ImageUploadOverlayComponent {
         this.error = '';
 
         if (!file.type.startsWith('image/')) {
-            this.error = 'Bitte nur Bild-Dateien hochladen.';
+            this.error = 'Please only upload Image Files.';
             return;
         }
 
@@ -71,7 +71,7 @@ export class ImageUploadOverlayComponent {
             error: (err) => {
                 this.uploading = false;
                 console.error(err);
-                this.error = err?.error?.message ?? 'Upload fehlgeschlagen.';
+                this.error = err?.error?.message ?? 'Upload failed.';
             }
         });
     }
