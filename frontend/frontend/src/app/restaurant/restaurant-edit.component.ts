@@ -19,10 +19,12 @@ type RestaurantEditData = {
 
 type EditField = 'description' | 'imageUrl' | 'regionId' | null;
 
+import { ImageUploadOverlayComponent } from '../shared/image-upload/image-upload-overlay.component';
+
 @Component({
   selector: 'app-restaurant-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ImageUploadOverlayComponent],
   templateUrl: './restaurant-edit.html',
   styleUrls: ['./restaurant-edit.scss'],
 })
@@ -47,7 +49,19 @@ export class RestaurantEditComponent implements OnInit {
   editCategoryName = '';
   savingCategoryId: number | null = null;
 
+  showImageOverlay = false;
+
   private restaurantId!: number;
+
+  openImageOverlay() {
+    this.error = '';
+    this.showImageOverlay = true;
+  }
+
+  onRestaurantImageUploaded(path: string) {
+    this.showImageOverlay = false;
+    this.patchRestaurant({ imageUrl: path });
+  }
 
   constructor(private route: ActivatedRoute, private http: HttpClient) { }
 

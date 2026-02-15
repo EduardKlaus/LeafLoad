@@ -1,0 +1,29 @@
+<div class="overlay" (click)="close()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="header">
+            <div class="title">Bild hochladen</div>
+            <button class="iconBtn" (click)="close()" aria-label="Close">✕</button>
+        </div>
+
+        <div class="drop" [class.drop--active]="isDragging" (dragenter)="onDragEnter($event)"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+            <div class="drop__icon">📁</div>
+            <div class="drop__text">
+                <div class="drop__headline">Drag your image here to upload</div>
+                <div class="drop__sub">oder</div>
+            </div>
+
+            <input #fileInput type="file" accept="image/*" class="fileInput" (change)="onPick($event)" />
+            <button class="btn" (click)="fileInput.click()" [disabled]="uploading">
+                Browse files
+            </button>
+
+            <div class="status" *ngIf="uploading">Uploading…</div>
+            <div class="error" *ngIf="error">{{ error }}</div>
+        </div>
+
+        <div class="footer">
+            <button class="btnGhost" (click)="close()" [disabled]="uploading">Cancel</button>
+        </div>
+    </div>
+</div>

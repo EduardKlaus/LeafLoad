@@ -7,10 +7,12 @@ import { environment } from '../../environments/environment';
 
 type Category = { id: number; name: string };
 
+import { ImageUploadOverlayComponent } from '../shared/image-upload/image-upload-overlay.component';
+
 @Component({
   selector: 'app-menu-item-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ImageUploadOverlayComponent],
   templateUrl: './menu-edit.html',
   styleUrls: ['./menu-edit.scss'],
 })
@@ -31,8 +33,35 @@ export class MenuItemEditComponent implements OnInit {
   editCategoryId: number | null = null;
   editPrice = 0;
 
+  showImageOverlay = false;
+
   private itemId: number | null = null;
   private restaurantId: number | null = null;
+
+  openImageOverlay() {
+    this.error = '';
+    this.showImageOverlay = true;
+  }
+
+  onItemImageUploaded(path: string) {
+    this.showImageOverlay = false;
+    if (this.isCreateMode) {
+      this.editImageUrl = path;
+    } else {
+      this.saving = true;
+      this.http.patch<any>(`${environment.apiUrl}/restaurants/menu-items/${this.itemId}`, { imageUrl: path }).subscribe({
+        next: (updated) => {
+          this.item = { ...this.item, ...updated };
+          this.editImageUrl = path;
+          this.saving = false;
+        },
+        error: (err) => {
+          this.saving = false;
+          this.error = err?.error?.message ?? 'Could not save image.';
+        },
+      });
+    }
+  }
 
   constructor(
     private route: ActivatedRoute,
