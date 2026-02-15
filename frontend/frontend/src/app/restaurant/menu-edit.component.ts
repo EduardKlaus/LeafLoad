@@ -38,11 +38,13 @@ export class MenuItemEditComponent implements OnInit {
   private itemId: number | null = null;
   private restaurantId: number | null = null;
 
+  // opens the image upload overlay
   openImageOverlay() {
     this.error = '';
     this.showImageOverlay = true;
   }
 
+  // handles the uploaded image
   onItemImageUploaded(path: string) {
     this.showImageOverlay = false;
     if (this.isCreateMode) {
@@ -86,6 +88,7 @@ export class MenuItemEditComponent implements OnInit {
     }
   }
 
+  // loads the full menu item data for editing (also extracts restaurant categories for selection)
   load(): void {
     this.isLoading = true;
     this.error = '';
@@ -111,6 +114,7 @@ export class MenuItemEditComponent implements OnInit {
     });
   }
 
+  // loads restaurant categories only
   loadCategoriesForCreate(): void {
     if (!this.restaurantId) return;
 
@@ -126,11 +130,13 @@ export class MenuItemEditComponent implements OnInit {
     });
   }
 
+  // activates inline editing for a field
   startEdit(field: 'title' | 'description' | 'imageUrl' | 'categoryId' | 'price') {
     this.error = '';
     this.editField = field;
   }
 
+  // cancels inline editing
   cancelEdit() {
     this.error = '';
     this.editField = null;
@@ -143,6 +149,7 @@ export class MenuItemEditComponent implements OnInit {
     this.editPrice = this.item.price ?? 0;
   }
 
+  // saves the changes for the current field
   save() {
     if (!this.item) return;
 
@@ -172,6 +179,7 @@ export class MenuItemEditComponent implements OnInit {
     });
   }
 
+  // creates a new menu item
   createItem() {
     if (!this.editTitle.trim()) {
       this.error = 'Dish name cannot be empty.';
@@ -204,6 +212,7 @@ export class MenuItemEditComponent implements OnInit {
     });
   }
 
+  // gets the category name for a given category id
   getCategoryName(categoryId: number | null): string {
     if (categoryId === null) return 'Other';
     const category = this.categories.find(c => c.id === categoryId);

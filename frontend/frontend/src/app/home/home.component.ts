@@ -22,7 +22,8 @@ type Restaurant = {
 export class HomeComponent implements OnInit {
   restaurants$: Observable<Restaurant[]> | null = null;
 
-  readonly fallbackImage = 'assets/fallback_image.png'; // if restaurant doesn't have an image
+  // if restaurant doesn't have an image
+  readonly fallbackImage = 'assets/fallback_image.png';
 
   constructor(private http: HttpClient) { }
 

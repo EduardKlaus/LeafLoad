@@ -6,6 +6,7 @@ import { AuthService } from '../auth/auth.service';
 import { environment } from '../../environments/environment';
 
 type OrderItem = { title: string; quantity: number };
+
 type Order = {
     id: number;
     status: 'PENDING' | 'PREPARING' | 'DELIVERING' | 'COMPLETED' | null;
@@ -56,6 +57,7 @@ export class OrdersComponent implements OnInit {
         });
     }
 
+    // loads all restaurant orders for logged-in restaurant owner
     private loadRestaurantOrders(): void {
         if (!this.restaurantId) return;
 
@@ -73,6 +75,7 @@ export class OrdersComponent implements OnInit {
             });
     }
 
+    // loads all customer orders for logged-in customer
     private loadCustomerOrders(): void {
         this.http
             .get<{ orders: Order[] }>(`${environment.apiUrl}/account/orders`)
@@ -89,6 +92,7 @@ export class OrdersComponent implements OnInit {
             });
     }
 
+    // updates order status
     setStatus(order: Order, status: 'PREPARING' | 'DELIVERING' | 'COMPLETED'): void {
         this.http
             .patch<{ id: number; status: string }>(
@@ -102,6 +106,7 @@ export class OrdersComponent implements OnInit {
             });
     }
 
+    // controls button availability depending on current order status
     canClick(order: Order, button: 'PREPARING' | 'DELIVERING' | 'COMPLETED'): boolean {
         const current = order.status;
         if (button === 'PREPARING') return current === null || current === 'PENDING';
@@ -110,6 +115,7 @@ export class OrdersComponent implements OnInit {
         return false;
     }
 
+    // formats order items for display
     formatItems(items: OrderItem[]): string {
         return items.map((i) => `${i.quantity}x ${i.title}`).join(', ');
     }

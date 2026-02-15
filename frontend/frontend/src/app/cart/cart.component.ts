@@ -12,6 +12,7 @@ import { AuthService } from '../auth/auth.service';
     styleUrls: ['./cart.component.scss'],
 })
 export class CartComponent {
+    // fallback image for when restaurant doesn't have one
     readonly fallbackImg = 'assets/pexels-ella-olsson-572949-1640773.jpg';
     checkoutSuccess = false;
     checkoutError: string | null = null;
@@ -29,11 +30,13 @@ export class CartComponent {
         private router: Router
     ) { }
 
+    // increment quantity of an item in the cart
     increment(item: CartItem) {
         this.cart.updateQuantity(item.id, 1);
         this.recalculateDiscount();
     }
 
+    // decrement quantity of an item in the cart
     decrement(item: CartItem) {
         if (item.quantity > 1) {
             this.cart.updateQuantity(item.id, -1);
@@ -41,15 +44,18 @@ export class CartComponent {
         }
     }
 
+    // remove an item from the cart
     removeItem(item: CartItem) {
         this.cart.removeItem(item.id);
         this.recalculateDiscount();
     }
 
+    // check if user is logged in
     get isLoggedIn(): boolean {
         return this.auth.currentState().isLoggedIn;
     }
 
+    // validates voucher code and applies discount
     redeemVoucher() {
         if (this.validVoucherCode && this.voucherCode === this.validVoucherCode) {
             this.discountApplied = true;
@@ -60,6 +66,7 @@ export class CartComponent {
         }
     }
 
+    // recalculates discount amount
     recalculateDiscount() {
         if (this.discountApplied) {
             // 10% discount
@@ -69,10 +76,12 @@ export class CartComponent {
         }
     }
 
+    // returns final total after discount
     get finalTotal(): number {
         return this.cart.getTotal() - this.discountAmount;
     }
 
+    // handles checkout process
     checkout() {
         if (!this.isLoggedIn) {
             this.router.navigate(['/login']);

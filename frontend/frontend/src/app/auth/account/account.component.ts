@@ -20,6 +20,7 @@ type UserProfile = {
     regionName?: string | null;
 };
 
+// fields that can be edited
 type EditableField = 'name' | 'email' | 'password' | 'address' | 'regionId';
 
 type Region = { id: number; name: string };
@@ -32,7 +33,9 @@ type Region = { id: number; name: string };
     styleUrls: ['./account.scss'],
 })
 export class AccountComponent implements OnInit, OnDestroy {
+    // API endpoint for current user
     private readonly API_ME = `${environment.apiUrl}/account/me`;
+    // subscription used to wait for auth to be ready
     private authSub?: Subscription;
 
     isLoading = false;
@@ -42,10 +45,10 @@ export class AccountComponent implements OnInit, OnDestroy {
     savingField: EditableField | null = null;
     editField: EditableField | null = null;
 
-    // Edit buffers
+    // Edit buffers (local string fields prevent modifying the live profile object)
     editName = '';
     editEmail = '';
-    // Passwort wird nicht angezeigt, nur neu gesetzt
+    // password is not displayed, only set via field for old and new password
     newPassword = '';
     newPasswordRepeat = '';
 
@@ -74,9 +77,11 @@ export class AccountComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        // cleanup to prevent subscriptions from staying active after component is destroyed
         this.authSub?.unsubscribe();
     }
 
+    // fetches user profile from backend and initializes edit buffers
     loadProfile(): void {
         this.isLoading = true;
         this.error = '';
@@ -94,6 +99,7 @@ export class AccountComponent implements OnInit, OnDestroy {
         });
     }
 
+    // enables editing for a specific field and initializes buffers
     startEdit(field: EditableField): void {
         if (!this.profile) return;
         this.error = '';
@@ -109,12 +115,14 @@ export class AccountComponent implements OnInit, OnDestroy {
         }
     }
 
+    // cancels editing and resets buffers
     cancelEdit(): void {
         this.error = '';
         this.editField = null;
         this.resetEditBuffers();
     }
 
+    // saves name after validation
     saveName(): void {
         if (!this.profile) return;
         const value = this.editName.trim();
@@ -125,6 +133,7 @@ export class AccountComponent implements OnInit, OnDestroy {
         this.patchAndUpdate('name', value);
     }
 
+    // saves email after validation
     saveEmail(): void {
         if (!this.profile) return;
         const value = this.editEmail.trim();
@@ -139,6 +148,7 @@ export class AccountComponent implements OnInit, OnDestroy {
         this.patchAndUpdate('email', value);
     }
 
+    // saves password after validation
     savePassword(): void {
         if (!this.profile) return;
 
@@ -164,6 +174,7 @@ export class AccountComponent implements OnInit, OnDestroy {
         });
     }
 
+    // updates (patches) a single field and updates the profile
     private patchAndUpdate(field: 'name' | 'email' | 'address', value: string): void {
         if (!this.profile) return;
 
@@ -189,12 +200,14 @@ export class AccountComponent implements OnInit, OnDestroy {
         });
     }
 
+    // resets the edit buffers
     private resetEditBuffers(): void {
         if (!this.profile) return;
         this.editName = this.profile.name;
         this.editEmail = this.profile.email;
     }
 
+    // loads available regions from backend
     loadRegions(): void {
         this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
             next: (r) => (this.regions = r),
@@ -202,11 +215,13 @@ export class AccountComponent implements OnInit, OnDestroy {
         });
     }
 
+    // saves address after validation
     saveAddress(): void {
         const value = this.editAddress.trim();
         this.patchAndUpdate('address', value);
     }
 
+    // saves region after validation
     saveRegion(): void {
         if (this.editRegionId == null) {
             this.error = 'Bitte eine Region auswählen.';

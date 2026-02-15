@@ -30,13 +30,14 @@ export class SignupRestaurantComponent {
     loading = false;
 
     constructor(private router: Router, private http: HttpClient) {
-        // get userId from Route state?
+        // get userId from Route state
         const nav = this.router.getCurrentNavigation();
         this.userId = (nav?.extras?.state as any)?.userId ?? history.state?.userId ?? null;
 
         this.loadRegions();
     }
 
+    // load available regions from backend
     loadRegions() {
         this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
             next: (r) => (this.regions = r),
@@ -44,6 +45,7 @@ export class SignupRestaurantComponent {
         });
     }
 
+    // form submission: restaurant data to backend
     async onSubmit(form: NgForm) {
         this.error = '';
         if (form.invalid) return;

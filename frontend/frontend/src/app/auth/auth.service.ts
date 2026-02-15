@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 
 export type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
+// central authentication state sored in memory and local storage
 export interface AuthState {
   isLoggedIn: boolean;
   role: Role | null;
@@ -24,6 +25,7 @@ type LoginResponse = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  // BehaviorSubject: holds current state and emits updates to subscribers
   private readonly _state$ = new BehaviorSubject<AuthState>({
     isLoggedIn: false,
     role: null,
@@ -33,11 +35,12 @@ export class AuthService {
     restaurantId: null,
   });
 
+  // ReplaySubject: emits cached value; helps components wait until local storage is loaded
   private readonly _authReady$ = new ReplaySubject<boolean>(1);
 
   readonly state$: Observable<AuthState> = this._state$.asObservable();
 
-  /** Emits true once auth state has been loaded from localStorage (or immediately if not in browser) */
+  // Emits true once auth state has been loaded from localStorage (or immediately if not in browser)
   readonly authReady$: Observable<boolean> = this._authReady$.asObservable();
 
   constructor(
@@ -87,17 +90,12 @@ export class AuthService {
     });
   }
 
-  /**
-   * 🔹 Snapshot des aktuellen Auth-States
-   * (für Rollen- & Owner-Checks)
-   */
+  // synchornous snapshot of current auth state; useful for guards, role checks, quick reads
   currentState(): AuthState {
     return this._state$.value;
   }
 
-  /**
-   * 🔹 Login
-   */
+  // login and updates auth state + local storage
   login(username: string, password: string) {
     return this.http
       .post<LoginResponse>(`${environment.apiUrl}/auth/login`, { username, password })
@@ -121,9 +119,7 @@ export class AuthService {
       );
   }
 
-  /**
-   * 🔹 Logout
-   */
+  // clears auth state + local storage
   logout() {
     const empty: AuthState = {
       isLoggedIn: false,

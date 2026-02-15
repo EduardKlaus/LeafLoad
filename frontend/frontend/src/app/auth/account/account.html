@@ -13,6 +13,8 @@
                     <div class="row__label">Username</div>
                     <div class="row__value">{{ p.username }}</div>
                 </div>
+
+
                 <!-- NAME -->
                 <div class="row">
                     <div class="row__label">Name</div>
@@ -29,15 +31,17 @@
                         </button>
 
                         <ng-container *ngIf="editField === 'name'">
-                        <button (click)="saveName()" [disabled]="savingField === 'name'">
-                            Save
-                        </button>
-                        <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'name'">
-                            Cancel
-                        </button>
+                            <button (click)="saveName()" [disabled]="savingField === 'name'">
+                                Save
+                            </button>
+                            <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'name'">
+                                Cancel
+                            </button>
                         </ng-container>
                     </div>
                 </div>
+
+
                 <!-- ADDRESS -->
                 <div class="row">
                     <div class="row__label">Address</div>
@@ -63,6 +67,8 @@
                         </ng-container>
                     </div>
                 </div>
+
+
                 <!-- REGION -->
                 <div class="row">
                     <div class="row__label">Region</div>
@@ -73,31 +79,35 @@
 
                     <div class="row__edit" *ngIf="editField === 'regionId'">
                         <select [(ngModel)]="editRegionId">
-                        <option [ngValue]="null" disabled>Select Region</option>
-                        <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
+                            <option [ngValue]="null" disabled>Select Region</option>
+                            <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
                         </select>
                     </div>
 
                     <div class="row__actions">
                         <button class="btn__ghost" *ngIf="editField !== 'regionId'" (click)="startEdit('regionId')">
-                        Edit
+                            Edit
                         </button>
 
                         <ng-container *ngIf="editField === 'regionId'">
-                        <button (click)="saveRegion()" [disabled]="savingField === 'regionId'">
-                            Save
-                        </button>
-                        <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'regionId'">
-                            Cancel
-                        </button>
+                            <button (click)="saveRegion()" [disabled]="savingField === 'regionId'">
+                                Save
+                            </button>
+                            <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'regionId'">
+                                Cancel
+                            </button>
                         </ng-container>
                     </div>
                 </div>
+
+
                 <!-- ROLE -->
                 <div class="row">
                     <div class="row__label">Role</div>
                     <div class="row__value">{{ p.role }}</div>
                 </div>
+
+
                 <!-- E-MAIL -->
                 <div class="row">
                     <div class="row__label">E-Mail</div>
@@ -114,15 +124,17 @@
                         </button>
 
                         <ng-container *ngIf="editField === 'email'">
-                        <button (click)="saveEmail()" [disabled]="savingField === 'email'">
-                            Save
-                        </button>
-                        <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'email'">
-                            Cancel
-                        </button>
+                            <button (click)="saveEmail()" [disabled]="savingField === 'email'">
+                                Save
+                            </button>
+                            <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'email'">
+                                Cancel
+                            </button>
                         </ng-container>
                     </div>
                 </div>
+
+
                 <!-- PASSWORD -->
                 <div class="row">
                     <div class="row__label">Passwort</div>
@@ -131,8 +143,10 @@
 
                     <div class="row__edit" *ngIf="editField === 'password'">
                         <div class="pw">
-                        <input type="password" placeholder="Neues Passwort" [(ngModel)]="newPassword" autocomplete="new-password" />
-                        <input type="password" placeholder="Wiederholen" [(ngModel)]="newPasswordRepeat" autocomplete="new-password" />
+                            <input type="password" placeholder="Neues Passwort" [(ngModel)]="newPassword"
+                                autocomplete="new-password" />
+                            <input type="password" placeholder="Wiederholen" [(ngModel)]="newPasswordRepeat"
+                                autocomplete="new-password" />
                         </div>
                     </div>
 
@@ -142,21 +156,23 @@
                         </button>
 
                         <ng-container *ngIf="editField === 'password'">
-                        <button (click)="savePassword()" [disabled]="savingField === 'password'">
-                            Save
-                        </button>
-                        <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'password'">
-                            Cancel
-                        </button>
+                            <button (click)="savePassword()" [disabled]="savingField === 'password'">
+                                Save
+                            </button>
+                            <button class="btn__ghost" (click)="cancelEdit()" [disabled]="savingField === 'password'">
+                                Cancel
+                            </button>
                         </ng-container>
                     </div>
                 </div>
+
+
                 <!-- CREATED ON -->
                 <div class="row">
                     <div class="row__label">Created on</div>
                     <div class="row__value">{{ p.createdOn | date:'mediumDate' }}</div>
                 </div>
-                
+
             </div>
         </ng-container>
     </section>

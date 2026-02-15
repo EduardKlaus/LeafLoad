@@ -17,6 +17,7 @@ type RestaurantEditData = {
   categories: Category[];
 };
 
+// editable fields
 type EditField = 'description' | 'imageUrl' | 'regionId' | null;
 
 import { ImageUploadOverlayComponent } from '../shared/image-upload/image-upload-overlay.component';
@@ -70,6 +71,7 @@ export class RestaurantEditComponent implements OnInit {
     this.load();
   }
 
+  // loads the restaurant data from backend
   load(): void {
     this.isLoading = true;
     this.error = '';

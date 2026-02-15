@@ -40,6 +40,7 @@ export class SignupComponent {
         this.loadRegions();
     }
 
+    // load available regions from backend
     loadRegions() {
         this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
             next: (r) => (this.regions = r),
@@ -47,6 +48,7 @@ export class SignupComponent {
         });
     }
 
+    // form submission: user data to backend
     async onSubmit(form: NgForm) {
         this.error = '';
         if (form.invalid) return;
