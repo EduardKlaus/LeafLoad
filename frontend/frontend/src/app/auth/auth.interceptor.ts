@@ -10,6 +10,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const state = authService.currentState();
 
+  // console.log('[AuthInterceptor] Request:', req.url, 'State:', state);
+
   // Only add header if user is logged in and has a userId
   if (state.isLoggedIn && state.userId != null) {
     const clonedReq = req.clone({
@@ -17,6 +19,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         'x-user-id': String(state.userId),
       },
     });
+    // console.log('[AuthInterceptor] Added x-user-id:', state.userId);
     return next(clonedReq);
   }
 
