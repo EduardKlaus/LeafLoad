@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { environment } from '../../environments/environment';
+import { filter, switchMap, takeUntil, Subject } from 'rxjs';
 
 type OrderItem = { title: string; quantity: number };
 
@@ -29,12 +30,14 @@ type OrdersResponse = {
     templateUrl: './orders.component.html',
     styleUrls: ['./orders.component.scss'],
 })
-export class OrdersComponent implements OnInit {
+export class OrdersComponent implements OnInit, OnDestroy {
     restaurantName = '';
     orders: Order[] = [];
     loading = true;
+    error = ''; // <--- Added error property
 
     private restaurantId: number | null = null;
+    private destroy$ = new Subject<void>();
 
     role: string | null = null;
     currentUserId: number | null = null;
@@ -42,14 +45,19 @@ export class OrdersComponent implements OnInit {
     constructor(private http: HttpClient, private auth: AuthService) { }
 
     ngOnInit(): void {
-        this.auth.state$.subscribe((s: any) => {
+        // Wait for auth to be ready (localStorage loaded)
+        this.auth.authReady$.pipe(
+            filter(ready => ready),
+            switchMap(() => this.auth.state$),
+            takeUntil(this.destroy$)
+        ).subscribe((s: any) => {
             this.role = s?.role ?? null;
             this.currentUserId = s?.userId ?? null;
 
             if (s?.restaurantId && s.role === 'RESTAURANT_OWNER') {
                 this.restaurantId = s.restaurantId;
                 this.loadRestaurantOrders();
-            } else if (s?.isLoggedIn && s.role === 'CUSTOMER') {
+            } else if (s?.isLoggedIn && s.role === 'CUSTOMER' && s.userId != null) {
                 this.loadCustomerOrders();
             } else {
                 this.loading = false;
@@ -57,9 +65,18 @@ export class OrdersComponent implements OnInit {
         });
     }
 
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
     // loads all restaurant orders for logged-in restaurant owner
     private loadRestaurantOrders(): void {
         if (!this.restaurantId) return;
+
+        this.loading = true; // Ensure loading is reset if called again
+        this.error = '';
+        this.orders = []; // <--- Clear stale data
 
         this.http
             .get<OrdersResponse>(`${environment.apiUrl}/restaurants/${this.restaurantId}/orders`)
@@ -69,7 +86,8 @@ export class OrdersComponent implements OnInit {
                     this.orders = res.orders;
                     this.loading = false;
                 },
-                error: () => {
+                error: (err) => {
+                    this.error = err?.error?.message ?? 'Could not load orders.';
                     this.loading = false;
                 },
             });
@@ -77,6 +95,10 @@ export class OrdersComponent implements OnInit {
 
     // loads all customer orders for logged-in customer
     private loadCustomerOrders(): void {
+        this.loading = true;
+        this.error = '';
+        this.orders = []; // <--- Clear stale data
+
         this.http
             .get<{ orders: Order[] }>(`${environment.apiUrl}/account/orders`)
             .subscribe({
@@ -86,7 +108,8 @@ export class OrdersComponent implements OnInit {
                     this.orders = res.orders;
                     this.loading = false;
                 },
-                error: () => {
+                error: (err) => {
+                    this.error = err?.error?.message ?? 'Could not load orders.';
                     this.loading = false;
                 },
             });

@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { combineLatest, Subject, takeUntil } from 'rxjs';
 
 type Category = { id: number; name: string };
 
@@ -16,7 +17,7 @@ import { ImageUploadOverlayComponent } from '../shared/image-upload/image-upload
   templateUrl: './menu-edit.html',
   styleUrls: ['./menu-edit.scss'],
 })
-export class MenuItemEditComponent implements OnInit {
+export class MenuItemEditComponent implements OnInit, OnDestroy {
   item: any = null;
   categories: Category[] = [];
 
@@ -37,6 +38,7 @@ export class MenuItemEditComponent implements OnInit {
 
   private itemId: number | null = null;
   private restaurantId: number | null = null;
+  private destroy$ = new Subject<void>();
 
   // opens the image upload overlay
   openImageOverlay() {
@@ -72,26 +74,36 @@ export class MenuItemEditComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
+    combineLatest([this.route.paramMap, this.route.queryParamMap]).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(([params, queryParams]) => {
+      const idParam = params.get('id');
 
-    if (idParam) {
-      // Edit mode
-      this.itemId = Number(idParam);
-      this.isCreateMode = false;
-      this.load();
-    } else {
-      // Create mode
-      this.isCreateMode = true;
-      this.restaurantId = Number(this.route.snapshot.queryParamMap.get('restaurantId'));
-      this.editCategoryId = Number(this.route.snapshot.queryParamMap.get('categoryId')) || null;
-      this.loadCategoriesForCreate();
-    }
+      if (idParam) {
+        // Edit mode
+        this.itemId = Number(idParam);
+        this.isCreateMode = false;
+        this.load();
+      } else {
+        // Create mode
+        this.isCreateMode = true;
+        this.restaurantId = Number(queryParams.get('restaurantId'));
+        this.editCategoryId = Number(queryParams.get('categoryId')) || null;
+        this.loadCategoriesForCreate();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // loads the full menu item data for editing (also extracts restaurant categories for selection)
   load(): void {
     this.isLoading = true;
     this.error = '';
+    this.item = null; // <--- Clear stale data
 
     this.http.get<any>(`${environment.apiUrl}/restaurants/menu-items/${this.itemId}/edit`).subscribe({
       next: (res) => {

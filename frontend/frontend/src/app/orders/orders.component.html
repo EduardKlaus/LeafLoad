@@ -2,13 +2,14 @@
     <h1 *ngIf="role === 'RESTAURANT_OWNER'">Orders for {{ restaurantName }}</h1>
     <h1 *ngIf="role === 'CUSTOMER'">Your Orders</h1>
 
+    <p class="error" *ngIf="error">{{ error }}</p>
     <p *ngIf="loading">Loading orders...</p>
 
-    <p *ngIf="!loading && orders.length === 0" class="empty">
+    <p *ngIf="!loading && !error && orders.length === 0" class="empty">
         No orders yet.
     </p>
 
-    <table *ngIf="!loading && orders.length > 0" class="orders-table">
+    <table *ngIf="!loading && !error && orders.length > 0" class="orders-table">
         <thead>
             <tr>
                 <th *ngIf="role === 'RESTAURANT_OWNER'">Customer</th>

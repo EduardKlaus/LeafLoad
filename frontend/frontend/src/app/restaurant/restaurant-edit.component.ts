@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { Subject, takeUntil } from 'rxjs';
 
 type Region = { id: number; name: string };
 type Category = { id: number; name: string };
@@ -29,7 +30,7 @@ import { ImageUploadOverlayComponent } from '../shared/image-upload/image-upload
   templateUrl: './restaurant-edit.html',
   styleUrls: ['./restaurant-edit.scss'],
 })
-export class RestaurantEditComponent implements OnInit {
+export class RestaurantEditComponent implements OnInit, OnDestroy {
   restaurant: RestaurantEditData | null = null;
   regions: Region[] = [];
 
@@ -53,6 +54,7 @@ export class RestaurantEditComponent implements OnInit {
   showImageOverlay = false;
 
   private restaurantId!: number;
+  private destroy$ = new Subject<void>();
 
   openImageOverlay() {
     this.error = '';
@@ -67,14 +69,24 @@ export class RestaurantEditComponent implements OnInit {
   constructor(private route: ActivatedRoute, private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.restaurantId = Number(this.route.snapshot.paramMap.get('id'));
-    this.load();
+    this.route.paramMap.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+      this.restaurantId = Number(params.get('id'));
+      this.load();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // loads the restaurant data from backend
   load(): void {
     this.isLoading = true;
     this.error = '';
+    this.restaurant = null; // <--- Clear stale data
 
     this.http.get<RestaurantEditData>(`${environment.apiUrl}/restaurants/${this.restaurantId}/edit`).subscribe({
       next: (r) => {

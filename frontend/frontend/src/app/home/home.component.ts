@@ -1,9 +1,9 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth/auth.service';
 
@@ -24,7 +24,7 @@ type Region = { id: number; name: string };
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   restaurants: Restaurant[] = [];
   filteredRestaurants: Restaurant[] = [];
 
@@ -35,6 +35,8 @@ export class HomeComponent implements OnInit {
 
   // if restaurant doesn't have an image
   readonly fallbackImage = 'assets/fallback_image.png';
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private http: HttpClient,
@@ -61,12 +63,19 @@ export class HomeComponent implements OnInit {
     });
 
     // Initialize filter from auth state if logged in
-    this.auth.state$.subscribe((s: any) => {
+    this.auth.state$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((s: any) => {
       if (s?.isLoggedIn && s.regionId) {
         this.regionId = s.regionId;
         this.applyFilter();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onRegionChange(): void {

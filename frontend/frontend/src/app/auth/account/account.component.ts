@@ -6,6 +6,8 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth.service';
 import { Subscription, filter, take, switchMap } from 'rxjs';
 
+//console.log('Account ngOnInit', Date.now());
+
 type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
 type UserProfile = {
