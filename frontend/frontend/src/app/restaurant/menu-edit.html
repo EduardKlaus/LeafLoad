@@ -179,4 +179,8 @@
       </div>
     </ng-container>
   </section>
+
+  <div class="card__footer" *ngIf="restaurantId">
+    <button [routerLink]="['/restaurants', restaurantId]">Back to Restaurant</button>
+  </div>
 </main>

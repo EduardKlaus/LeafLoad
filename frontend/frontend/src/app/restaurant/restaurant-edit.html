@@ -116,30 +116,30 @@
 
         <!-- CATEGORIES LIST -->
         <div class="categoryList">
-          <div class="row" *ngFor="let c of r.categories">
-            <div class="row__label">Category</div>
-
-            <div class="row__value" *ngIf="editingCategoryId !== c.id">{{ c.name }}</div>
-
-            <div class="row__edit" *ngIf="editingCategoryId === c.id">
-              <input type="text" [(ngModel)]="editCategoryName" />
-            </div>
-
-            <div class="row__actions">
-              <ng-container *ngIf="editingCategoryId !== c.id">
+          <div class="row category-row" *ngFor="let c of r.categories">
+            <!-- DISPLAY MODE -->
+            <ng-container *ngIf="editingCategoryId !== c.id">
+              <div class="category-name">{{ c.name }}</div>
+              <div class="row__actions">
                 <button class="btn__ghost" (click)="startEditCategory(c)">Edit</button>
                 <button class="btn__danger" (click)="deleteCategory(c)" [disabled]="savingCategoryId === c.id">
                   Delete
                 </button>
-              </ng-container>
+              </div>
+            </ng-container>
 
-              <ng-container *ngIf="editingCategoryId === c.id">
+            <!-- EDIT MODE -->
+            <ng-container *ngIf="editingCategoryId === c.id">
+              <div class="row__edit">
+                <input type="text" [(ngModel)]="editCategoryName" />
+              </div>
+              <div class="row__actions">
                 <button (click)="saveCategory(c.id)" [disabled]="savingCategoryId === c.id">Save</button>
                 <button class="btn__ghost" (click)="cancelEditCategory()" [disabled]="savingCategoryId === c.id">
                   Cancel
                 </button>
-              </ng-container>
-            </div>
+              </div>
+            </ng-container>
           </div>
 
           <p class="muted small" *ngIf="r.categories.length === 0">
@@ -149,4 +149,8 @@
       </div>
     </ng-container>
   </section>
+
+  <div class="card__footer">
+    <button [routerLink]="['/restaurants', restaurantId]">Back to Restaurant</button>
+  </div>
 </main>

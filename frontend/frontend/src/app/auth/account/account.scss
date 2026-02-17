@@ -103,14 +103,20 @@ button {
 }
 
 button:disabled {
-  opacity: 0.6;
+  opacity: .6;
   cursor: not-allowed;
 }
 
-.btn--ghost {
+button.btn__ghost {
   background: transparent;
   color: var(--dark-sage);
-  border: 1px solid rgba(0, 0, 0, .20);
+  border: 1px solid var(--dark-sage);
+}
+
+.btn__danger {
+  background: transparent;
+  color: #b00020;
+  border: 1px solid rgba(176, 0, 32, .35);
 }
 
 // MOBILE VIEW --------------------------------------------

@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { combineLatest, Subject, takeUntil, filter, map, distinctUntilChanged } from 'rxjs';
+import { combineLatest, Subject, takeUntil, filter, map, distinctUntilChanged, finalize } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 
 
@@ -39,7 +39,7 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
   showImageOverlay = false;
 
   private itemId: number | null = null;
-  private restaurantId: number | null = null;
+  restaurantId: number | null = null;
   private destroy$ = new Subject<void>();
 
   // opens the image upload overlay
@@ -73,7 +73,8 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private auth: AuthService
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -211,17 +212,20 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
     if (this.editField === 'price') payload.price = this.editPrice;
 
     this.saving = true;
-    this.http.patch<any>(`${environment.apiUrl}/restaurants/menu-items/${this.itemId}`, payload).subscribe({
-      next: (updated) => {
-        this.item = { ...this.item, ...updated };
+    this.http.patch<any>(`${environment.apiUrl}/restaurants/menu-items/${this.itemId}`, payload)
+      .pipe(finalize(() => {
         this.saving = false;
-        this.editField = null;
-      },
-      error: (err) => {
-        this.saving = false;
-        this.error = err?.error?.message ?? 'Could not save changes.';
-      },
-    });
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (updated) => {
+          this.item = { ...this.item, ...updated };
+          this.editField = null;
+        },
+        error: (err) => {
+          this.error = err?.error?.message ?? 'Could not save changes.';
+        },
+      });
   }
 
   // creates a new menu item

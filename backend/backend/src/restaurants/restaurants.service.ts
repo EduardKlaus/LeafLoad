@@ -111,13 +111,18 @@ export class RestaurantsService {
     const trimmed = (name ?? '').trim();
     if (!trimmed) throw new BadRequestException('Category name cannot be empty');
 
-    return this.prisma.category.create({
-      data: {
-        restaurantId,
-        name: trimmed,
-      },
-      select: { id: true, name: true },
-    });
+    try {
+      return await this.prisma.category.create({
+        data: {
+          restaurantId,
+          name: trimmed,
+        },
+        select: { id: true, name: true },
+      });
+    } catch (error) {
+      console.error('Error creating category:', error);
+      throw error;
+    }
   }
 
   // updates a specific category

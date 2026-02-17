@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Subject, takeUntil, combineLatest, map, filter, distinctUntilChanged } from 'rxjs';
+import { Subject, takeUntil, combineLatest, map, filter, distinctUntilChanged, finalize } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 type Region = { id: number; name: string };
 type Category = { id: number; name: string };
@@ -53,7 +53,7 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
 
   showImageOverlay = false;
 
-  private restaurantId!: number;
+  restaurantId!: number;
   private destroy$ = new Subject<void>();
 
   openImageOverlay() {
@@ -69,7 +69,8 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private auth: AuthService
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
 
@@ -179,22 +180,24 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
     this.savingField = this.editField ?? 'restaurant';
     this.error = '';
 
-    this.http.patch(`${environment.apiUrl}/restaurants/${this.restaurantId}`, payload).subscribe({
-      next: (updated: any) => {
-        // lokal updaten
-        this.restaurant = {
-          ...this.restaurant!,
-          ...updated,
-        };
-
+    this.http.patch(`${environment.apiUrl}/restaurants/${this.restaurantId}`, payload)
+      .pipe(finalize(() => {
         this.savingField = null;
-        this.editField = null;
-      },
-      error: (err) => {
-        this.savingField = null;
-        this.error = err?.error?.message ?? 'Could not save changes.';
-      },
-    });
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (updated: any) => {
+          // lokal updaten
+          this.restaurant = {
+            ...this.restaurant!,
+            ...updated,
+          };
+          this.editField = null;
+        },
+        error: (err) => {
+          this.error = err?.error?.message ?? 'Could not save changes.';
+        },
+      });
   }
 
   // --- Categories ---
