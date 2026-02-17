@@ -49,7 +49,7 @@ export class SignupComponent {
     }
 
     // form submission: user data to backend
-    async onSubmit(form: NgForm) {
+    onSubmit(form: NgForm) {
         this.error = '';
         if (form.invalid) return;
 
@@ -60,43 +60,33 @@ export class SignupComponent {
         }
 
         this.loading = true;
-        try {
-            // backend call to create user
-            const result = await fetch(
-                'http://localhost:3000/auth/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: this.model.username,
-                    email: this.model.email,
-                    firstName: this.model.firstName,
-                    lastName: this.model.lastName,
-                    password: this.model.password,
-                    role: this.model.role,
-                    address: this.model.address,
-                    regionId: this.model.regionId,
-                }),
-            });
 
-            // error message if signup fail
-            if (!result.ok) {
-                const msg = await result.text();
-                throw new Error(msg || 'Sign up failed.');
+        const payload = {
+            username: this.model.username,
+            email: this.model.email,
+            firstName: this.model.firstName,
+            lastName: this.model.lastName,
+            password: this.model.password,
+            role: this.model.role,
+            address: this.model.address,
+            regionId: this.model.regionId,
+        };
+
+        this.http.post<{ userId: number, role: Role }>(`${environment.apiUrl}/auth/signup`, payload).subscribe({
+            next: (data) => {
+                this.loading = false;
+                if (data.role === 'RESTAURANT_OWNER') {
+                    // move to restaurant sign up
+                    this.router.navigateByUrl('/auth/signup/restaurant', { state: { userId: data.userId } });
+                } else {
+                    // move to login
+                    this.router.navigateByUrl('/auth/login');
+                }
+            },
+            error: (err) => {
+                this.loading = false;
+                this.error = err?.error?.message ?? 'Sign up failed.';
             }
-
-            const data: { userId: number, role: Role } = await result.json();
-
-            if (data.role === 'RESTAURANT_OWNER') {
-                // move to restaurant sign up
-                this.router.navigateByUrl('/auth/signup/restaurant', { state: { userId: data.userId } });
-            } else {
-                // move to login
-                this.router.navigateByUrl('/auth/login');
-            }
-        } catch (e: any) {
-            this.error = e?.messaage ?? 'Sign up failed.';
-        } finally {
-            this.loading = false;
-        }
+        });
     }
 }

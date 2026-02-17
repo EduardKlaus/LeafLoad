@@ -1,4 +1,4 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID, NgZone } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable, ReplaySubject, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -45,26 +45,29 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: object
+    @Inject(PLATFORM_ID) private platformId: object,
+    private ngZone: NgZone
   ) {
     if (isPlatformBrowser(this.platformId)) {
       // Use setTimeout to ensure this runs after Angular hydration
       setTimeout(() => {
-        const raw = localStorage.getItem('auth_state');
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw) as AuthState;
-            this._state$.next(parsed);
+        this.ngZone.run(() => {
+          const raw = localStorage.getItem('auth_state');
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw) as AuthState;
+              this._state$.next(parsed);
 
-            // If user is logged in but restaurantId is missing, fetch it from server
-            if (parsed.isLoggedIn && parsed.role === 'RESTAURANT_OWNER' && parsed.restaurantId == null) {
-              this.refreshRestaurantId(parsed);
+              // If user is logged in but restaurantId is missing, fetch it from server
+              if (parsed.isLoggedIn && parsed.role === 'RESTAURANT_OWNER' && parsed.restaurantId == null) {
+                this.refreshRestaurantId(parsed);
+              }
+            } catch {
+              /* ignore invalid storage */
             }
-          } catch {
-            /* ignore invalid storage */
           }
-        }
-        this._authReady$.next(true);
+          this._authReady$.next(true);
+        });
       }, 0);
     } else {
       // On server, mark as ready immediately (no localStorage available)

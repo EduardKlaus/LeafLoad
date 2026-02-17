@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth.service';
-import { Subscription, filter, take, switchMap } from 'rxjs';
+import { Subscription, filter, take, switchMap, combineLatest, map, distinctUntilChanged } from 'rxjs';
 
 //console.log('Account ngOnInit', Date.now());
 
@@ -64,13 +64,13 @@ export class AccountComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit(): void {
-        // Wait for auth to be ready (localStorage loaded), then check if logged in
-        this.authSub = this.authService.authReady$.pipe(
-            take(1),
-            switchMap(() => this.authService.state$.pipe(
-                filter(state => state.isLoggedIn && state.userId != null),
-                take(1)
-            ))
+        this.isLoading = true;
+
+        this.authSub = combineLatest([this.authService.authReady$, this.authService.state$]).pipe(
+            filter(([ready]) => ready),
+            map(([, s]) => s),
+            filter(s => s.isLoggedIn && s.userId != null),
+            distinctUntilChanged((a, b) => a.userId === b.userId),
         ).subscribe(() => {
             this.loadProfile();
         });

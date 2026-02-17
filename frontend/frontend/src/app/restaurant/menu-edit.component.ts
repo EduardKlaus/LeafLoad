@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { combineLatest, Subject, takeUntil } from 'rxjs';
+import { combineLatest, Subject, takeUntil, filter, map, distinctUntilChanged } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
+
 
 type Category = { id: number; name: string };
 
@@ -70,26 +72,57 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private auth: AuthService
   ) { }
 
   ngOnInit(): void {
-    combineLatest([this.route.paramMap, this.route.queryParamMap]).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(([params, queryParams]) => {
-      const idParam = params.get('id');
+    this.isLoading = true;
 
-      if (idParam) {
+    combineLatest([
+      this.route.paramMap,
+      this.route.queryParamMap,
+      this.auth.authReady$,
+      this.auth.state$
+    ]).pipe(
+      filter(([, , ready]) => ready),
+      map(([params, queryParams, , state]) => ({ params, queryParams, state })),
+      // Filter for logged in owner (menu editing is only for owners)
+      filter(({ state }) => state.isLoggedIn && state.role === 'RESTAURANT_OWNER'),
+      distinctUntilChanged((a, b) =>
+        a.params.get('id') === b.params.get('id') &&
+        a.queryParams.get('restaurantId') === b.queryParams.get('restaurantId') &&
+        a.state.userId === b.state.userId
+      ),
+      takeUntil(this.destroy$)
+    ).subscribe(({ params, queryParams, state }) => {
+      // Check for item ID (edit mode)
+      const idParam = params.get('id');
+      const itemId = idParam ? Number(idParam) : null;
+
+      // Check for restaurant ID (create mode)
+      const queryRestId = Number(queryParams.get('restaurantId'));
+      // If we are editing, we don't necessarily need restaurantId from query, but good to have.
+      // If creating, we MUST have a restaurantId, either from query or auth state if it matches.
+
+      this.restaurantId = queryRestId || state.restaurantId || null;
+
+      if (itemId) {
         // Edit mode
-        this.itemId = Number(idParam);
+        this.itemId = itemId;
         this.isCreateMode = false;
         this.load();
       } else {
         // Create mode
         this.isCreateMode = true;
-        this.restaurantId = Number(queryParams.get('restaurantId'));
         this.editCategoryId = Number(queryParams.get('categoryId')) || null;
-        this.loadCategoriesForCreate();
+
+        if (this.restaurantId) {
+          this.loadCategoriesForCreate();
+        } else {
+          this.error = 'No restaurant identified.';
+          this.isLoading = false;
+        }
       }
     });
   }

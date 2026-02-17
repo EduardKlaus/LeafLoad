@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Subject, takeUntil } from 'rxjs';
-
+import { Subject, takeUntil, combineLatest, map, filter, distinctUntilChanged } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 type Region = { id: number; name: string };
 type Category = { id: number; name: string };
 
@@ -66,14 +66,46 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
     this.patchRestaurant({ imageUrl: path });
   }
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) { }
+  constructor(
+    private route: ActivatedRoute,
+    private http: HttpClient,
+    private auth: AuthService
+  ) { }
+
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(
+    this.isLoading = true; // Start loading immediately
+
+    combineLatest([
+      this.route.paramMap,
+      this.auth.authReady$,
+      this.auth.state$
+    ]).pipe(
+      filter(([_, ready]) => ready),
+      map(([params, , state]) => ({ params, state })),
+      filter(({ state }) => state.isLoggedIn && state.role === 'RESTAURANT_OWNER' && !!state.restaurantId),
+      distinctUntilChanged((a, b) =>
+        a.params.get('id') === b.params.get('id') &&
+        a.state.userId === b.state.userId &&
+        a.state.restaurantId === b.state.restaurantId
+      ),
       takeUntil(this.destroy$)
-    ).subscribe(params => {
-      this.restaurantId = Number(params.get('id'));
-      this.load();
+    ).subscribe(({ params, state }) => {
+      const routeId = Number(params.get('id')); // 0 or NaN if missing
+      const userRestaurantId = state.restaurantId!;
+
+      // Optional: Check if route ID matches user's restaurant ID
+      // If the user can ONLY edit their own restaurant, we should probably enforce this or redirect
+      // For now, we load what's in the route, assuming backend checks permission too.
+      this.restaurantId = routeId || userRestaurantId;
+
+      // Update to ensure we are editing the correct restaurant
+      if (this.restaurantId) {
+        this.load();
+      } else {
+        this.error = 'No restaurant to edit.';
+        this.isLoading = false;
+      }
     });
   }
 

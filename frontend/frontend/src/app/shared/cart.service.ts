@@ -86,33 +86,49 @@ export class CartService {
     }
 
     addItem(item: Omit<CartItem, 'quantity'>) {
-        const items = [...this._items$.value];
+        const items = this._items$.value;
         const existing = items.find(i => i.id === item.id);
 
+        let newItems: CartItem[];
+
         if (existing) {
-            existing.quantity++;
+            // Immutable update: map array, create new object for the matched item
+            newItems = items.map(i =>
+                i.id === item.id
+                    ? { ...i, quantity: i.quantity + 1 }
+                    : i
+            );
         } else {
-            items.push({ ...item, quantity: 1 });
+            // Immutable add
+            newItems = [...items, { ...item, quantity: 1 }];
         }
 
-        this._items$.next(items);
-        this.persist(items);
+        this._items$.next(newItems);
+        this.persist(newItems);
     }
 
     updateQuantity(itemId: number, delta: number) {
-        let items = [...this._items$.value];
+        const items = this._items$.value;
         const item = items.find(i => i.id === itemId);
 
         if (item) {
-            item.quantity += delta;
+            let newItems: CartItem[];
+            const newQuantity = item.quantity + delta;
 
-            // Bei 0 entfernen
-            if (item.quantity <= 0) {
-                items = items.filter(i => i.id !== itemId);
+            if (newQuantity <= 0) {
+                // Immutable remove
+                newItems = items.filter(i => i.id !== itemId);
+            } else {
+                // Immutable update
+                newItems = items.map(i =>
+                    i.id === itemId
+                        ? { ...i, quantity: newQuantity }
+                        : i
+                );
             }
 
-            this._items$.next(items);
-            this.persist(items);
+            this._items$.next(newItems);
+            this.persist(newItems);
         }
     }
 
