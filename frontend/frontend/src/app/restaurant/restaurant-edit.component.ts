@@ -214,10 +214,12 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
         this.restaurant!.categories = [...this.restaurant!.categories, cat];
         this.newCategoryName = '';
         this.savingField = null;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.savingField = null;
         this.error = err?.error?.message ?? 'Could not add category.';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -226,11 +228,13 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
     this.error = '';
     this.editingCategoryId = cat.id;
     this.editCategoryName = cat.name;
+    this.cdr.detectChanges();
   }
 
   cancelEditCategory() {
     this.editingCategoryId = null;
     this.editCategoryName = '';
+    this.cdr.detectChanges();
   }
 
   saveCategory(catId: number) {
@@ -248,10 +252,12 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
         );
         this.savingCategoryId = null;
         this.editingCategoryId = null;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.savingCategoryId = null;
         this.error = err?.error?.message ?? 'Could not update category.';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -267,10 +273,12 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
       next: () => {
         this.restaurant!.categories = this.restaurant!.categories.filter((c) => c.id !== cat.id);
         this.savingCategoryId = null;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.savingCategoryId = null;
         this.error = err?.error?.message ?? 'Could not delete category.';
+        this.cdr.detectChanges();
       },
     });
   }

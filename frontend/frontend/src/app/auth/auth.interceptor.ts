@@ -4,8 +4,8 @@ import { switchMap, take } from 'rxjs';
 import { AuthService } from './auth.service';
 
 /**
- * HTTP Interceptor that automatically adds the x-user-id header
- * to all outgoing requests when the user is logged in.
+ * HTTP Interceptor that automatically adds the Authorization: Bearer <token>
+ * header to all outgoing requests when the user is logged in.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -13,13 +13,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return authService.authReady$.pipe(
     take(1),
     switchMap(() => {
-      const state = authService.currentState();
+      const token = authService.token;
 
-      // Only add header if user is logged in and has a userId
-      if (state.isLoggedIn && state.userId != null) {
+      // Only add header if a JWT token is available
+      if (token) {
         const clonedReq = req.clone({
           setHeaders: {
-            'x-user-id': String(state.userId),
+            Authorization: `Bearer ${token}`,
           },
         });
         return next(clonedReq);

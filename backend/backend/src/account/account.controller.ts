@@ -3,38 +3,28 @@ import {
   Controller,
   Get,
   Patch,
-  Headers,
-  BadRequestException,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-// Controller for account related endpoints
+// Controller for account related endpoints – all routes are JWT-protected
+@UseGuards(JwtAuthGuard)
 @Controller('account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) { }
 
-  // Demo: User-ID kommt aus Header (später JWT)
-  private getUserIdFromHeaders(headers: Record<string, string | undefined>): number {
-    const raw = headers['x-user-id'];
-    const id = raw ? Number(raw) : NaN;
-    if (!Number.isFinite(id)) {
-      throw new BadRequestException('Missing or invalid x-user-id header.');
-    }
-    return id;
-  }
-
   // get current user (/account/me)
-  // user id from headers
   @Get('me')
-  async me(@Headers() headers: Record<string, string | undefined>) {
-    const userId = this.getUserIdFromHeaders(headers);
-    return this.accountService.getMe(userId);
+  async me(@Request() req: any) {
+    return this.accountService.getMe(req.user.userId);
   }
 
   // update current user (/account/me)
   @Patch('me')
   async updateMe(
-    @Headers() headers: Record<string, string | undefined>,
+    @Request() req: any,
     @Body()
     body: {
       name?: string;
@@ -44,14 +34,12 @@ export class AccountController {
       regionId?: number;
     },
   ) {
-    const userId = this.getUserIdFromHeaders(headers);
-    return this.accountService.updateMe(userId, body);
+    return this.accountService.updateMe(req.user.userId, body);
   }
 
   // get current user's orders (/account/orders)
   @Get('orders')
-  async getMyOrders(@Headers() headers: Record<string, string | undefined>) {
-    const userId = this.getUserIdFromHeaders(headers);
-    return this.accountService.getMyOrders(userId);
+  async getMyOrders(@Request() req: any) {
+    return this.accountService.getMyOrders(req.user.userId);
   }
 }

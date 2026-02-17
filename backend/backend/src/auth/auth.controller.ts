@@ -6,18 +6,10 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
-  // authenticate user via username and password (calls AuthService.validateUser)
+  // authenticate user via username and password, returns JWT token
   @Post('login')
   async login(@Body() body: { username: string; password: string }) {
-    const user = await this.authService.validateUser(body.username, body.password);
-
-    // später: JWT-Token zurückgeben
-    return {
-      id: user.id,
-      name: user.name,
-      role: user.role,
-      restaurantId: user.restaurants?.[0]?.id ?? null, // if user is restaurant owner, return restaurant id
-    };
+    return this.authService.validateUser(body.username, body.password);
   }
 
   // register new user (calls AuthService.signup)
@@ -45,7 +37,7 @@ export class AuthController {
       ownerId: number;
       name: string;
       address: string;
-      imageUrl: string;    // currently required, could be optional
+      imageUrl: string;
       regionId?: number;
     }) {
     return this.authService.signupRestaurant(body);
