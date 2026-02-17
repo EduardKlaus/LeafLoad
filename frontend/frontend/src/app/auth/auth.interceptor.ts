@@ -1,5 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { switchMap, take } from 'rxjs';
 import { AuthService } from './auth.service';
 
 /**
@@ -8,20 +9,23 @@ import { AuthService } from './auth.service';
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const state = authService.currentState();
 
-  // console.log('[AuthInterceptor] Request:', req.url, 'State:', state);
+  return authService.authReady$.pipe(
+    take(1),
+    switchMap(() => {
+      const state = authService.currentState();
 
-  // Only add header if user is logged in and has a userId
-  if (state.isLoggedIn && state.userId != null) {
-    const clonedReq = req.clone({
-      setHeaders: {
-        'x-user-id': String(state.userId),
-      },
-    });
-    // console.log('[AuthInterceptor] Added x-user-id:', state.userId);
-    return next(clonedReq);
-  }
+      // Only add header if user is logged in and has a userId
+      if (state.isLoggedIn && state.userId != null) {
+        const clonedReq = req.clone({
+          setHeaders: {
+            'x-user-id': String(state.userId),
+          },
+        });
+        return next(clonedReq);
+      }
 
-  return next(req);
+      return next(req);
+    })
+  );
 };
