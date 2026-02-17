@@ -1,0 +1,134 @@
+.orders {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+
+    h1 {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+        color: #000;
+    }
+
+    .empty {
+        color: #666;
+    }
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    th,
+    td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    th {
+        background: #f5f5f5;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .customer {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .name {
+            font-weight: 600;
+        }
+
+        .address {
+            font-size: 0.875rem;
+            color: #666;
+        }
+    }
+
+    .items {
+        color: #555;
+        max-width: 300px;
+    }
+
+    .status-buttons {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background: #e0e0e0;
+            color: #888;
+
+            &:not(:disabled) {
+                background: var(--light-sage);
+                color: #fff;
+                cursor: pointer;
+
+                &:hover {
+                    background: var(--dark-sage);
+                }
+            }
+
+            &:disabled {
+                cursor: not-allowed;
+            }
+
+            &.active {
+                background: var(--dark-sage);
+                color: #fff;
+            }
+        }
+    }
+
+    .status-text {
+        font-weight: bold;
+        color: var(--dark-sage);
+    }
+}
+
+.orders.customer-view .orders-table td.status-buttons {
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .orders-table {
+        display: block;
+
+        thead {
+            display: none;
+        }
+
+        tbody,
+        tr,
+        td {
+            display: block;
+        }
+
+        tr {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        td {
+            border: none;
+            padding: 0.5rem 0;
+        }
+
+        .status-buttons {
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+    }
+}

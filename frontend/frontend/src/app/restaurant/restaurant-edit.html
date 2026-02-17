@@ -61,6 +61,7 @@
             <button class="btn__ghost" *ngIf="editField !== 'imageUrl'" (click)="startEdit('imageUrl')">
               Edit
             </button>
+            <button class="btn__ghost" (click)="openImageOverlay()">Upload</button>
 
             <ng-container *ngIf="editField === 'imageUrl'">
               <button (click)="saveImageUrl()" [disabled]="savingField !== null">Save</button>
@@ -68,6 +69,10 @@
             </ng-container>
           </div>
         </div>
+
+        <app-image-upload-overlay *ngIf="showImageOverlay" (closed)="showImageOverlay=false"
+          (uploaded)="onRestaurantImageUploaded($event)">
+        </app-image-upload-overlay>
 
         <!-- REGION -->
         <div class="row">

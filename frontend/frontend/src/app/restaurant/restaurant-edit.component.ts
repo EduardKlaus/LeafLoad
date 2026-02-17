@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { Subject, takeUntil } from 'rxjs';
 
 type Region = { id: number; name: string };
 type Category = { id: number; name: string };
@@ -16,16 +18,19 @@ type RestaurantEditData = {
   categories: Category[];
 };
 
+// editable fields
 type EditField = 'description' | 'imageUrl' | 'regionId' | null;
+
+import { ImageUploadOverlayComponent } from '../shared/image-upload/image-upload-overlay.component';
 
 @Component({
   selector: 'app-restaurant-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ImageUploadOverlayComponent],
   templateUrl: './restaurant-edit.html',
   styleUrls: ['./restaurant-edit.scss'],
 })
-export class RestaurantEditComponent implements OnInit {
+export class RestaurantEditComponent implements OnInit, OnDestroy {
   restaurant: RestaurantEditData | null = null;
   regions: Region[] = [];
 
@@ -46,20 +51,44 @@ export class RestaurantEditComponent implements OnInit {
   editCategoryName = '';
   savingCategoryId: number | null = null;
 
+  showImageOverlay = false;
+
   private restaurantId!: number;
+  private destroy$ = new Subject<void>();
+
+  openImageOverlay() {
+    this.error = '';
+    this.showImageOverlay = true;
+  }
+
+  onRestaurantImageUploaded(path: string) {
+    this.showImageOverlay = false;
+    this.patchRestaurant({ imageUrl: path });
+  }
 
   constructor(private route: ActivatedRoute, private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.restaurantId = Number(this.route.snapshot.paramMap.get('id'));
-    this.load();
+    this.route.paramMap.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+      this.restaurantId = Number(params.get('id'));
+      this.load();
+    });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // loads the restaurant data from backend
   load(): void {
     this.isLoading = true;
     this.error = '';
+    this.restaurant = null; // <--- Clear stale data
 
-    this.http.get<RestaurantEditData>(`/api/restaurants/${this.restaurantId}/edit`).subscribe({
+    this.http.get<RestaurantEditData>(`${environment.apiUrl}/restaurants/${this.restaurantId}/edit`).subscribe({
       next: (r) => {
         this.restaurant = r;
         this.editDescription = r.description ?? '';
@@ -68,7 +97,7 @@ export class RestaurantEditComponent implements OnInit {
         this.isLoading = false;
 
         // regions parallel laden
-        this.http.get<Region[]>('/regions').subscribe({
+        this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
           next: (regs) => (this.regions = regs),
           error: () => { },
         });
@@ -118,7 +147,7 @@ export class RestaurantEditComponent implements OnInit {
     this.savingField = this.editField ?? 'restaurant';
     this.error = '';
 
-    this.http.patch(`/api/restaurants/${this.restaurantId}`, payload).subscribe({
+    this.http.patch(`${environment.apiUrl}/restaurants/${this.restaurantId}`, payload).subscribe({
       next: (updated: any) => {
         // lokal updaten
         this.restaurant = {
@@ -145,7 +174,7 @@ export class RestaurantEditComponent implements OnInit {
     }
 
     this.savingField = 'addCategory';
-    this.http.post<Category>(`/api/restaurants/${this.restaurantId}/categories`, { name }).subscribe({
+    this.http.post<Category>(`${environment.apiUrl}/restaurants/${this.restaurantId}/categories`, { name }).subscribe({
       next: (cat) => {
         this.restaurant!.categories = [...this.restaurant!.categories, cat];
         this.newCategoryName = '';
@@ -177,7 +206,7 @@ export class RestaurantEditComponent implements OnInit {
     }
 
     this.savingCategoryId = catId;
-    this.http.patch<Category>(`/api/restaurants/categories/${catId}`, { name }).subscribe({
+    this.http.patch<Category>(`${environment.apiUrl}/restaurants/categories/${catId}`, { name }).subscribe({
       next: (updated) => {
         this.restaurant!.categories = this.restaurant!.categories.map((c) =>
           c.id === catId ? updated : c
@@ -199,7 +228,7 @@ export class RestaurantEditComponent implements OnInit {
     if (!ok) return;
 
     this.savingCategoryId = cat.id;
-    this.http.delete(`/api/restaurants/categories/${cat.id}`).subscribe({
+    this.http.delete(`${environment.apiUrl}/restaurants/categories/${cat.id}`).subscribe({
       next: () => {
         this.restaurant!.categories = this.restaurant!.categories.filter((c) => c.id !== cat.id);
         this.savingCategoryId = null;

@@ -1,40 +1,121 @@
 main {
-    max-width: 1100px;
-    margin: auto;
-    padding: 24px;
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    gap: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
 }
 
 .left h1 {
-    margin: 0;
+  margin: 0;
+}
+
+.stars {
+  color: var(--dark-sage);
+  font-size: 1.5rem;
+  margin: 4px 0;
+  letter-spacing: 2px;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
 }
 
 .banner {
-    width: 100%;
-    height: 260px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin: 24px 0;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin: 24px 0;
 }
 
 .categories {
   display: flex;
+  justify-content: center; // 1. Kategorien zentrieren
   gap: 16px;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   padding: 12px 0;
   overflow-x: auto;
+  margin-bottom: 24px;
+
+  span {
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &.active {
+      background: var(--light-sage);
+      color: white;
+      font-weight: 500;
+    }
+  }
 }
 
 .sticky {
   position: sticky;
   top: 0;
   background: white;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-top: 32px;
+}
+
+.category-header h2 {
+  margin: 0;
+}
+
+// Buttons im Sage-Style
+button {
+  background-color: var(--dark-sage);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--light-sage);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.add-btn {
+  background: var(--light-sage);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: var(--dark-sage);
+  }
 }
 
 .item {
@@ -49,6 +130,7 @@ main {
   width: 80px;
   height: 80px;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 .info {
@@ -57,6 +139,14 @@ main {
 
 .actions {
   text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.price {
+  margin-right: 16px;
+  font-weight: 600;
 }
 
 
@@ -64,7 +154,19 @@ main {
 
 @media (max-width: 900px) {
   .header {
-    flex-direction: column;
+    flex-direction: row; // 2. Buttons neben Namen
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .left {
+    flex: 1;
+  }
+
+  .right {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .hero {
@@ -73,6 +175,16 @@ main {
 
   .item {
     grid-template-columns: 60px 1fr;
+    gap: 12px; // 3. Mehr Platz zwischen Bild und Text
+  }
+
+  .item img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .info {
+    padding-left: 4px; // 3. Extra Platz zum Bild
   }
 
   .actions {
@@ -80,5 +192,84 @@ main {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+  }
+}
+
+// Rating Modal Styles
+.rating-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.rating-content {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: #333;
+  }
+}
+
+.stars-input {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.star {
+  font-size: 2.5rem;
+  color: #ddd; // Empty star color
+  cursor: pointer;
+  transition: color 0.1s;
+  user-select: none;
+
+  &.filled {
+    color: var(--dark-sage); // Dark Sage for filled stars
+  }
+}
+
+.rating-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+
+  button {
+    min-width: 100px;
+  }
+
+  .cancel {
+    background: #eee;
+    color: #333;
+
+    &:hover {
+      background: #ddd;
+    }
+  }
+
+  .submit {
+    background-color: var(--dark-sage);
+    color: white;
+
+    &:disabled {
+      background-color: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
   }
 }

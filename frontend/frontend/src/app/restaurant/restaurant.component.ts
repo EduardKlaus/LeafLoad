@@ -1,12 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
+import { CartService } from '../shared/cart.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './restaurant.html',
   styleUrls: ['./restaurant.scss'],
 })
@@ -20,14 +22,18 @@ export class RestaurantComponent implements OnInit {
   isLoggedIn = false;
   isOtherUser = false;
 
-  readonly fallbackRestaurantImg = 'assets/pexels-pixabay-54455.jpg';
-  readonly fallbackItemImg = 'assets/pexels-ella-olsson-572949-1640773.jpg';
+  activeCategoryId: number | 'other' | null = null;
+  private observer: IntersectionObserver | null = null;
+
+  readonly fallbackImg = 'assets/fallback_image.png';
 
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private auth: AuthService,
-    private cdr: ChangeDetectorRef
+    private cart: CartService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   ngOnInit() {
@@ -37,9 +43,15 @@ export class RestaurantComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
   private loadRestaurant(id: number) {
     this.restaurant = null; // Reset while loading
-    this.http.get<any>(`/api/restaurants/${id}/details`).subscribe((res) => {
+    this.http.get<any>(`${environment.apiUrl}/restaurants/${id}/details`).subscribe((res) => {
       this.restaurant = res.restaurant;
       this.rating = res.rating;
       this.categories = res.restaurant.categories;
@@ -53,6 +65,46 @@ export class RestaurantComponent implements OnInit {
       this.isOtherUser = this.isLoggedIn && !this.isOwner;
 
       this.cdr.detectChanges();
+
+      // Delay slightly to ensure DOM is ready
+      setTimeout(() => this.setupObserver(), 100);
+    });
+  }
+
+  private setupObserver() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const options = {
+      root: null,
+      rootMargin: '-100px 0px -70% 0px', // Trigger when section is near top
+      threshold: 0
+    };
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          if (id === 'cat-other') {
+            this.activeCategoryId = 'other';
+          } else if (id.startsWith('cat-')) {
+            this.activeCategoryId = Number(id.replace('cat-', ''));
+          } else {
+            this.activeCategoryId = null;
+          }
+          this.cdr.detectChanges(); // Update view
+        }
+      });
+    }, options);
+
+    // Observe all category sections
+    document.querySelectorAll('section[id^="cat-"]').forEach(section => {
+      this.observer?.observe(section);
     });
   }
 
@@ -62,12 +114,65 @@ export class RestaurantComponent implements OnInit {
 
   deleteItem(id: number) {
     if (!confirm('Delete this item?')) return;
-    this.http.delete(`/api/restaurants/menu-items/${id}`).subscribe(() => {
+    this.http.delete(`${environment.apiUrl}/restaurants/menu-items/${id}`).subscribe(() => {
       location.reload();
     });
   }
 
   rate(rating: number) {
-    this.http.post(`/api/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe();
+    this.http.post(`${environment.apiUrl}/restaurants/${this.restaurant.id}/rate`, { rating }).subscribe(() => {
+      // Optionally show success or reload
+      this.closeRatingModal();
+    });
+  }
+
+  // Rating Modal Logic
+  showRatingModal = false;
+  currentRating = 0;
+  hoverRating = 0;
+
+  openRatingModal() {
+    this.currentRating = 0;
+    this.hoverRating = 0;
+    this.showRatingModal = true;
+  }
+
+  closeRatingModal() {
+    this.showRatingModal = false;
+  }
+
+  setHoverRating(stars: number) {
+    this.hoverRating = stars;
+  }
+
+  selectRating(stars: number) {
+    this.currentRating = stars;
+  }
+
+  submitRating() {
+    if (this.currentRating > 0) {
+      this.rate(this.currentRating);
+    }
+  }
+
+  addToCart(item: any) {
+    this.cart.addItem({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      price: item.price,
+      imageUrl: item.imageUrl,
+      restaurantId: this.restaurant.id,
+      restaurantName: this.restaurant.name,
+    });
+  }
+
+  getRatingStars(rating?: number | null): string {
+    if (rating === null || rating === undefined) return '☆☆☆☆☆';
+
+    // Round to nearest whole number for star display
+    const stars = Math.round(rating);
+    return '★'.repeat(stars) + '☆'.repeat(5 - stars);
   }
 }
+

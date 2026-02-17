@@ -6,10 +6,21 @@ type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
+  // validates user credentials (username and password)
   async validateUser(username: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { username } });
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      include: {
+        restaurants: {
+          select: { id: true },
+          take: 1,
+        },
+      },
+    });
+
+    // no leak if username exists, same error message for invalid username and password
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const ok = await bcrypt.compare(password, user.password);
@@ -18,9 +29,9 @@ export class AuthService {
     return user; // später hier JWT erzeugen
   }
 
-// user signup
-  async signup(input: { username: string; email: string; firstName: string; lastName: string; password: string; role: Role}) {
-    const { username, email, firstName, lastName, password, role } = input;
+  // user signup
+  async signup(input: { username: string; email: string; firstName: string; lastName: string; password: string; role: Role; address?: string; regionId?: number }) {
+    const { username, email, firstName, lastName, password, role, address, regionId } = input;
 
     if (!username || !firstName || !lastName || !password || !role) {
       throw new BadRequestException('Missing field input.');
@@ -34,6 +45,7 @@ export class AuthService {
       throw new BadRequestException('Username already exists.');
     }
 
+    // hash password
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await this.prisma.user.create({
@@ -43,6 +55,8 @@ export class AuthService {
         name: fullName,
         password: hashed,
         role,
+        address: address ? address.trim() : undefined,
+        regionId,
       },
       select: { id: true, role: true },
     });
@@ -50,9 +64,9 @@ export class AuthService {
     return { userId: user.id, role: user.role };
   }
 
-// restaurant signup
-  async signupRestaurant(input: {ownerId: number; name: string; address: string; imageUrl: string }) {
-    const { ownerId, name, address, imageUrl } = input;
+  // restaurant signup
+  async signupRestaurant(input: { ownerId: number; name: string; address: string; imageUrl: string; regionId?: number }) {
+    const { ownerId, name, address, imageUrl, regionId } = input;
 
     if (!ownerId || !name || !address) {
       throw new BadRequestException('Missing field input.');
@@ -74,6 +88,7 @@ export class AuthService {
         address,
         imageUrl: imageUrl || null,
         ownerId,
+        regionId,
       },
       select: { id: true },
     });

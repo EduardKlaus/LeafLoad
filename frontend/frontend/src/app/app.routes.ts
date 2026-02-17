@@ -10,15 +10,20 @@ export const routes: Routes = [
   { path: 'auth/signup/restaurant', loadComponent: () => import('./auth/signup-restaurant/signup-restaurant.component').then(m => m.SignupRestaurantComponent) },
 
   { path: 'impressum', loadComponent: () => import('./impressum/impressum.component').then(m => m.ImpressumComponent) },
+  { path: 'about', loadComponent: () => import('./about/about.component').then(m => m.AboutComponent) },
 
   // Restaurant & Edits & Orders
   { path: 'restaurants/:id', loadComponent: () => import('./restaurant/restaurant.component').then(m => m.RestaurantComponent) },
   { path: 'restaurants/:id/edit', loadComponent: () => import('./restaurant/restaurant-edit.component').then(m => m.RestaurantEditComponent) },
+  { path: 'menu-items/new', loadComponent: () => import('./restaurant/menu-edit.component').then(m => m.MenuItemEditComponent) },
   { path: 'menu-items/:id/edit', loadComponent: () => import('./restaurant/menu-edit.component').then(m => m.MenuItemEditComponent) },
-  //{ path: 'orders', loadComponent: () => import('./orders/orders.component').then(m => m.OrdersComponent) },
+  { path: 'orders', loadComponent: () => import('./orders/orders.component').then(m => m.OrdersComponent) },
 
   // Account
   { path: 'account', loadComponent: () => import('./auth/account/account.component').then(m => m.AccountComponent) },
+
+  // Cart
+  { path: 'cart', loadComponent: () => import('./cart/cart.component').then(m => m.CartComponent) },
 
   { path: '**', redirectTo: '' },
 ];

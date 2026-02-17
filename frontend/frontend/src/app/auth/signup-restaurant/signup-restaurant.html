@@ -5,17 +5,26 @@
         <form #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
             <div class="row">
                 <label for="restaurant_name">Restaurant Name</label>
-                <input id="restaurant_name" name="restaurant_name" type="text" [(ngModel)]="model.name" required/>
+                <input id="restaurant_name" name="restaurant_name" type="text" [(ngModel)]="model.name" required />
             </div>
 
             <div class="row">
                 <label for="restaurant_address">Restaurant Address</label>
-                <input id="restaurant_address" name="restaurant_address" type="text" [(ngModel)]="model.address" required/>
+                <input id="restaurant_address" name="restaurant_address" type="text" [(ngModel)]="model.address"
+                    required />
+            </div>
+
+            <div class="row">
+                <label for="region">Region</label>
+                <select id="region" name="region" [(ngModel)]="model.regionId">
+                    <option [ngValue]="null" disabled selected hidden>Select Region</option>
+                    <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
+                </select>
             </div>
 
             <div class="row">
                 <label for="imageUrl">Image URL</label>
-                <input id="imageUrl" name="imageUrl" type="text" [(ngModel)]="model.imageUrl" required/>
+                <input id="imageUrl" name="imageUrl" type="text" [(ngModel)]="model.imageUrl" required />
             </div>
 
             <p *ngIf="error" class="error">{{ error }}</p>

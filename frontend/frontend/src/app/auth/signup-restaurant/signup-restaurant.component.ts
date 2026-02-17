@@ -2,7 +2,10 @@ import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule, NgForm } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
-import { response } from "express";
+import { HttpClient } from "@angular/common/http";
+import { environment } from "../../../environments/environment";
+
+type Region = { id: number; name: string };
 
 @Component({
     selector: 'app-signup-restaurant',
@@ -18,17 +21,31 @@ export class SignupRestaurantComponent {
         name: '',
         address: '',
         imageUrl: '',
+        regionId: null as number | null,
     };
+
+    regions: Region[] = [];
 
     error = '';
     loading = false;
 
-    constructor(private router: Router) {
-        // get userId from Route state?
+    constructor(private router: Router, private http: HttpClient) {
+        // get userId from Route state
         const nav = this.router.getCurrentNavigation();
         this.userId = (nav?.extras?.state as any)?.userId ?? history.state?.userId ?? null;
+
+        this.loadRegions();
     }
 
+    // load available regions from backend
+    loadRegions() {
+        this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
+            next: (r) => (this.regions = r),
+            error: () => { }
+        });
+    }
+
+    // form submission: restaurant data to backend
     async onSubmit(form: NgForm) {
         this.error = '';
         if (form.invalid) return;
@@ -43,14 +60,15 @@ export class SignupRestaurantComponent {
         try {
             const result = await fetch(
                 'http://localhost:3000/auth/signup/restaurant', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ownerId: this.userId,
-                        name: this.model.name,
-                        address: this.model.address,
-                        imageUrl: this.model.imageUrl,
-                    }),
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ownerId: this.userId,
+                    name: this.model.name,
+                    address: this.model.address,
+                    imageUrl: this.model.imageUrl,
+                    regionId: this.model.regionId,
+                }),
             });
 
             if (!result.ok) {

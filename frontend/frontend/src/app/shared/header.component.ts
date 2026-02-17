@@ -1,31 +1,31 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
+import { environment } from '../../environments/environment';
+import { Observable, Subscription, filter } from 'rxjs';
 
 type Region = { id: number; name: string };
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   menuOpen = false;
 
-  regions: Region[] = [];
-  regionId: number | null = null;
-
-  private readonly API_REGIONS = '/regions';
-  private readonly API_ME = '/account/me';
+  private readonly API_ME = `${environment.apiUrl}/account/me`;
+  private routerSub?: Subscription;
 
   constructor(
     private auth: AuthService,
     private http: HttpClient,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: object
   ) { }
 
@@ -34,43 +34,19 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Regions laden
-    this.http.get<Region[]>(this.API_REGIONS).subscribe({
-      next: (r) => (this.regions = r),
-      error: () => {
-        // optional: still fail silently
-      },
-    });
-
-    // Region aus Profil übernehmen, sobald eingeloggt
-    this.auth.state$.subscribe((s: any) => {
-      // Erwartung: AuthState enthält regionId (wenn du es noch nicht drin hast, siehe Hinweis unten)
-      if (s?.isLoggedIn) {
-        this.regionId = s.regionId ?? null;
-      } else {
-        this.regionId = null;
-      }
-    });
+    // Menü automatisch schließen bei Navigation
+    this.routerSub = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.menuOpen = false;
+      });
   }
 
-  onRegionChange(nextId: number | null): void {
-    this.regionId = nextId;
-
-    // nur speichern, wenn eingeloggt und eine Region gewählt
-    // und nur im Browser (SSR-sicher)
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    if (nextId == null) return;
-
-    this.http.patch(this.API_ME, { regionId: nextId }).subscribe({
-      next: () => {
-        // optional: du könntest hier auch AuthState aktualisieren, wenn du willst
-      },
-      error: () => {
-        // optional: revert oder Fehlermeldung
-      },
-    });
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
+
+
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
@@ -79,4 +55,10 @@ export class HeaderComponent implements OnInit {
   closeMenu() {
     this.menuOpen = false;
   }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/']);
+  }
 }
+

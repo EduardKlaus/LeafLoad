@@ -11,27 +11,42 @@
 
             <div class="row">
                 <label for="username">User Name</label>
-                <input id="username" name="username" type="text" [(ngModel)]="model.username" required/>
+                <input id="username" name="username" type="text" [(ngModel)]="model.username" required />
             </div>
             <div class="row">
                 <label for="email">E-Mail Address</label>
-                <input id="email" name="email" type="email" [(ngModel)]="model.email" required/>
+                <input id="email" name="email" type="email" [(ngModel)]="model.email" required />
             </div>
             <div class="row">
                 <label for="first_name">First Name</label>
-                <input id="first_name" name="first_name" type="text" [(ngModel)]="model.firstName" required/>
+                <input id="first_name" name="first_name" type="text" [(ngModel)]="model.firstName" required />
             </div>
             <div class="row">
                 <label for="last_name">Last Name</label>
-                <input id="last_name" name="last_name" type="text" [(ngModel)]="model.lastName" required/>
+                <input id="last_name" name="last_name" type="text" [(ngModel)]="model.lastName" required />
+            </div>
+
+            <!-- New Fields -->
+            <div class="row">
+                <label for="address">Address</label>
+                <input id="address" name="address" type="text" [(ngModel)]="model.address" />
+            </div>
+
+            <div class="row">
+                <label for="region">Region</label>
+                <select id="region" name="region" [(ngModel)]="model.regionId">
+                    <option [ngValue]="null" disabled selected hidden>Select Region</option>
+                    <option *ngFor="let r of regions" [ngValue]="r.id">{{ r.name }}</option>
+                </select>
             </div>
             <div class="row">
                 <label for="password">Password</label>
-                <input id="password" name="password" type="password" [(ngModel)]="model.password" required/>
+                <input id="password" name="password" type="password" [(ngModel)]="model.password" required />
             </div>
             <div class="row">
                 <label for="repeatPassword">Repeat your Password</label>
-                <input id="repeatPassword" name="repeatPassword" type="password" [(ngModel)]="model.repeatPassword" required/>
+                <input id="repeatPassword" name="repeatPassword" type="password" [(ngModel)]="model.repeatPassword"
+                    required />
             </div>
             <!-- in case of error (passwords aren't the same) -->
             <p *ngIf="error" class="error">{{ error }}</p>

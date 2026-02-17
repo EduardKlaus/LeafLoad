@@ -2,35 +2,39 @@
   <div class="header">
     <div class="left">
       <h1>{{ restaurant.name }}</h1>
-      <div class="stars">★★★★★</div>
+      <div class="stars">{{ getRatingStars(rating) }}</div>
       <p *ngIf="restaurant.description">{{ restaurant.description }}</p>
     </div>
 
     <div class="right">
-      <button *ngIf="isOwner" routerLink="/owner/restaurant/edit">Edit Info</button>
-      <button *ngIf="isOtherUser" (click)="rate(5)">Rate Restaurant</button>
+      <button *ngIf="isOwner" [routerLink]="['/restaurants', restaurant.id, 'edit']">Edit Info</button>
+      <button *ngIf="isOtherUser" (click)="openRatingModal()">Rate Restaurant</button>
       <button *ngIf="!isLoggedIn" disabled>Rate Restaurant</button>
 
       <p class="eta" *ngIf="isOtherUser">Estimated delivery: 30–40 min</p>
     </div>
   </div>
 
-  <img class="banner" [src]="restaurant.imageUrl || fallbackRestaurantImg" />
+  <img class="banner" [src]="restaurant.imageUrl || fallbackImg" />
 
   <div class="categories sticky">
-    <span *ngFor="let c of categories" (click)="scrollTo('cat-' + c.id)">
+    <span *ngFor="let c of categories" (click)="scrollTo('cat-' + c.id)" [class.active]="activeCategoryId === c.id">
       {{ c.name }}
     </span>
-    <span *ngIf="otherItems.length" (click)="scrollTo('cat-other')">
+    <span *ngIf="otherItems.length" (click)="scrollTo('cat-other')" [class.active]="activeCategoryId === 'other'">
       Other
     </span>
   </div>
 
   <section *ngFor="let c of categories" [id]="'cat-' + c.id">
-    <h2>{{ c.name }}</h2>
+    <div class="category-header">
+      <h2>{{ c.name }}</h2>
+      <button *ngIf="isOwner" class="add-btn" [routerLink]="['/menu-items', 'new']"
+        [queryParams]="{restaurantId: restaurant.id, categoryId: c.id}">+ Add Item</button>
+    </div>
 
     <div *ngFor="let item of c.menuItems" class="item">
-      <img [src]="item.imageUrl || fallbackItemImg" />
+      <img [src]="item.imageUrl || fallbackImg" />
 
       <div class="info">
         <h3>{{ item.title }}</h3>
@@ -38,17 +42,53 @@
       </div>
 
       <div class="actions">
-        <span class="price">€{{ item.price }}</span>
+        <span class="price">€{{ item.price | number:'1.2-2' }}</span>
 
+        <button *ngIf="isOwner" [routerLink]="['/menu-items', item.id, 'edit']">Edit</button>
         <button *ngIf="isOwner" (click)="deleteItem(item.id)">Delete</button>
-        <button *ngIf="isOtherUser">Add to cart</button>
+        <button *ngIf="isOtherUser" (click)="addToCart(item)">Add to cart</button>
         <button *ngIf="!isLoggedIn" disabled>Add to cart</button>
       </div>
     </div>
   </section>
 
   <section *ngIf="otherItems.length" id="cat-other">
-    <h2>Other</h2>
-    <!-- gleiches Item-Layout -->
+    <div class="category-header">
+      <h2>Other</h2>
+    </div>
+    <div *ngFor="let item of otherItems" class="item">
+      <img [src]="item.imageUrl || fallbackImg" />
+
+      <div class="info">
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.description }}</p>
+      </div>
+
+      <div class="actions">
+        <span class="price">€{{ item.price | number:'1.2-2' }}</span>
+
+        <button *ngIf="isOwner" [routerLink]="['/menu-items', item.id, 'edit']">Edit</button>
+        <button *ngIf="isOwner" (click)="deleteItem(item.id)">Delete</button>
+        <button *ngIf="isOtherUser" (click)="addToCart(item)">Add to cart</button>
+        <button *ngIf="!isLoggedIn" disabled>Add to cart</button>
+      </div>
+    </div>
   </section>
+
+  <!-- Rating Modal -->
+  <div class="rating-overlay" *ngIf="showRatingModal" (click)="closeRatingModal()">
+    <div class="rating-content" (click)="$event.stopPropagation()">
+      <h3>Rate {{ restaurant.name }}</h3>
+
+      <div class="stars-input">
+        <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (hoverRating || currentRating)"
+          (mouseenter)="setHoverRating(star)" (mouseleave)="setHoverRating(0)" (click)="selectRating(star)">★</span>
+      </div>
+
+      <div class="rating-actions">
+        <button (click)="closeRatingModal()" class="cancel">Cancel</button>
+        <button (click)="submitRating()" [disabled]="currentRating === 0" class="submit">Submit</button>
+      </div>
+    </div>
+  </div>
 </main>

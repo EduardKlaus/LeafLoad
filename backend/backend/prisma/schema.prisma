@@ -98,18 +98,26 @@ model Category {
 }
 
 model Order {
-  id           Int        @id @default(autoincrement())
+  id           Int          @id @default(autoincrement())
   userId       Int
   restaurantId Int
-  createdAt    DateTime   @default(now())
+  status       OrderStatus?
+  createdAt    DateTime     @default(now())
 
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant   Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   items        OrderItem[]
 
   @@index([userId])
   @@index([restaurantId])
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  DELIVERING
+  COMPLETED
 }
 
 model OrderItem {
