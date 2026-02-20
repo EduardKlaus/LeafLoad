@@ -44,6 +44,7 @@ export class AuthService {
       name: user.name,
       role: user.role,
       restaurantId,
+      regionId: user.regionId ?? null,
       token: this.jwtService.sign(payload),
     };
   }

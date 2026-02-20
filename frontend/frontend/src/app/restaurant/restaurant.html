@@ -11,7 +11,8 @@
       <button *ngIf="isOtherUser" (click)="openRatingModal()">Rate Restaurant</button>
       <button *ngIf="!isLoggedIn" disabled>Rate Restaurant</button>
 
-      <p class="eta" *ngIf="isOtherUser">Estimated delivery: 30–40 min</p>
+      <p class="eta" *ngIf="isOtherUser && deliveryTimeMin">Estimated delivery: {{ deliveryTimeMin }}–{{ deliveryTimeMin
+        + 10 }} min</p>
     </div>
   </div>
 

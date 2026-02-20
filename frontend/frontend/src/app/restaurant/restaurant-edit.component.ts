@@ -128,16 +128,18 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
         this.editImageUrl = r.imageUrl ?? '';
         this.editRegionId = r.regionId ?? null;
         this.isLoading = false;
+        this.cdr.markForCheck();
 
         // regions parallel laden
         this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
-          next: (regs) => (this.regions = regs),
+          next: (regs) => { this.regions = regs; this.cdr.markForCheck(); },
           error: () => { },
         });
       },
       error: (err) => {
         this.isLoading = false;
         this.error = err?.error?.message ?? 'Could not load restaurant.';
+        this.cdr.markForCheck();
       },
     });
   }

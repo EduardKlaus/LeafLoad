@@ -4,13 +4,14 @@ import { FormsModule, NgForm } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
+import { ImageUploadOverlayComponent } from "../../shared/image-upload/image-upload-overlay.component";
 
 type Region = { id: number; name: string };
 
 @Component({
     selector: 'app-signup-restaurant',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink],
+    imports: [CommonModule, FormsModule, RouterLink, ImageUploadOverlayComponent],
     templateUrl: './signup-restaurant.html',
     styleUrls: ['./signup-restaurant.scss'],
 })
@@ -28,6 +29,7 @@ export class SignupRestaurantComponent {
 
     error = '';
     loading = false;
+    showUpload = false;
 
     constructor(private router: Router, private http: HttpClient) {
         // get userId from Route state

@@ -14,6 +14,7 @@ export interface AuthState {
   displayName: string | null;
   userId: number | null;
   restaurantId: number | null;
+  regionId: number | null;
 }
 
 type LoginResponse = {
@@ -21,6 +22,7 @@ type LoginResponse = {
   name: string;
   role: Role;
   restaurantId: number | null;
+  regionId: number | null;
   token: string;
 };
 
@@ -34,6 +36,7 @@ export class AuthService {
     displayName: null,
     userId: null,
     restaurantId: null,
+    regionId: null,
   });
 
   // ReplaySubject: emits cached value; helps components wait until local storage is loaded
@@ -120,6 +123,7 @@ export class AuthService {
             displayName: result.name ?? username,
             userId: result.id,
             restaurantId: result.restaurantId,
+            regionId: result.regionId,
           };
 
           this._state$.next(next);
@@ -141,6 +145,7 @@ export class AuthService {
       displayName: null,
       userId: null,
       restaurantId: null,
+      regionId: null,
     };
 
     this._state$.next(empty);

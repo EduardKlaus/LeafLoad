@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -42,7 +42,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     role: string | null = null;
     currentUserId: number | null = null;
 
-    constructor(private http: HttpClient, private auth: AuthService) { }
+    constructor(private http: HttpClient, private auth: AuthService, private cdr: ChangeDetectorRef) { }
 
     ngOnInit(): void {
         // Updated auth loading logic
@@ -90,10 +90,12 @@ export class OrdersComponent implements OnInit, OnDestroy {
                     this.restaurantName = res.restaurantName;
                     this.orders = res.orders;
                     this.loading = false;
+                    this.cdr.markForCheck();
                 },
                 error: (err) => {
                     this.error = err?.error?.message ?? 'Could not load orders.';
                     this.loading = false;
+                    this.cdr.markForCheck();
                 },
             });
     }
@@ -108,14 +110,14 @@ export class OrdersComponent implements OnInit, OnDestroy {
             .get<{ orders: Order[] }>(`${environment.apiUrl}/account/orders`)
             .subscribe({
                 next: (res) => {
-                    // For customers, the concept of "restaurantName" is per order, not per page. 
-                    // But we can leave restaurantName empty or set it to "My Orders" in the template title.
                     this.orders = res.orders;
                     this.loading = false;
+                    this.cdr.markForCheck();
                 },
                 error: (err) => {
                     this.error = err?.error?.message ?? 'Could not load orders.';
                     this.loading = false;
+                    this.cdr.markForCheck();
                 },
             });
     }
@@ -130,6 +132,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: () => {
                     order.status = status;
+                    this.cdr.markForCheck();
                 },
             });
     }

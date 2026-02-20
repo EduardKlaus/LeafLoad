@@ -152,10 +152,12 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
         this.editPrice = res.price ?? 0;
 
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.error = err?.error?.message ?? 'Could not load item.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -169,9 +171,11 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.categories = res.restaurant?.categories ?? [];
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }

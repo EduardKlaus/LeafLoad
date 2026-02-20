@@ -1,10 +1,16 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrderStatus } from '@prisma/client';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class RestaurantsService {
-  constructor(private prisma: PrismaService) { }
+  private readonly logger = new Logger(RestaurantsService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) { }
 
 
   // returns all restaurants with their computed average rating
@@ -322,13 +328,37 @@ export class RestaurantsService {
       throw new BadRequestException('Order must have at least one item');
     }
 
-    // Get restaurant name
+    // Get restaurant with owner email and region for email notification
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { id: restaurantId },
-      select: { name: true },
+      select: {
+        name: true,
+        regionId: true,
+        owner: {
+          select: { email: true },
+        },
+      },
     });
 
     if (!restaurant) throw new BadRequestException('Restaurant not found');
+
+    // Get customer info for email
+    const customer = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        name: true,
+        address: true,
+        regionId: true,
+        region: { select: { name: true } },
+      },
+    });
+
+    // Estimate delivery time based on region distance
+    let deliveryTimeMin: number | null = null;
+    if (customer?.regionId && restaurant.regionId) {
+      const distance = Math.abs(customer.regionId - restaurant.regionId);
+      deliveryTimeMin = 30 + distance * 10; // base 30 min + 10 min per region step
+    }
 
     // Create order with items
     const order = await this.prisma.order.create({
@@ -336,6 +366,7 @@ export class RestaurantsService {
         userId,
         restaurantId,
         status: OrderStatus.PENDING,
+        deliveryTimeMin,
         items: {
           create: items.map((item) => ({
             menuItemId: item.menuItemId,
@@ -354,15 +385,32 @@ export class RestaurantsService {
       },
     });
 
+    const orderItems = (order as any).items.map((item: any) => ({
+      title: item.menuItem.title,
+      quantity: item.quantity,
+      price: Number(item.menuItem.price),
+    }));
+
+    // Send email notification to restaurant owner (fire-and-forget)
+    this.mailService.sendOrderNotification({
+      ownerEmail: restaurant.owner.email,
+      restaurantName: restaurant.name,
+      customerName: customer?.name ?? 'Unbekannt',
+      customerAddress: customer?.address ?? '',
+      customerRegion: customer?.region?.name ?? '',
+      orderId: order.id,
+      orderDate: order.createdAt,
+      deliveryTimeMin,
+      items: orderItems,
+    }).catch((err) => {
+      this.logger.error('Failed to send order notification email', err);
+    });
+
     return {
       id: order.id,
       restaurantId,
       restaurantName: restaurant.name,
-      items: (order as any).items.map((item: any) => ({
-        title: item.menuItem.title,
-        quantity: item.quantity,
-        price: item.menuItem.price,
-      })),
+      items: orderItems,
     };
   }
 

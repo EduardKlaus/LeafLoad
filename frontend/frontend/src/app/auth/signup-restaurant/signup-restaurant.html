@@ -24,8 +24,16 @@
 
             <div class="row">
                 <label for="imageUrl">Image URL</label>
-                <input id="imageUrl" name="imageUrl" type="text" [(ngModel)]="model.imageUrl" required />
+                <div class="input-with-upload">
+                    <input id="imageUrl" name="imageUrl" type="text" [(ngModel)]="model.imageUrl" required />
+                    <button type="button" class="upload-btn" (click)="showUpload = true" title="Upload Image">📁
+                        Upload</button>
+                </div>
             </div>
+
+            <app-image-upload-overlay *ngIf="showUpload" (closed)="showUpload = false"
+                (uploaded)="model.imageUrl = $event; showUpload = false">
+            </app-image-upload-overlay>
 
             <p *ngIf="error" class="error">{{ error }}</p>
 

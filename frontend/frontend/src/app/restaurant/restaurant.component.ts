@@ -17,6 +17,7 @@ export class RestaurantComponent implements OnInit {
   rating: number | null = null;
   categories: any[] = [];
   otherItems: any[] = [];
+  deliveryTimeMin: number | null = null;
 
   isOwner = false;
   isLoggedIn = false;
@@ -51,13 +52,21 @@ export class RestaurantComponent implements OnInit {
 
   private loadRestaurant(id: number) {
     this.restaurant = null; // Reset while loading
-    this.http.get<any>(`${environment.apiUrl}/restaurants/${id}/details`).subscribe((res) => {
+
+    // Build URL with optional userRegionId for delivery time calculation
+    const state = this.auth.currentState();
+    let url = `${environment.apiUrl}/restaurants/${id}/details`;
+    if (state.isLoggedIn && state.regionId) {
+      url += `?userRegionId=${state.regionId}`;
+    }
+
+    this.http.get<any>(url).subscribe((res) => {
       this.restaurant = res.restaurant;
       this.rating = res.rating;
       this.categories = res.restaurant.categories;
       this.otherItems = res.otherItems;
+      this.deliveryTimeMin = res.deliveryTimeMin ?? null;
 
-      const state = this.auth.currentState();
       this.isLoggedIn = state.isLoggedIn;
       this.isOwner =
         state.role === 'RESTAURANT_OWNER' &&

@@ -8,6 +8,7 @@ import { AccountModule } from './account/account.module';
 import { RegionsModule } from './regions/regions.module';
 
 import { UploadModule } from './upload/upload.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { UploadModule } from './upload/upload.module';
     AuthModule,
     AccountModule,
     RegionsModule,
-    UploadModule
+    UploadModule,
+    MailModule,
   ],
 })
 export class AppModule { }
