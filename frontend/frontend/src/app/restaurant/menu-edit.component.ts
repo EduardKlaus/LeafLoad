@@ -60,6 +60,7 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
           this.item = { ...this.item, ...updated };
           this.editImageUrl = path;
           this.saving = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.saving = false;

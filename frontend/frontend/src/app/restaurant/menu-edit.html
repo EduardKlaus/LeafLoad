@@ -132,13 +132,16 @@
           </div>
 
           <div class="row__edit" *ngIf="editField === 'imageUrl'">
-            <input type="text" [(ngModel)]="editImageUrl" placeholder="https://..." />
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <input type="text" [(ngModel)]="editImageUrl" placeholder="https://..." style="flex:1;" />
+              <button class="btn__ghost" (click)="openImageOverlay()" type="button">Upload</button>
+            </div>
             <p class="muted small">Can be empty.</p>
           </div>
 
           <div class="row__actions">
             <button class="btn__ghost" *ngIf="editField !== 'imageUrl'" (click)="startEdit('imageUrl')">Edit</button>
-            <button class="btn__ghost" (click)="openImageOverlay()">Upload</button>
+            <button class="btn__ghost" *ngIf="editField !== 'imageUrl'" (click)="openImageOverlay()">Upload</button>
 
             <ng-container *ngIf="editField === 'imageUrl'">
               <button (click)="save()" [disabled]="saving">Save</button>
