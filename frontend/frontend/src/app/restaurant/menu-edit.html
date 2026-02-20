@@ -14,14 +14,14 @@
         <div class="row">
           <div class="row__label">Dish Name *</div>
           <div class="row__edit">
-            <input type="text" [(ngModel)]="editTitle" placeholder="e.g. Wiener Schnitzel" />
+            <input type="text" [(ngModel)]="editTitle" />
           </div>
         </div>
 
         <div class="row">
           <div class="row__label">Description</div>
           <div class="row__edit">
-            <textarea [(ngModel)]="editDescription" rows="3" placeholder="Optional description..."></textarea>
+            <textarea [(ngModel)]="editDescription" rows="3"></textarea>
           </div>
         </div>
 
@@ -35,7 +35,7 @@
         <div class="row">
           <div class="row__label">Image URL</div>
           <div class="row__edit" style="display:flex; gap:0.5rem; align-items:center;">
-            <input type="text" [(ngModel)]="editImageUrl" placeholder="https://..." style="flex:1;" />
+            <input type="text" [(ngModel)]="editImageUrl" style="flex:1;" />
             <button class="btn__ghost" (click)="openImageOverlay()" type="button">Upload</button>
           </div>
         </div>

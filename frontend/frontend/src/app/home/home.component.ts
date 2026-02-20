@@ -62,15 +62,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Initialize filter from auth state if logged in
-    this.auth.state$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe((s: any) => {
-      if (s?.isLoggedIn && s.regionId) {
-        this.regionId = s.regionId;
-        this.applyFilter();
-      }
-    });
   }
 
   ngOnDestroy(): void {

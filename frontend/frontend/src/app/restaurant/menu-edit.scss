@@ -59,10 +59,10 @@ main {
   grid-template-columns: 180px 1fr auto;
   gap: 12px;
   align-items: center;
-  padding: 12px;
-  border: 1px solid rgba(0, 0, 0, .10);
+  padding: 18px 20px;
+  border: 1px solid rgba(0, 0, 0, .06);
   border-radius: 8px;
-  background: rgba(0, 0, 0, .02);
+  background: rgba(0, 0, 0, .015);
 }
 
 .row__label {
@@ -89,6 +89,10 @@ main {
   display: inline-flex;
   gap: 10px;
   justify-content: flex-end;
+}
+
+.actions {
+  margin-top: 24px;
 }
 
 button {
