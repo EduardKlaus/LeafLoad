@@ -101,8 +101,9 @@ model Order {
   id           Int          @id @default(autoincrement())
   userId       Int
   restaurantId Int
-  status       OrderStatus?
-  createdAt    DateTime     @default(now())
+  status          OrderStatus?
+  deliveryTimeMin Int?
+  createdAt       DateTime     @default(now())
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   restaurant   Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)

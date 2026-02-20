@@ -1,9 +1,12 @@
-:host { display: block; }
+:host {
+  display: block;
+}
 
 main {
   padding: 24px 28px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .card {
@@ -12,19 +15,45 @@ main {
   background: white;
   border-radius: 10px;
   border: 1px solid var(--dark-sage);
-  box-shadow: 0 18px 30px rgba(0,0,0,.25);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, .25);
   padding: 22px;
 }
 
-.card__header h1 { margin: 0 0 6px 0; }
+.card__footer {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
 
-.muted { opacity: .75; margin: 0; }
-.small { font-size: .9rem; }
+.card__header h1 {
+  margin: 0 0 6px 0;
+}
 
-.error { margin: 12px 0 0 0; color: #b00020; }
-.loading { margin-top: 12px; opacity: .8; }
+.muted {
+  opacity: .75;
+  margin: 0;
+}
 
-.list { margin-top: 18px; display: grid; gap: 12px; }
+.small {
+  font-size: .9rem;
+}
+
+.error {
+  margin: 12px 0 0 0;
+  color: #b00020;
+}
+
+.loading {
+  margin-top: 12px;
+  opacity: .8;
+}
+
+.list {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+}
 
 .row {
   display: grid;
@@ -32,19 +61,35 @@ main {
   gap: 12px;
   align-items: center;
   padding: 12px;
-  border: 1px solid rgba(0,0,0,.10);
+  border: 1px solid rgba(0, 0, 0, .10);
   border-radius: 8px;
-  background: rgba(0,0,0,.02);
+  background: rgba(0, 0, 0, .02);
 }
 
-.row__label { font-weight: 600; color: rgba(0,0,0,.75); }
-.row__value { overflow-wrap: anywhere; }
+.category-row {
+  grid-template-columns: 1fr auto;
+  margin-bottom: 12px;
+}
+
+.category-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.row__label {
+  font-weight: 600;
+  color: rgba(0, 0, 0, .75);
+}
+
+.row__value {
+  overflow-wrap: anywhere;
+}
 
 .row__edit input,
 .row__edit textarea,
 .row__edit select {
   width: 100%;
-  border: 1px solid rgba(0,0,0,.25);
+  border: 1px solid rgba(0, 0, 0, .25);
   border-radius: 8px;
   padding: 10px 12px;
   outline: none;
@@ -66,23 +111,26 @@ button {
   cursor: pointer;
 }
 
-button:disabled { opacity: .6; cursor: not-allowed; }
+button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
 
 .btn__ghost {
   background: transparent;
   color: var(--dark-sage);
-  border: 1px solid rgba(0,0,0,.20);
+  border: 1px solid var(--dark-sage);
 }
 
 .btn__danger {
   background: transparent;
   color: #b00020;
-  border: 1px solid rgba(176,0,32,.35);
+  border: 1px solid rgba(176, 0, 32, .35);
 }
 
 .divider {
   height: 1px;
-  background: rgba(0,0,0,.18);
+  background: rgba(0, 0, 0, .18);
   width: 100%;
   margin: 8px 0;
 }
@@ -107,19 +155,28 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 }
 
 .addCategory input {
-  border: 1px solid rgba(0,0,0,.25);
+  border: 1px solid rgba(0, 0, 0, .25);
   border-radius: 8px;
   padding: 10px 12px;
   outline: none;
 }
 
 @media (max-width: 900px) {
-  .page { padding: 18px 16px; }
-  .card { padding: 16px; }
+  .page {
+    padding: 18px 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
 
   .row {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .category-row {
+    grid-template-columns: 1fr;
   }
 
   .row__actions {

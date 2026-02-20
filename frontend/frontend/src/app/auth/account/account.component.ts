@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth.service';
-import { Subscription, filter, take, switchMap } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 
 //console.log('Account ngOnInit', Date.now());
 
@@ -60,19 +60,26 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        private authService: AuthService
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
-        // Wait for auth to be ready (localStorage loaded), then check if logged in
+        this.isLoading = true;
+
+        // Wait for auth to be ready, then load profile immediately.
+        // Using authReady$ + take(1) ensures we wait for localStorage to be loaded,
+        // then we check the current state synchronously.
         this.authSub = this.authService.authReady$.pipe(
             take(1),
-            switchMap(() => this.authService.state$.pipe(
-                filter(state => state.isLoggedIn && state.userId != null),
-                take(1)
-            ))
         ).subscribe(() => {
-            this.loadProfile();
+            const state = this.authService.currentState();
+            if (state.isLoggedIn && state.userId != null) {
+                this.loadProfile();
+            } else {
+                this.isLoading = false;
+                this.error = 'Not logged in.';
+            }
         });
 
         this.loadRegions();
@@ -93,10 +100,12 @@ export class AccountComponent implements OnInit, OnDestroy {
                 this.profile = p;
                 this.resetEditBuffers();
                 this.isLoading = false;
+                this.cdr.markForCheck();
             },
             error: (err) => {
                 this.isLoading = false;
                 this.error = err?.error?.message ?? 'Could not load Profile.';
+                this.cdr.markForCheck();
             },
         });
     }

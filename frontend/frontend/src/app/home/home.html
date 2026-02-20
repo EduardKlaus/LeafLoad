@@ -11,7 +11,7 @@
 
             <div class="filter-wrapper">
                 <select id="region-filter" [(ngModel)]="regionId" (change)="onRegionChange()">
-                    <option [ngValue]="null">Alle Regionen</option>
+                    <option [ngValue]="null">All Regions</option>
                     <option *ngFor="let r of regions$ | async" [ngValue]="r.id">{{ r.name }}</option>
                 </select>
             </div>

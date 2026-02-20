@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Subject, takeUntil } from 'rxjs';
-
+import { Subject, takeUntil, combineLatest, map, filter, distinctUntilChanged, finalize } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 type Region = { id: number; name: string };
 type Category = { id: number; name: string };
 
@@ -53,7 +53,7 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
 
   showImageOverlay = false;
 
-  private restaurantId!: number;
+  restaurantId!: number;
   private destroy$ = new Subject<void>();
 
   openImageOverlay() {
@@ -66,14 +66,47 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
     this.patchRestaurant({ imageUrl: path });
   }
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) { }
+  constructor(
+    private route: ActivatedRoute,
+    private http: HttpClient,
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(
+    this.isLoading = true; // Start loading immediately
+
+    combineLatest([
+      this.route.paramMap,
+      this.auth.authReady$,
+      this.auth.state$
+    ]).pipe(
+      filter(([_, ready]) => ready),
+      map(([params, , state]) => ({ params, state })),
+      filter(({ state }) => state.isLoggedIn && state.role === 'RESTAURANT_OWNER' && !!state.restaurantId),
+      distinctUntilChanged((a, b) =>
+        a.params.get('id') === b.params.get('id') &&
+        a.state.userId === b.state.userId &&
+        a.state.restaurantId === b.state.restaurantId
+      ),
       takeUntil(this.destroy$)
-    ).subscribe(params => {
-      this.restaurantId = Number(params.get('id'));
-      this.load();
+    ).subscribe(({ params, state }) => {
+      const routeId = Number(params.get('id')); // 0 or NaN if missing
+      const userRestaurantId = state.restaurantId!;
+
+      // Optional: Check if route ID matches user's restaurant ID
+      // If the user can ONLY edit their own restaurant, we should probably enforce this or redirect
+      // For now, we load what's in the route, assuming backend checks permission too.
+      this.restaurantId = routeId || userRestaurantId;
+
+      // Update to ensure we are editing the correct restaurant
+      if (this.restaurantId) {
+        this.load();
+      } else {
+        this.error = 'No restaurant to edit.';
+        this.isLoading = false;
+      }
     });
   }
 
@@ -95,16 +128,18 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
         this.editImageUrl = r.imageUrl ?? '';
         this.editRegionId = r.regionId ?? null;
         this.isLoading = false;
+        this.cdr.markForCheck();
 
         // regions parallel laden
         this.http.get<Region[]>(`${environment.apiUrl}/regions`).subscribe({
-          next: (regs) => (this.regions = regs),
+          next: (regs) => { this.regions = regs; this.cdr.markForCheck(); },
           error: () => { },
         });
       },
       error: (err) => {
         this.isLoading = false;
         this.error = err?.error?.message ?? 'Could not load restaurant.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -147,22 +182,24 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
     this.savingField = this.editField ?? 'restaurant';
     this.error = '';
 
-    this.http.patch(`${environment.apiUrl}/restaurants/${this.restaurantId}`, payload).subscribe({
-      next: (updated: any) => {
-        // lokal updaten
-        this.restaurant = {
-          ...this.restaurant!,
-          ...updated,
-        };
-
+    this.http.patch(`${environment.apiUrl}/restaurants/${this.restaurantId}`, payload)
+      .pipe(finalize(() => {
         this.savingField = null;
-        this.editField = null;
-      },
-      error: (err) => {
-        this.savingField = null;
-        this.error = err?.error?.message ?? 'Could not save changes.';
-      },
-    });
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (updated: any) => {
+          // lokal updaten
+          this.restaurant = {
+            ...this.restaurant!,
+            ...updated,
+          };
+          this.editField = null;
+        },
+        error: (err) => {
+          this.error = err?.error?.message ?? 'Could not save changes.';
+        },
+      });
   }
 
   // --- Categories ---
@@ -179,10 +216,12 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
         this.restaurant!.categories = [...this.restaurant!.categories, cat];
         this.newCategoryName = '';
         this.savingField = null;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.savingField = null;
         this.error = err?.error?.message ?? 'Could not add category.';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -191,11 +230,13 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
     this.error = '';
     this.editingCategoryId = cat.id;
     this.editCategoryName = cat.name;
+    this.cdr.detectChanges();
   }
 
   cancelEditCategory() {
     this.editingCategoryId = null;
     this.editCategoryName = '';
+    this.cdr.detectChanges();
   }
 
   saveCategory(catId: number) {
@@ -213,10 +254,12 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
         );
         this.savingCategoryId = null;
         this.editingCategoryId = null;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.savingCategoryId = null;
         this.error = err?.error?.message ?? 'Could not update category.';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -232,10 +275,12 @@ export class RestaurantEditComponent implements OnInit, OnDestroy {
       next: () => {
         this.restaurant!.categories = this.restaurant!.categories.filter((c) => c.id !== cat.id);
         this.savingCategoryId = null;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.savingCategoryId = null;
         this.error = err?.error?.message ?? 'Could not delete category.';
+        this.cdr.detectChanges();
       },
     });
   }

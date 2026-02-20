@@ -1,14 +1,19 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { JwtPayload } from './jwt.strategy';
 
 type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) { }
 
-  // validates user credentials (username and password)
+  // validates user credentials and returns a signed JWT + user data
   async validateUser(username: string, password: string) {
     const user = await this.prisma.user.findUnique({
       where: { username },
@@ -26,7 +31,22 @@ export class AuthService {
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
-    return user; // später hier JWT erzeugen
+    const restaurantId = user.restaurants?.[0]?.id ?? null;
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      role: user.role,
+      restaurantId,
+    };
+
+    return {
+      id: user.id,
+      name: user.name,
+      role: user.role,
+      restaurantId,
+      regionId: user.regionId ?? null,
+      token: this.jwtService.sign(payload),
+    };
   }
 
   // user signup
@@ -61,7 +81,18 @@ export class AuthService {
       select: { id: true, role: true },
     });
 
-    return { userId: user.id, role: user.role };
+    // Generate token so user is immediately logged in after signup
+    const payload: JwtPayload = {
+      sub: user.id,
+      role: user.role,
+      restaurantId: null,
+    };
+
+    return {
+      userId: user.id,
+      role: user.role,
+      token: this.jwtService.sign(payload),
+    };
   }
 
   // restaurant signup

@@ -4,13 +4,14 @@ import { FormsModule, NgForm } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
+import { ImageUploadOverlayComponent } from "../../shared/image-upload/image-upload-overlay.component";
 
 type Region = { id: number; name: string };
 
 @Component({
     selector: 'app-signup-restaurant',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink],
+    imports: [CommonModule, FormsModule, RouterLink, ImageUploadOverlayComponent],
     templateUrl: './signup-restaurant.html',
     styleUrls: ['./signup-restaurant.scss'],
 })
@@ -28,6 +29,7 @@ export class SignupRestaurantComponent {
 
     error = '';
     loading = false;
+    showUpload = false;
 
     constructor(private router: Router, private http: HttpClient) {
         // get userId from Route state
@@ -46,7 +48,7 @@ export class SignupRestaurantComponent {
     }
 
     // form submission: restaurant data to backend
-    async onSubmit(form: NgForm) {
+    onSubmit(form: NgForm) {
         this.error = '';
         if (form.invalid) return;
 
@@ -57,30 +59,23 @@ export class SignupRestaurantComponent {
 
         this.loading = true;
 
-        try {
-            const result = await fetch(
-                'http://localhost:3000/auth/signup/restaurant', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ownerId: this.userId,
-                    name: this.model.name,
-                    address: this.model.address,
-                    imageUrl: this.model.imageUrl,
-                    regionId: this.model.regionId,
-                }),
-            });
+        const payload = {
+            ownerId: this.userId,
+            name: this.model.name,
+            address: this.model.address,
+            imageUrl: this.model.imageUrl,
+            regionId: this.model.regionId,
+        };
 
-            if (!result.ok) {
-                const msg = await result.text();
-                throw new Error(msg || 'Creating restaurant failed.');
+        this.http.post(`${environment.apiUrl}/auth/signup/restaurant`, payload).subscribe({
+            next: () => {
+                this.loading = false;
+                this.router.navigateByUrl('/auth/login');
+            },
+            error: (err) => {
+                this.loading = false;
+                this.error = err?.error?.message ?? 'Creating restaurant failed.';
             }
-
-            this.router.navigateByUrl('/auth/login');
-        } catch (e: any) {
-            this.error = e?.messaage ?? 'Creating restaurant failed.';
-        } finally {
-            this.loading = false;
-        }
+        });
     }
 }

@@ -50,24 +50,33 @@
       <button class="drawer__close" type="button" aria-label="Close Menu" (click)="closeMenu()">X</button>
 
       <div class="drawer__content">
-
-
         <ng-container *ngIf="state$ | async as s">
-          <a *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" class="drawer__link" routerLink="/orders"
-            (click)="closeMenu()">See Orders</a>
+          <!-- Not Logged In -->
+          <ng-container *ngIf="!s.isLoggedIn">
+            <a class="drawer__link" routerLink="/auth/login" (click)="closeMenu()">Login</a>
+            <a class="drawer__link" routerLink="/cart" (click)="closeMenu()">Cart</a>
+          </ng-container>
 
-          <a *ngIf="s.isLoggedIn && s.role === 'RESTAURANT_OWNER'" class="drawer__link"
-            [routerLink]="['/restaurants', s.restaurantId]" (click)="closeMenu()">Restaurant Dashboard</a>
+          <!-- Logged In -->
+          <ng-container *ngIf="s.isLoggedIn">
+            <!-- 1. Account -->
+            <a class="drawer__link" routerLink="/account" (click)="closeMenu()">Account</a>
 
-          <a *ngIf="!s.isLoggedIn" class="drawer__link" routerLink="/auth/login" (click)="closeMenu()">Login</a>
+            <!-- 2. Restaurant Dashboard (Owners only) -->
+            <a *ngIf="s.role === 'RESTAURANT_OWNER'" class="drawer__link"
+              [routerLink]="['/restaurants', s.restaurantId]" (click)="closeMenu()">Restaurant Dashboard</a>
 
-          <a *ngIf="s.isLoggedIn" class="drawer__link" routerLink="/account" (click)="closeMenu()">{{ s.username }}</a>
+            <!-- 3. See Orders -->
+            <a class="drawer__link" routerLink="/orders" (click)="closeMenu()">See Orders</a>
 
-          <button *ngIf="s.isLoggedIn" class="drawer__link drawer__logout" type="button"
-            (click)="logout(); closeMenu()">Logout</button>
+            <!-- 4. Cart -->
+            <a class="drawer__link" routerLink="/cart" (click)="closeMenu()">Cart</a>
+
+            <!-- 5. Logout -->
+            <button class="drawer__link drawer__logout" type="button"
+              (click)="logout(); closeMenu()">Logout</button>
+          </ng-container>
         </ng-container>
-
-        <a class="drawer__link" routerLink="/cart" (click)="closeMenu()">Cart</a>
       </div>
     </aside>
   </section>

@@ -1,4 +1,4 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID, NgZone } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable, ReplaySubject, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 
 export type Role = 'CUSTOMER' | 'RESTAURANT_OWNER';
 
-// central authentication state sored in memory and local storage
+// central authentication state stored in memory and local storage
 export interface AuthState {
   isLoggedIn: boolean;
   role: Role | null;
@@ -14,6 +14,7 @@ export interface AuthState {
   displayName: string | null;
   userId: number | null;
   restaurantId: number | null;
+  regionId: number | null;
 }
 
 type LoginResponse = {
@@ -21,6 +22,8 @@ type LoginResponse = {
   name: string;
   role: Role;
   restaurantId: number | null;
+  regionId: number | null;
+  token: string;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -33,6 +36,7 @@ export class AuthService {
     displayName: null,
     userId: null,
     restaurantId: null,
+    regionId: null,
   });
 
   // ReplaySubject: emits cached value; helps components wait until local storage is loaded
@@ -45,26 +49,29 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: object
+    @Inject(PLATFORM_ID) private platformId: object,
+    private ngZone: NgZone
   ) {
     if (isPlatformBrowser(this.platformId)) {
       // Use setTimeout to ensure this runs after Angular hydration
       setTimeout(() => {
-        const raw = localStorage.getItem('auth_state');
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw) as AuthState;
-            this._state$.next(parsed);
+        this.ngZone.run(() => {
+          const raw = localStorage.getItem('auth_state');
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw) as AuthState;
+              this._state$.next(parsed);
 
-            // If user is logged in but restaurantId is missing, fetch it from server
-            if (parsed.isLoggedIn && parsed.role === 'RESTAURANT_OWNER' && parsed.restaurantId == null) {
-              this.refreshRestaurantId(parsed);
+              // If user is logged in but restaurantId is missing, fetch it from server
+              if (parsed.isLoggedIn && parsed.role === 'RESTAURANT_OWNER' && parsed.restaurantId == null) {
+                this.refreshRestaurantId(parsed);
+              }
+            } catch {
+              /* ignore invalid storage */
             }
-          } catch {
-            /* ignore invalid storage */
           }
-        }
-        this._authReady$.next(true);
+          this._authReady$.next(true);
+        });
       }, 0);
     } else {
       // On server, mark as ready immediately (no localStorage available)
@@ -72,11 +79,19 @@ export class AuthService {
     }
   }
 
+  // returns the stored JWT token (null if not logged in)
+  get token(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('auth_token');
+    }
+    return null;
+  }
+
   private refreshRestaurantId(currentState: AuthState) {
     if (!currentState.userId) return;
 
-    const headers = { 'x-user-id': String(currentState.userId) };
-    this.http.get<{ restaurantId: number | null }>(`${environment.apiUrl}/account/me`, { headers }).subscribe({
+    // No need to set x-user-id – the interceptor adds the Bearer token automatically
+    this.http.get<{ restaurantId: number | null }>(`${environment.apiUrl}/account/me`).subscribe({
       next: (res) => {
         if (res.restaurantId != null) {
           const updated: AuthState = { ...currentState, restaurantId: res.restaurantId };
@@ -90,7 +105,7 @@ export class AuthService {
     });
   }
 
-  // synchornous snapshot of current auth state; useful for guards, role checks, quick reads
+  // synchronous snapshot of current auth state; useful for guards, role checks, quick reads
   currentState(): AuthState {
     return this._state$.value;
   }
@@ -108,12 +123,14 @@ export class AuthService {
             displayName: result.name ?? username,
             userId: result.id,
             restaurantId: result.restaurantId,
+            regionId: result.regionId,
           };
 
           this._state$.next(next);
 
           if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem('auth_state', JSON.stringify(next));
+            localStorage.setItem('auth_token', result.token);
           }
         })
       );
@@ -128,12 +145,14 @@ export class AuthService {
       displayName: null,
       userId: null,
       restaurantId: null,
+      regionId: null,
     };
 
     this._state$.next(empty);
 
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('auth_state');
+      localStorage.removeItem('auth_token');
     }
   }
 }

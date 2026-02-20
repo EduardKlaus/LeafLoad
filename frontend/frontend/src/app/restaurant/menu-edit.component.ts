@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { combineLatest, Subject, takeUntil } from 'rxjs';
+import { combineLatest, Subject, takeUntil, filter, map, distinctUntilChanged, finalize } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
+
 
 type Category = { id: number; name: string };
 
@@ -37,7 +39,7 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
   showImageOverlay = false;
 
   private itemId: number | null = null;
-  private restaurantId: number | null = null;
+  restaurantId: number | null = null;
   private destroy$ = new Subject<void>();
 
   // opens the image upload overlay
@@ -58,6 +60,7 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
           this.item = { ...this.item, ...updated };
           this.editImageUrl = path;
           this.saving = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.saving = false;
@@ -70,26 +73,58 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    combineLatest([this.route.paramMap, this.route.queryParamMap]).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(([params, queryParams]) => {
-      const idParam = params.get('id');
+    this.isLoading = true;
 
-      if (idParam) {
+    combineLatest([
+      this.route.paramMap,
+      this.route.queryParamMap,
+      this.auth.authReady$,
+      this.auth.state$
+    ]).pipe(
+      filter(([, , ready]) => ready),
+      map(([params, queryParams, , state]) => ({ params, queryParams, state })),
+      // Filter for logged in owner (menu editing is only for owners)
+      filter(({ state }) => state.isLoggedIn && state.role === 'RESTAURANT_OWNER'),
+      distinctUntilChanged((a, b) =>
+        a.params.get('id') === b.params.get('id') &&
+        a.queryParams.get('restaurantId') === b.queryParams.get('restaurantId') &&
+        a.state.userId === b.state.userId
+      ),
+      takeUntil(this.destroy$)
+    ).subscribe(({ params, queryParams, state }) => {
+      // Check for item ID (edit mode)
+      const idParam = params.get('id');
+      const itemId = idParam ? Number(idParam) : null;
+
+      // Check for restaurant ID (create mode)
+      const queryRestId = Number(queryParams.get('restaurantId'));
+      // If we are editing, we don't necessarily need restaurantId from query, but good to have.
+      // If creating, we MUST have a restaurantId, either from query or auth state if it matches.
+
+      this.restaurantId = queryRestId || state.restaurantId || null;
+
+      if (itemId) {
         // Edit mode
-        this.itemId = Number(idParam);
+        this.itemId = itemId;
         this.isCreateMode = false;
         this.load();
       } else {
         // Create mode
         this.isCreateMode = true;
-        this.restaurantId = Number(queryParams.get('restaurantId'));
         this.editCategoryId = Number(queryParams.get('categoryId')) || null;
-        this.loadCategoriesForCreate();
+
+        if (this.restaurantId) {
+          this.loadCategoriesForCreate();
+        } else {
+          this.error = 'No restaurant identified.';
+          this.isLoading = false;
+        }
       }
     });
   }
@@ -118,10 +153,12 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
         this.editPrice = res.price ?? 0;
 
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.error = err?.error?.message ?? 'Could not load item.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -135,9 +172,11 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.categories = res.restaurant?.categories ?? [];
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -178,17 +217,20 @@ export class MenuItemEditComponent implements OnInit, OnDestroy {
     if (this.editField === 'price') payload.price = this.editPrice;
 
     this.saving = true;
-    this.http.patch<any>(`${environment.apiUrl}/restaurants/menu-items/${this.itemId}`, payload).subscribe({
-      next: (updated) => {
-        this.item = { ...this.item, ...updated };
+    this.http.patch<any>(`${environment.apiUrl}/restaurants/menu-items/${this.itemId}`, payload)
+      .pipe(finalize(() => {
         this.saving = false;
-        this.editField = null;
-      },
-      error: (err) => {
-        this.saving = false;
-        this.error = err?.error?.message ?? 'Could not save changes.';
-      },
-    });
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (updated) => {
+          this.item = { ...this.item, ...updated };
+          this.editField = null;
+        },
+        error: (err) => {
+          this.error = err?.error?.message ?? 'Could not save changes.';
+        },
+      });
   }
 
   // creates a new menu item
